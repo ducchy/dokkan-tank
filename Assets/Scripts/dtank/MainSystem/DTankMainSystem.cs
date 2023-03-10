@@ -10,7 +10,7 @@ namespace dtank
 	/// </summary>
 	public class DTankMainSystem : MainSystem
 	{
-		private SceneSituationContainer _sceneSituationContainer = new SceneSituationContainer();
+		private SceneSituationContainer _sceneSituationContainer;
 
 
 		protected override IEnumerator RebootRoutineInternal(object[] args)
@@ -26,14 +26,18 @@ namespace dtank
 		{
 			Debug.Log("Begin StartRoutineInternal()");
 
+			if (_sceneSituationContainer == null)
+			{
+				_sceneSituationContainer = new SceneSituationContainer();
+				Services.Instance.Set(_sceneSituationContainer);
+			}
+
 			var t = _sceneSituationContainer.Transition(new TitleSceneSituation());
 			if (t.Exception != null)
 			{
 				Debug.LogError(t.Exception.ToString());
 				yield break;
 			}
-
-			Debug.Log(t.ToString());
 
 			Debug.Log("End StartRoutineInternal()");
 

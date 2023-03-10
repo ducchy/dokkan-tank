@@ -11,11 +11,20 @@ namespace dtank
 	{
 		protected override string SceneAssetPath => "Title";
 
-		private StateContainer<TitleStateBase, TitleState> _stateContainer = new StateContainer<TitleStateBase, TitleState>();
+		private readonly StateContainer<TitleStateBase, TitleState> _stateContainer = new StateContainer<TitleStateBase, TitleState>();
+		private TitlePresenter _presenter;
 
 		public TitleSceneSituation()
 		{
 			SetupStateContainer();
+		}
+
+		protected override void ReleaseInternal(SituationContainer parent)
+		{
+			base.ReleaseInternal(parent);
+
+			_stateContainer.Dispose();
+			_presenter?.Dispose();
 		}
 
 		private void SetupStateContainer()
@@ -33,6 +42,8 @@ namespace dtank
 			Debug.Log("TitleSceneSituation.StandbyInternal()");
 
 			base.StandbyInternal(parent);
+			
+			ServiceContainer.Set(_stateContainer);
 		}
 
 		protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope)
@@ -42,6 +53,11 @@ namespace dtank
 			yield return base.LoadRoutineInternal(handle, scope);
 
 			Debug.Log("End TitleSceneSituation.LoadRoutineInternal()");
+
+			var uiView = Services.Get<TitleUiView>();
+			uiView.Initialize();
+
+			_presenter = new TitlePresenter(uiView);
 		}
 
 		protected override void ActivateInternal(TransitionHandle handle, IScope scope)
