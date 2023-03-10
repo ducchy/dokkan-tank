@@ -4,6 +4,7 @@ using GameFramework.Core;
 using GameFramework.SituationSystems;
 using GameFramework.StateSystems;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace dtank
 {	
@@ -55,10 +56,19 @@ namespace dtank
 
             Debug.Log("End TitleSceneSituation.LoadRoutineInternal()");
 
+            yield return SceneManager.LoadSceneAsync("field001", LoadSceneMode.Additive);
+            
             var uiView = Services.Get<BattleUiView>();
             uiView.Initialize();
 
             _presenter = new BattlePresenter(uiView);
+        }
+
+        protected override void UnloadInternal(TransitionHandle handle)
+        {
+            base.UnloadInternal(handle);
+            
+            SceneManager.UnloadSceneAsync("field001");
         }
 
         protected override void ActivateInternal(TransitionHandle handle, IScope scope)
@@ -67,7 +77,7 @@ namespace dtank
 
             base.ActivateInternal(handle, scope);
 
-            _stateContainer.Change(TitleState.Idle);
+            _stateContainer.Change(BattleState.Ready);
         }
 
         protected override void UpdateInternal()
