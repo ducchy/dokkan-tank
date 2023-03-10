@@ -9,7 +9,7 @@ namespace dtank
 {
 	public class TitlePresenter : IDisposable
 	{
-		private TitleUiView _uiView;
+		private readonly TitleUiView _uiView;
 		
 		private readonly StateContainer<TitleStateBase, TitleState> _stateContainer;
 		private readonly CompositeDisposable _disposable = new CompositeDisposable();

@@ -11,7 +11,7 @@ namespace dtank
     {
         protected override string SceneAssetPath => "Battle";
 
-        private readonly StateContainer<TitleStateBase, TitleState> _stateContainer = new StateContainer<TitleStateBase, TitleState>();
+        private readonly StateContainer<BattleStateBase, BattleState> _stateContainer = new StateContainer<BattleStateBase, BattleState>();
         private BattlePresenter _presenter;
 
         public BattleSceneSituation()
@@ -29,12 +29,13 @@ namespace dtank
 
         private void SetupStateContainer()
         {
-            var states = new List<TitleStateBase>()
+            var states = new List<BattleStateBase>()
             {
-                new TitleStateIdle(),
-                new TitleStateStart()
+                new BattleStateReady(),
+                new BattleStatePlaying(),
+                new BattleStateResult()
             };
-            _stateContainer.Setup(TitleState.Invalid, states.ToArray());
+            _stateContainer.Setup(BattleState.Invalid, states.ToArray());
         }
 
         protected override void StandbyInternal(Situation parent)
@@ -54,10 +55,10 @@ namespace dtank
 
             Debug.Log("End TitleSceneSituation.LoadRoutineInternal()");
 
-            var titleUiView = Services.Get<TitleUiView>();
-            titleUiView.Initialize();
+            var uiView = Services.Get<BattleUiView>();
+            uiView.Initialize();
 
-            _presenter = new BattlePresenter();
+            _presenter = new BattlePresenter(uiView);
         }
 
         protected override void ActivateInternal(TransitionHandle handle, IScope scope)
