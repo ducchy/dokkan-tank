@@ -10708,7 +10708,7 @@ GameObject:
   - component: {fileID: 1279163232}
   - component: {fileID: 1279163230}
   m_Layer: 0
-  m_Name: FieldView
+  m_Name: FieldViewData
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

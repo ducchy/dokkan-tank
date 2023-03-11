@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace dtank
 {
-    public class FieldView : MonoBehaviour
+    public class FieldViewData : MonoBehaviour
     {
         [SerializeField] private Transform[] _startPointArray;
         [SerializeField] private Transform[] _gimmickPointArray;
