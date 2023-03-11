@@ -11,10 +11,15 @@ namespace dtank
 
         public BattleStateResult()
         {
+            var camera = Services.Get<BattleCamera>();
+            camera.Construct();
+            
             var uiView = Services.Get<BattleResultUiView>();
             uiView.Construct();
+
+            var controller = new BattleResultController(camera);
             
-            _presenter = new BattleResultPresenter(uiView);
+            _presenter = new BattleResultPresenter(controller, uiView);
             _presenter.OnQuit = () => SceneSituationContainer?.Transition(new TitleSceneSituation());
             _presenter.OnRetry = () => StateContainer.Change(BattleState.Ready);
         }

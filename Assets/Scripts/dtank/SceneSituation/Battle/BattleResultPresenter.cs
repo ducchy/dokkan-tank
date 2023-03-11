@@ -5,14 +5,18 @@ namespace dtank
 {
     public class BattleResultPresenter : IDisposable
     {
+        private readonly BattleResultController _controller;
         private readonly BattleResultUiView _uiView;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
         public Action OnRetry = null;
         public Action OnQuit = null;
         
-        public BattleResultPresenter(BattleResultUiView uiView)
+        public BattleResultPresenter(
+            BattleResultController controller,
+            BattleResultUiView uiView)
         {
+            _controller = controller;
             _uiView = uiView;
 
             _uiView.OnQuitObservable

@@ -5,13 +5,17 @@ namespace dtank
 {
     public class BattlePlayingPresenter : IDisposable
     {
+        private readonly BattlePlayingController _controller;
         private readonly BattlePlayingUiView _uiView;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
         public Action OnEnd = null;
         
-        public BattlePlayingPresenter(BattlePlayingUiView uiView)
+        public BattlePlayingPresenter(
+            BattlePlayingController controller,
+            BattlePlayingUiView uiView)
         {
+            _controller = controller;
             _uiView = uiView;
 
             _uiView.OnEndObservable
@@ -28,11 +32,15 @@ namespace dtank
 
         public void Activate()
         {
+            _controller.Activate();
+            
             _uiView.SetActive(true);
         }
 
         public void Deactivate()
         {            
+            _controller.Deactivate();
+            
             _uiView.SetActive(false);
         }
     }
