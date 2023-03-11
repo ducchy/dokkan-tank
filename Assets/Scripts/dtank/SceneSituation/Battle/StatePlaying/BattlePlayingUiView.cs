@@ -21,6 +21,9 @@ namespace dtank
 
         public void SetActive(bool flag)
         {
+            if (_group == null)
+                return;
+            
             _group.alpha = flag ? 1f : 0f;
             _group.blocksRaycasts = flag;
         }
