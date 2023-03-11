@@ -98,7 +98,7 @@ namespace dtank
 
         private IEnumerator LoadField()
         {
-            var fieldScene = new FieldScene();
+            var fieldScene = new FieldScene(1);
             yield return fieldScene.LoadRoutine(ServiceContainer);
         }
 

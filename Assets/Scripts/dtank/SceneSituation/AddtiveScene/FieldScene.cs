@@ -2,6 +2,13 @@ namespace dtank
 {
     public class FieldScene : AdditiveSceneBase
     {
-        protected override string SceneAssetPath => "field001";
+        private readonly int _fieldId;
+        
+        protected override string SceneAssetPath => $"field{_fieldId:d3}";
+
+        public FieldScene(int fieldId)
+        {
+            _fieldId = fieldId;
+        }
     }
 }
