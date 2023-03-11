@@ -11,13 +11,13 @@ namespace dtank
 
 		private readonly Subject<Unit> _onCompleteStart = new Subject<Unit>();
 
-		public IObservable<Unit> OnClickAsObservable => _startButton.OnClickAsObservable();
-		public IObservable<Unit> OnCompleteStart => _onCompleteStart;
+		public IObservable<Unit> OnClickObservable => _startButton.OnClickAsObservable();
+		public IObservable<Unit> OnCompleteStartObservable => _onCompleteStart;
 
 
-		public void Initialize()
+		public void Construct()
 		{
-			Debug.Log("TitleUIView.Initialize()");
+			Debug.Log("TitleUIView.Construct()");
 		}
 
 		public void PlayStart()

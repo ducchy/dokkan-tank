@@ -11,30 +11,22 @@ namespace dtank
 	{
 		protected override string SceneAssetPath => "Title";
 
+		private readonly SceneSituationContainer _sceneSituationContainer = null;
 		private readonly StateContainer<TitleStateBase, TitleState> _stateContainer = new StateContainer<TitleStateBase, TitleState>();
-		private TitlePresenter _presenter;
+		private TitlePresenter _presenter = null;
 
 		public TitleSceneSituation()
 		{
-			SetupStateContainer();
+			_sceneSituationContainer = Services.Get<SceneSituationContainer>();
 		}
 
 		protected override void ReleaseInternal(SituationContainer parent)
 		{
 			base.ReleaseInternal(parent);
 
+			_stateContainer.OnChangedState -= _presenter.OnChangeState;
 			_stateContainer.Dispose();
 			_presenter?.Dispose();
-		}
-
-		private void SetupStateContainer()
-		{
-			var states = new List<TitleStateBase>()
-			{
-				new TitleStateIdle(),
-				new TitleStateStart()
-			};
-			_stateContainer.Setup(TitleState.Invalid, states.ToArray());
 		}
 
 		protected override void StandbyInternal(Situation parent)
@@ -54,10 +46,7 @@ namespace dtank
 
 			Debug.Log("End TitleSceneSituation.LoadRoutineInternal()");
 
-			var uiView = Services.Get<TitleUiView>();
-			uiView.Initialize();
-
-			_presenter = new TitlePresenter(uiView);
+			SetupAll();
 		}
 
 		protected override void ActivateInternal(TransitionHandle handle, IScope scope)
@@ -75,5 +64,37 @@ namespace dtank
 
 			_stateContainer.Update(Time.deltaTime);
 		}
+		
+		#region Setup
+
+		private void SetupAll()
+		{
+			SetupStateContainer();
+			SetupPresenter();
+		}
+
+		private void SetupStateContainer()
+		{
+			var states = new List<TitleStateBase>()
+			{
+				new TitleStateIdle(),
+				new TitleStateStart()
+			};
+			_stateContainer.Setup(TitleState.Invalid, states.ToArray());
+		}
+		
+		private void SetupPresenter()
+		{
+			var uiView = Services.Get<TitleUiView>();
+			uiView.Construct();
+
+			_presenter = new TitlePresenter(uiView);
+			_presenter.OnTouchToStart = () => _stateContainer.Change(TitleState.Start);
+			_presenter.OnEndTitle = () => _sceneSituationContainer.Transition(new BattleSceneSituation());
+			
+			_stateContainer.OnChangedState += _presenter.OnChangeState;
+		}
+		
+		#endregion Setup
 	}
 }

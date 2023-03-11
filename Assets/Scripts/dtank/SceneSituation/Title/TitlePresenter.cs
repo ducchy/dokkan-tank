@@ -1,6 +1,3 @@
-using GameFramework.Core;
-using GameFramework.SituationSystems;
-using GameFramework.StateSystems;
 using System;
 using UniRx;
 using UnityEngine;
@@ -9,11 +6,11 @@ namespace dtank
 {
 	public class TitlePresenter : IDisposable
 	{
-		private readonly TitleUiView _uiView;
-		
-		private readonly StateContainer<TitleStateBase, TitleState> _stateContainer;
+		private readonly TitleUiView _uiView = null;
 		private readonly CompositeDisposable _disposable = new CompositeDisposable();
-
+		
+		public Action OnTouchToStart = null;
+		public Action OnEndTitle = null;
 
 		public TitlePresenter(TitleUiView uiView)
 		{
@@ -21,27 +18,24 @@ namespace dtank
 
 			_uiView = uiView;
 
-			_stateContainer = Services.Get<StateContainer<TitleStateBase, TitleState>>();
-			_stateContainer.OnChangedState += OnChangeState;
-
-			var situationContainer = Services.Get<SceneSituationContainer>();
-
-			uiView.OnClickAsObservable
-				.Subscribe(_ => _stateContainer.Change(TitleState.Start))
+			uiView.OnClickObservable
+				.Subscribe(_ => OnTouchToStart?.Invoke())
 				.AddTo(_disposable);
 
-			uiView.OnCompleteStart
-				.Subscribe(_ => situationContainer.Transition(new BattleSceneSituation()))
+			uiView.OnCompleteStartObservable
+				.Subscribe(_ => OnEndTitle?.Invoke())
 				.AddTo(_disposable);
 		}
 
 		public void Dispose()
 		{
-			_stateContainer.OnChangedState -= OnChangeState;
 			_disposable.Dispose();
+
+			OnTouchToStart = null;
+			OnEndTitle = null;
 		}
 
-		private void OnChangeState(TitleState prev, TitleState current)
+		public void OnChangeState(TitleState prev, TitleState current)
 		{
 			switch (current)
 			{
