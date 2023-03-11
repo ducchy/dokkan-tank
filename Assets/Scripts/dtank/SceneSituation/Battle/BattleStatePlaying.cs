@@ -7,19 +7,33 @@ namespace dtank
     {
         public override BattleState Key => BattleState.Playing;
 
+        private readonly BattlePlayingPresenter _presenter;
+
+        public BattleStatePlaying()
+        {
+            var uiView = Services.Get<BattlePlayingUiView>();
+            uiView.Construct();
+            
+            _presenter = new BattlePlayingPresenter(uiView);
+            _presenter.OnEnd = () => StateContainer?.Change(BattleState.Result);
+        }
+        
         public override void OnEnter(BattleState prevKey, IScope scope)
         {
             Debug.Log("BattleStatePlaying.OnEnter()");
+
+            _presenter.Activate();
         }
 
         public override void OnUpdate(float deltaTime)
         {
-            // Debug.Log("BattleStatePlaying.OnUpdate()");
         }
 
         public override void OnExit(BattleState nextKey)
         {
             Debug.Log("BattleStatePlaying.OnExit()");
+            
+            _presenter.Deactivate();
         }
     }
 }

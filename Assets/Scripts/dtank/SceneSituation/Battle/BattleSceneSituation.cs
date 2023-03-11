@@ -13,30 +13,12 @@ namespace dtank
         protected override string SceneAssetPath => "Battle";
 
         private readonly StateContainer<BattleStateBase, BattleState> _stateContainer = new StateContainer<BattleStateBase, BattleState>();
-        private BattlePresenter _presenter;
-
-        public BattleSceneSituation()
-        {
-            SetupStateContainer();
-        }
 
         protected override void ReleaseInternal(SituationContainer parent)
         {
             base.ReleaseInternal(parent);
 
             _stateContainer.Dispose();
-            _presenter?.Dispose();
-        }
-
-        private void SetupStateContainer()
-        {
-            var states = new List<BattleStateBase>()
-            {
-                new BattleStateReady(),
-                new BattleStatePlaying(),
-                new BattleStateResult()
-            };
-            _stateContainer.Setup(BattleState.Invalid, states.ToArray());
         }
 
         protected override void StandbyInternal(Situation parent)
@@ -55,20 +37,17 @@ namespace dtank
             yield return base.LoadRoutineInternal(handle, scope);
 
             Debug.Log("End TitleSceneSituation.LoadRoutineInternal()");
-
-            yield return SceneManager.LoadSceneAsync("field001", LoadSceneMode.Additive);
             
-            var uiView = Services.Get<BattleUiView>();
-            uiView.Initialize();
+            SetupAll();
 
-            _presenter = new BattlePresenter(uiView);
+            yield return LoadAll();
         }
 
         protected override void UnloadInternal(TransitionHandle handle)
         {
             base.UnloadInternal(handle);
-            
-            SceneManager.UnloadSceneAsync("field001");
+
+            UnloadAll();
         }
 
         protected override void ActivateInternal(TransitionHandle handle, IScope scope)
@@ -86,6 +65,49 @@ namespace dtank
 
             _stateContainer.Update(Time.deltaTime);
         }
-    }
+        
+        #region Setup
 
+        private void SetupAll()
+        {
+            SetupStateContainer();
+        }
+        
+        private void SetupStateContainer()
+        {
+            var states = new List<BattleStateBase>()
+            {
+                new BattleStateReady(),
+                new BattleStatePlaying(),
+                new BattleStateResult()
+            };
+            _stateContainer.Setup(BattleState.Invalid, states.ToArray());
+        }
+        
+        #endregion Setup
+        
+        #region Load
+
+        private IEnumerator LoadAll()
+        {
+            yield return LoadField();
+        }
+
+        private IEnumerator LoadField()
+        {
+            yield return SceneManager.LoadSceneAsync("field001", LoadSceneMode.Additive);
+        }
+
+        private void UnloadAll()
+        {
+            UnloadField();
+        }
+
+        private void UnloadField()
+        {
+            SceneManager.UnloadSceneAsync("field001");
+        }
+        
+        #endregion Laod
+    }
 }

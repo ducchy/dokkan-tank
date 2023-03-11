@@ -404,7 +404,7 @@ GameObject:
   - component: {fileID: 7922072460472498159}
   - component: {fileID: 8831661604370780620}
   m_Layer: 5
-  m_Name: Title
+  m_Name: ResultLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -539,10 +539,11 @@ GameObject:
   - component: {fileID: 6791322842704718063}
   - component: {fileID: 6791322842704718062}
   - component: {fileID: 6791322842704718061}
-  - component: {fileID: 6791322842704718050}
   - component: {fileID: 6791322842704718049}
+  - component: {fileID: 9172238315375892352}
+  - component: {fileID: 4806312931392678025}
   m_Layer: 5
-  m_Name: BattleUiView
+  m_Name: BattleResultUiView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -632,20 +633,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &6791322842704718050
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6791322842704718060}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8289b841468842a38dff3f4b4b1e1ddc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _retryButton: {fileID: 7745988906953799311}
-  _quitButton: {fileID: 3689359239537579040}
 --- !u!114 &6791322842704718049
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -659,7 +646,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _installServices:
-  - {fileID: 6791322842704718050}
+  - {fileID: 9172238315375892352}
+--- !u!114 &9172238315375892352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6791322842704718060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a952fc38a1a94e92befb5596cfdb8413, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _group: {fileID: 4806312931392678025}
+  _resultLabel: {fileID: 8831661604370780620}
+  _retryButton: {fileID: 7745988906953799311}
+  _quitButton: {fileID: 3689359239537579040}
+--- !u!225 &4806312931392678025
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6791322842704718060}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7160127398670550838
 GameObject:
   m_ObjectHideFlags: 0
