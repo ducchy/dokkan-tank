@@ -26,11 +26,11 @@ namespace dtank
 
 			var situationContainer = Services.Get<SceneSituationContainer>();
 
-			uiView.onClickAsObserbable
+			uiView.OnClickAsObservable
 				.Subscribe(_ => _stateContainer.Change(TitleState.Start))
 				.AddTo(_disposable);
 
-			uiView.onCompleteStart
+			uiView.OnCompleteStart
 				.Subscribe(_ => situationContainer.Transition(new BattleSceneSituation()))
 				.AddTo(_disposable);
 		}

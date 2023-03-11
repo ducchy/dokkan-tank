@@ -11,8 +11,8 @@ namespace dtank
 
 		private readonly Subject<Unit> _onCompleteStart = new Subject<Unit>();
 
-		public IObservable<Unit> onClickAsObserbable => _startButton.OnClickAsObservable();
-		public IObservable<Unit> onCompleteStart => _onCompleteStart;
+		public IObservable<Unit> OnClickAsObservable => _startButton.OnClickAsObservable();
+		public IObservable<Unit> OnCompleteStart => _onCompleteStart;
 
 
 		public void Initialize()

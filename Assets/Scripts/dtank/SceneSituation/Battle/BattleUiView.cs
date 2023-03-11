@@ -11,8 +11,8 @@ namespace dtank
         [SerializeField] private Button _retryButton;
         [SerializeField] private Button _quitButton;
 
-        public IObservable<Unit> onClickRetryButtonAsObserbable => _retryButton.OnClickAsObservable();
-        public IObservable<Unit> onClickQuitButtonAsObserbable => _quitButton.OnClickAsObservable();
+        public IObservable<Unit> OnClickRetryButtonAsObservable => _retryButton.OnClickAsObservable();
+        public IObservable<Unit> OnClickQuitButtonAsObservable => _quitButton.OnClickAsObservable();
 
         public void Initialize()
         {
