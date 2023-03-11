@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using GameFramework.StateSystems;
@@ -7,12 +8,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace dtank
-{	
+{
     public class BattleSceneSituation : SceneSituation
     {
         protected override string SceneAssetPath => "Battle";
 
-        private readonly StateContainer<BattleStateBase, BattleState> _stateContainer = new StateContainer<BattleStateBase, BattleState>();
+        private readonly StateContainer<BattleStateBase, BattleState> _stateContainer =
+            new StateContainer<BattleStateBase, BattleState>();
 
         protected override void ReleaseInternal(SituationContainer parent)
         {
@@ -26,7 +28,7 @@ namespace dtank
             Debug.Log("BattleSceneSituation.StandbyInternal()");
 
             base.StandbyInternal(parent);
-			
+
             ServiceContainer.Set(_stateContainer);
         }
 
@@ -37,13 +39,10 @@ namespace dtank
             yield return base.LoadRoutineInternal(handle, scope);
 
             Debug.Log("End TitleSceneSituation.LoadRoutineInternal()");
-            
+
             yield return LoadAll();
 
             SetupAll();
-
-            var fieldView = Services.Get<FieldView>();
-            Debug.Log(fieldView.StartPointDataArray[0].ToString());
         }
 
         protected override void UnloadInternal(TransitionHandle handle)
@@ -68,14 +67,39 @@ namespace dtank
 
             _stateContainer.Update(Time.deltaTime);
         }
-        
+
         #region Setup
 
         private void SetupAll()
         {
+            SetupTanks();
             SetupStateContainer();
         }
-        
+
+        private void SetupTanks()
+        {
+            var fieldView = Services.Get<FieldViewData>();
+            var startPointDataArray = fieldView.StartPointDataArray;
+
+            var modelArray = startPointDataArray
+                .Select(startPointData => new BattleTankModel(new TransformData(startPointData)))
+                .ToArray();
+
+            var viewList = new List<BattleTankView>();
+            using (var viewFactory = new BattleTankViewFactory())
+            {
+                foreach (var model in modelArray)
+                {
+                    var view = viewFactory.Create(1);
+                    view.SetTransform(model.TransformData.Value);
+                    viewList.Add(view);
+                }
+            }
+
+            var presenter = new BattleTankPresenter(modelArray, viewList.ToArray(), 0);
+            ServiceContainer.Set(presenter);
+        }
+
         private void SetupStateContainer()
         {
             var states = new List<BattleStateBase>()
@@ -86,9 +110,9 @@ namespace dtank
             };
             _stateContainer.Setup(BattleState.Invalid, states.ToArray());
         }
-        
+
         #endregion Setup
-        
+
         #region Load
 
         private IEnumerator LoadAll()
@@ -111,7 +135,7 @@ namespace dtank
         {
             SceneManager.UnloadSceneAsync("field001");
         }
-        
+
         #endregion Laod
     }
 }

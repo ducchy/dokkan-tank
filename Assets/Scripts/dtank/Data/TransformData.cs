@@ -15,6 +15,13 @@ namespace dtank
             LocalScale = Vector3.one;
         }
 
+        public TransformData(TransformData td)
+        {
+            Position = td.Position;
+            Angle = td.Angle;
+            LocalScale = td.LocalScale;
+        }
+
         public TransformData(Transform t)
         {
             Position = t.position;
