@@ -38,9 +38,12 @@ namespace dtank
 
             Debug.Log("End TitleSceneSituation.LoadRoutineInternal()");
             
+            yield return LoadAll();
+
             SetupAll();
 
-            yield return LoadAll();
+            var fieldView = Services.Get<FieldView>();
+            Debug.Log(fieldView.StartPointDataArray[0].ToString());
         }
 
         protected override void UnloadInternal(TransitionHandle handle)
@@ -95,7 +98,8 @@ namespace dtank
 
         private IEnumerator LoadField()
         {
-            yield return SceneManager.LoadSceneAsync("field001", LoadSceneMode.Additive);
+            var fieldScene = new FieldScene();
+            yield return fieldScene.LoadRoutine(ServiceContainer);
         }
 
         private void UnloadAll()
