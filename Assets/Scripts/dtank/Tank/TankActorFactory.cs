@@ -33,7 +33,7 @@ namespace dtank
             return Resources.Load<TTankActor>(CreatePrefabPath(id));
         }
 
-        public TTankActor Create(int id)
+        public TTankActor Create(int id, Transform parent)
         {
             var prefab = GetPrefab(id);
             if (prefab == null)
@@ -42,7 +42,7 @@ namespace dtank
                 return null;
             }
 
-            var instance = Object.Instantiate(prefab);
+            var instance = Object.Instantiate(prefab, parent);
             OnCreated(instance);
             return instance;
         }

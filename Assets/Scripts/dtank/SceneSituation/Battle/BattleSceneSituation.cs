@@ -88,6 +88,8 @@ namespace dtank
             var playerControlUiView = Services.Get<PlayerBattleTankControlUiView>();
             playerControlUiView.Construct();
 
+            var tankHolder = new GameObject("Tanks").transform;
+
             PlayerBattleTankPresenter playerTankPresenter = null;
             var npcTankPresenters = new List<NpcBattleTankPresenter>();
             using (var actorFactory = new BattleTankActorFactory())
@@ -96,7 +98,7 @@ namespace dtank
                 {
                     var startPointData = startPointDataArray[i];
                     var tankModel = new BattleTankModel();
-                    var tankActor = actorFactory.Create(1);
+                    var tankActor = actorFactory.Create(1, tankHolder);
                     tankActor.SetTransform(startPointData);
 
                     if (i == 0)
