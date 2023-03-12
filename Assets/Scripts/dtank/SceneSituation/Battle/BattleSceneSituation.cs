@@ -15,6 +15,8 @@ namespace dtank
 
         private readonly StateContainer<BattleStateBase, BattleState> _stateContainer =
             new StateContainer<BattleStateBase, BattleState>();
+        
+        private BattlePresenter _presenter;
 
         protected override void ReleaseInternal(SituationContainer parent)
         {
@@ -66,17 +68,18 @@ namespace dtank
             base.UpdateInternal();
 
             _stateContainer.Update(Time.deltaTime);
+            _presenter?.Update();
         }
 
         #region Setup
 
         private void SetupAll()
         {
-            SetupTanks();
             SetupStateContainer();
+            SetupPresenter();
         }
 
-        private void SetupTanks()
+        private void SetupPresenter()
         {
             var fieldView = Services.Get<FieldViewData>();
             var startPointDataArray = fieldView.StartPointDataArray;
@@ -96,8 +99,13 @@ namespace dtank
                 }
             }
 
-            var presenter = new BattleTankPresenter(modelArray, viewList.ToArray(), 0);
-            ServiceContainer.Set(presenter);
+            var tankPresenter = new BattleTankPresenter(modelArray, viewList.ToArray());
+            
+            var camera = Services.Get<FollowTargetCamera>();
+            camera.Construct(viewList[0].transform);
+
+            var controller = new BattleController(camera);
+            _presenter = new BattlePresenter(controller, tankPresenter);
         }
 
         private void SetupStateContainer()

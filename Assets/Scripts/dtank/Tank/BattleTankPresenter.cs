@@ -12,8 +12,7 @@ namespace dtank
 
         public BattleTankPresenter(
             BattleTankModel[] models,
-            BattleTankView[] views,
-            int mainIndex)
+            BattleTankView[] views)
         {
             _models = models;
             _views = views;
