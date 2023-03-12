@@ -88,21 +88,21 @@ namespace dtank
                 .Select(startPointData => new BattleTankModel(new TransformData(startPointData)))
                 .ToArray();
 
-            var viewList = new List<BattleTankView>();
-            using (var viewFactory = new BattleTankViewFactory())
+            var actorList = new List<BattleTankActor>();
+            using (var actorFactory = new BattleTankActorFactory())
             {
                 foreach (var model in modelArray)
                 {
-                    var view = viewFactory.Create(1);
-                    view.SetTransform(model.TransformData.Value);
-                    viewList.Add(view);
+                    var actor = actorFactory.Create(1);
+                    actor.SetTransform(model.TransformData.Value);
+                    actorList.Add(actor);
                 }
             }
 
-            var tankPresenter = new BattleTankPresenter(modelArray, viewList.ToArray());
+            var tankPresenter = new BattleTankPresenter(modelArray, actorList.ToArray());
             
             var camera = Services.Get<FollowTargetCamera>();
-            camera.Construct(viewList[0].transform);
+            camera.Construct(actorList[0].transform);
 
             var controller = new BattleController(camera);
             _presenter = new BattlePresenter(controller, tankPresenter);

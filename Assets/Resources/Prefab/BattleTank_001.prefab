@@ -52,6 +52,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7143250431412879936}
     m_Modifications:
+    - target: {fileID: 542853659, guid: f03fa24a6ac8150469e5eea51161aae9, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 7223a35417cad4c3693897218484a565, type: 2}
     - target: {fileID: 6231138466196603249, guid: f03fa24a6ac8150469e5eea51161aae9, type: 3}
       propertyPath: m_Name
       value: prfb_tank001_00

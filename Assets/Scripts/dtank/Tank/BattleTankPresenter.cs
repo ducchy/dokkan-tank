@@ -6,23 +6,23 @@ namespace dtank
     public class BattleTankPresenter : IDisposable
     {
         private readonly BattleTankModel[] _models;
-        private readonly BattleTankView[] _views;
+        private readonly BattleTankActor[] _actors;
 
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
         public BattleTankPresenter(
             BattleTankModel[] models,
-            BattleTankView[] views)
+            BattleTankActor[] actors)
         {
             _models = models;
-            _views = views;
+            _actors = actors;
 
             for (var i = 0; i < models.Length; i++)
             {
                 var model = models[i];
-                var view = views[i];
+                var actor = actors[i];
                 model.TransformData
-                    .Subscribe(data => view.SetTransform(data))
+                    .Subscribe(data => actor.SetTransform(data))
                     .AddTo(_disposable);
             }
         }

@@ -1,6 +1,6 @@
 namespace dtank
 {
-    public class BattleTankView : TankViewBase
+    public class BattleTankActor : TankActorBase
     {
         public void Construct()
         {

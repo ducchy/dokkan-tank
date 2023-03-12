@@ -5,17 +5,17 @@ using Object = UnityEngine.Object;
 
 namespace dtank
 {
-    public abstract class TankViewFactory<TTankView> : IDisposable
-        where TTankView : TankViewBase
+    public abstract class TankActorFactory<TTankActor> : IDisposable
+        where TTankActor : TankActorBase
     {
-        private Dictionary<int, TTankView> _prefabDictionary = new Dictionary<int, TTankView>();
+        private readonly Dictionary<int, TTankActor> _prefabDictionary = new Dictionary<int, TTankActor>();
 
         public void Dispose()
         {
             _prefabDictionary.Clear();
         }
 
-        private TTankView GetPrefab(int id)
+        private TTankActor GetPrefab(int id)
         {
             if (_prefabDictionary.TryGetValue(id, out var prefab))
                 return prefab;
@@ -28,12 +28,12 @@ namespace dtank
             return prefab;
         }
 
-        private TTankView LoadPrefab(int id)
+        private TTankActor LoadPrefab(int id)
         {
-            return Resources.Load<TTankView>(CreatePrefabPath(id));
+            return Resources.Load<TTankActor>(CreatePrefabPath(id));
         }
 
-        public TTankView Create(int id)
+        public TTankActor Create(int id)
         {
             var prefab = GetPrefab(id);
             if (prefab == null)
@@ -49,6 +49,6 @@ namespace dtank
 
         protected abstract string CreatePrefabPath(int id);
 
-        protected abstract void OnCreated(TTankView view);
+        protected abstract void OnCreated(TTankActor actor);
     }
 }
