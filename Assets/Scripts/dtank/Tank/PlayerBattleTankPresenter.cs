@@ -30,6 +30,12 @@ namespace dtank
             _disposable.Dispose();
         }
 
+        public void Update(float deltaTime)
+        {
+            _actor.Move(deltaTime);
+            _actor.Turn(deltaTime);
+        }
+
         private void Bind()
         {
             _model.BattleState
@@ -57,6 +63,9 @@ namespace dtank
             _controlUiView.OnDamageButtonClickedListener = _model.Damage;
             _controlUiView.OnShotCurveButtonClickedListener = _model.ShotCurve;
             _controlUiView.OnShotStraightButtonClickedListener = _model.ShotStraight;
+            _controlUiView.OnHorizontalSliderValueChangedListener = _actor.SetTurnAmount;
+            _controlUiView.OnVerticalSliderValueChangedListener = _actor.SetMoveAmount;
+            
             _actor.OnStateExitListener = animState =>
             {
                 Debug.LogFormat("OnStateExit: animState={0}", animState);
@@ -72,6 +81,14 @@ namespace dtank
                         _model.EndShotStraight();
                         break;
                 }
+            };
+            _actor.OnAnimationEventListener = id =>
+            {
+                Debug.LogFormat("OnAnimationEvent: id={0}", id);
+                if (id == "ShotCurve")
+                    _actor.ShotCurve();
+                else if (id == "ShotStraight")
+                    _actor.ShotStraight();
             };
         }
 

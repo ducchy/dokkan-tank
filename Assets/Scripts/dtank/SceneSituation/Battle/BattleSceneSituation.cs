@@ -67,7 +67,7 @@ namespace dtank
             base.UpdateInternal();
 
             _stateContainer.Update(Time.deltaTime);
-            _presenter?.Update();
+            _presenter?.Update(Time.deltaTime);
         }
 
         #region Setup

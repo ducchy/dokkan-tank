@@ -16,11 +16,8 @@ namespace dtank {
             _transform = transform;
         }
 
-        public void Update()
+        public void Update(float deltaTime)
         {
-            if (_target == null)
-                return;
-            
             var targetPos = _target.position;
             var targetAngle = _target.eulerAngles;
             

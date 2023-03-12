@@ -16,9 +16,10 @@ namespace dtank
             _npcTankPresenters = npcTankPresenters;
         }
 
-        public void Update()
+        public void Update(float deltaTime)
         {
-            _controller.Update();
+            _controller.Update(deltaTime);
+            _playerTankPresenter.Update(deltaTime);
         }
     }
 }

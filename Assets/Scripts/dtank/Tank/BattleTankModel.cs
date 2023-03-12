@@ -1,22 +1,10 @@
-using System;
 using UniRx;
 
 namespace dtank
 {
-    public enum BattleTankState
-    {
-        Invalid,
-        Ready,
-        FreeMove,
-        ShotCurve,
-        ShotStraight,
-        Damage,
-        Result,
-    }
-
     public class BattleTankModel : TankModelBase
     {
-        private ReactiveProperty<BattleTankState> _battleState =
+        private readonly ReactiveProperty<BattleTankState> _battleState =
             new ReactiveProperty<BattleTankState>(BattleTankState.Invalid);
 
         public IReadOnlyReactiveProperty<BattleTankState> BattleState => _battleState;

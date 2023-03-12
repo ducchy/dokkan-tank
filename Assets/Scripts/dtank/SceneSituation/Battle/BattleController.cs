@@ -9,9 +9,9 @@ namespace dtank
             _camera = camera;
         }
 
-        public void Update()
+        public void Update(float deltaTime)
         {   
-            _camera.Update();
+            _camera.Update(deltaTime);
         }
     }
 }

@@ -11,6 +11,7 @@ namespace dtank
         
         public Action<AnimatorStateInfo> OnStateEnterAction = null;
         public Action<AnimatorStateInfo> OnStateExitAction = null;
+        public Action<string> OnAnimationEventAction = null;
 
         public void Construct()
         {
@@ -45,6 +46,11 @@ namespace dtank
         private void OnStateExit(AnimatorStateInfo info)
         {
             OnStateExitAction?.Invoke(info);
+        }
+
+        private void OnAnimationEvent(string id)
+        {
+            OnAnimationEventAction?.Invoke(id);
         }
     }
 }

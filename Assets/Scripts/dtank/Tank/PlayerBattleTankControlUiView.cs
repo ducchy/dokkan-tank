@@ -10,11 +10,15 @@ namespace dtank
         [SerializeField] private Button _damageButton;
         [SerializeField] private Button _shotCurveButton;
         [SerializeField] private Button _shotStraightButton;
+        [SerializeField] private Slider _verticalSlider;
+        [SerializeField] private Slider _horizontalSlider;
 
         public Action OnDamageButtonClickedListener;
         public Action OnShotCurveButtonClickedListener;
         public Action OnShotStraightButtonClickedListener;
-        
+        public Action<float> OnVerticalSliderValueChangedListener;
+        public Action<float> OnHorizontalSliderValueChangedListener;
+
         public void Construct()
         {
             Debug.Log("PlayerBattleTankControlUiView.Construct()");
@@ -22,7 +26,9 @@ namespace dtank
             _damageButton.onClick.AddListener(OnDamageButtonClicked);
             _shotCurveButton.onClick.AddListener(OnShotCurveButtonClicked);
             _shotStraightButton.onClick.AddListener(OnShotStraightButtonClicked);
-            
+            _verticalSlider.onValueChanged.AddListener(OnVerticalSliderValueChanged);
+            _horizontalSlider.onValueChanged.AddListener(OnHorizontalSliderValueChanged);
+
             SetActive(false);
         }
 
@@ -30,7 +36,7 @@ namespace dtank
         {
             if (_group == null)
                 return;
-            
+
             _group.alpha = flag ? 1f : 0f;
             _group.blocksRaycasts = flag;
         }
@@ -48,6 +54,16 @@ namespace dtank
         private void OnShotStraightButtonClicked()
         {
             OnShotStraightButtonClickedListener?.Invoke();
+        }
+
+        private void OnVerticalSliderValueChanged(float value)
+        {
+            OnVerticalSliderValueChangedListener?.Invoke(value);
+        }
+
+        private void OnHorizontalSliderValueChanged(float value)
+        {
+            OnHorizontalSliderValueChangedListener?.Invoke(value);
         }
     }
 }
