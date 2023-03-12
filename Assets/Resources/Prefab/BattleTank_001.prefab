@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7143250431412879936}
   - component: {fileID: 7143250431412879939}
+  - component: {fileID: 3015148700406716048}
   m_Layer: 0
   m_Name: BattleTank_001
   m_TagString: Untagged
@@ -45,6 +46,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 366ec8c567fc458cbddc41c8c1de6e5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _animator: {fileID: 3015148700406716048}
+--- !u!114 &3015148700406716048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7143250431412879937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04045ce136b5468687b4f8a4d602a66a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animator: {fileID: 7143250430675317560}
 --- !u!1001 &7143250431216826659
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -109,5 +124,10 @@ PrefabInstance:
 --- !u!4 &3843997106083325362 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6231138466196642961, guid: f03fa24a6ac8150469e5eea51161aae9, type: 3}
+  m_PrefabInstance: {fileID: 7143250431216826659}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &7143250430675317560 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 542853659, guid: f03fa24a6ac8150469e5eea51161aae9, type: 3}
   m_PrefabInstance: {fileID: 7143250431216826659}
   m_PrefabAsset: {fileID: 0}

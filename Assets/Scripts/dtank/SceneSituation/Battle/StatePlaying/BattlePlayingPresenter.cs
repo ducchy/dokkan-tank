@@ -13,7 +13,8 @@ namespace dtank
         
         public BattlePlayingPresenter(
             BattlePlayingController controller,
-            BattlePlayingUiView uiView)
+            BattlePlayingUiView uiView, 
+            PlayerBattleTankPresenter playerTankPresenter)
         {
             _controller = controller;
             _uiView = uiView;

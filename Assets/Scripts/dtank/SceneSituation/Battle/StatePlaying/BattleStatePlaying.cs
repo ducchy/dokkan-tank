@@ -15,8 +15,10 @@ namespace dtank
             uiView.Construct();
 
             var controller = new BattlePlayingController();
+
+            var playerTankPresenter = Services.Get<PlayerBattleTankPresenter>();
             
-            _presenter = new BattlePlayingPresenter(controller, uiView);
+            _presenter = new BattlePlayingPresenter(controller, uiView, playerTankPresenter);
             _presenter.OnEnd = () => StateContainer?.Change(BattleState.Result);
         }
         

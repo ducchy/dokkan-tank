@@ -3,14 +3,17 @@ namespace dtank
     public class BattlePresenter
     {
         private readonly BattleController _controller;
-        private readonly BattleTankPresenter _tankPresenter;
+        private readonly PlayerBattleTankPresenter _playerTankPresenter;
+        private readonly NpcBattleTankPresenter[] _npcTankPresenters;
 
         public BattlePresenter(
             BattleController controller, 
-            BattleTankPresenter tankPresenter)
+            PlayerBattleTankPresenter playerTankPresenter,
+            NpcBattleTankPresenter[] npcTankPresenters)
         {
             _controller = controller;
-            _tankPresenter = tankPresenter;
+            _playerTankPresenter = playerTankPresenter;
+            _npcTankPresenters = npcTankPresenters;
         }
 
         public void Update()
