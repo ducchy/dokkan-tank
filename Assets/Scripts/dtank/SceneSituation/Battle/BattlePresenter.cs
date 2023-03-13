@@ -19,6 +19,8 @@ namespace dtank
         public void Update(float deltaTime)
         {
             _controller.Update(deltaTime);
+            foreach (var npcTankPresenter in _npcTankPresenters)
+                npcTankPresenter.Update(deltaTime);
         }
     }
 }

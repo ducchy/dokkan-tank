@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace dtank
 {
-    public class BattleTankControlUiView : MonoBehaviour
+    public class BattleTankControlUiView : MonoBehaviour, IBehaviourSelector
     {
         [SerializeField] private CanvasGroup _group;
         [SerializeField] private Button _damageButton;
@@ -12,12 +12,12 @@ namespace dtank
         [SerializeField] private Button _shotStraightButton;
         [SerializeField] private Slider _verticalSlider;
         [SerializeField] private Slider _horizontalSlider;
-
-        public Action OnDamageButtonClickedListener;
-        public Action OnShotCurveButtonClickedListener;
-        public Action OnShotStraightButtonClickedListener;
-        public Action<float> OnVerticalSliderValueChangedListener;
-        public Action<float> OnHorizontalSliderValueChangedListener;
+        
+        public Action OnDamageListener { private get; set; }
+        public Action OnShotCurveListener { private get; set; }
+        public Action OnShotStraightListener { private get; set; }
+        public Action<float> OnTurnValueChangedListener { private get; set; }
+        public Action<float> OnMoveValueChangedListener { private get; set; }
 
         public void Construct()
         {
@@ -43,27 +43,27 @@ namespace dtank
 
         private void OnDamageButtonClicked()
         {
-            OnDamageButtonClickedListener?.Invoke();
+            OnDamageListener?.Invoke();
         }
 
         private void OnShotCurveButtonClicked()
         {
-            OnShotCurveButtonClickedListener?.Invoke();
+            OnShotCurveListener?.Invoke();
         }
 
         private void OnShotStraightButtonClicked()
         {
-            OnShotStraightButtonClickedListener?.Invoke();
+            OnShotStraightListener?.Invoke();
         }
 
         private void OnVerticalSliderValueChanged(float value)
         {
-            OnVerticalSliderValueChangedListener?.Invoke(value);
+            OnMoveValueChangedListener?.Invoke(value);
         }
 
         private void OnHorizontalSliderValueChanged(float value)
         {
-            OnHorizontalSliderValueChangedListener?.Invoke(value);
+            OnTurnValueChangedListener?.Invoke(value);
         }
 
 #if UNITY_EDITOR

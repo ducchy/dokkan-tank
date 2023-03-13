@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using GameFramework.StateSystems;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -93,33 +95,43 @@ namespace dtank
 
             var tankHolder = new GameObject("Tanks").transform;
 
-            PlayerBattleTankPresenter playerTankPresenter = null;
-            var npcTankPresenters = new List<NpcBattleTankPresenter>();
+            var tankModels = new List<BattleTankModel>();
+            var tankActors = new List<BattleTankActor>();
             using (var actorFactory = new BattleTankActorFactory())
             {
-                for (var i = 0; i < startPointDataArray.Length; i++)
+                foreach (var startPointData in startPointDataArray)
                 {
-                    var startPointData = startPointDataArray[i];
-                    var tankModel = new BattleTankModel();
+                    tankModels.Add(new BattleTankModel());
                     var tankActor = actorFactory.Create(1, tankHolder);
                     tankActor.SetTransform(startPointData);
-
-                    if (i == 0)
-                    {
-                        playerTankPresenter = new PlayerBattleTankPresenter(tankModel, tankActor, controlUiView, statusUiView);
-                        camera.Construct(tankActor.transform);
-                        continue;
-                    }
-
-                    npcTankPresenters.Add(new NpcBattleTankPresenter(tankModel, tankActor));
+                    tankActors.Add(tankActor);
                 }
             }
 
-            if (playerTankPresenter != null)
+            PlayerBattleTankPresenter playerTankPresenter = null;
+            var npcTankPresenters = new List<NpcBattleTankPresenter>();
+
+            for (var i = 0; i < tankModels.Count; i++)
             {
-                ServiceContainer.Set(playerTankPresenter);
-                _stateContainer.OnChangedState += playerTankPresenter.OnChangedState;
-                playerTankPresenter.OnGameOver = () => _stateContainer.Change(BattleState.Result);
+                var tankModel = tankModels[i];
+                var tankActor = tankActors[i];
+                if (i == 0)
+                {
+                    playerTankPresenter =
+                        new PlayerBattleTankPresenter(tankModel, tankActor, controlUiView, statusUiView);
+                    playerTankPresenter.OnGameOver = () => _stateContainer.Change(BattleState.Result);
+                    ServiceContainer.Set(playerTankPresenter);
+
+                    _stateContainer.OnChangedState += playerTankPresenter.OnChangedState;
+                    camera.Construct(tankActor.transform);
+                    continue;
+                }
+
+                var npcTankBehaviourSelector =
+                    new NpcBehaviourSelector(tankModel, tankModels.Where(m => m != tankModel).ToArray());
+                var npcTankPresenter = new NpcBattleTankPresenter(tankModel, tankActor, npcTankBehaviourSelector);
+                npcTankPresenters.Add(npcTankPresenter);
+                _stateContainer.OnChangedState += npcTankPresenter.OnChangedState;
             }
 
             var controller = new BattleController(camera);

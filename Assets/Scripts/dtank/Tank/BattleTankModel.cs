@@ -1,4 +1,5 @@
 using UniRx;
+using UnityEngine;
 
 namespace dtank
 {
@@ -11,8 +12,24 @@ namespace dtank
         private readonly ReactiveProperty<int> _hp = new ReactiveProperty<int>(3);
         public IReadOnlyReactiveProperty<int> Hp => _hp;
 
+        private Vector3 _position;
+        public Vector3 Position => _position;
+
+        private Vector3 _forward;
+        public Vector3 Forward => _forward;
+
         public BattleTankModel()
         {
+        }
+
+        public void SetPosition(Vector3 position)
+        {
+            _position = position;
+        }
+
+        public void SetForward(Vector3 forward)
+        {
+            _forward = forward;
         }
 
         public void Ready()

@@ -31,6 +31,8 @@ namespace dtank
         public Action<BattleTankAnimatorState> OnStateExitListener;
         public Action<string> OnAnimationEventListener;
         public Action OnDamageReceivedListener;
+        public Action<Vector3> OnPositionChangedListener;
+        public Action<Vector3> OnForwardChangedListener;
 
         public void Construct()
         {
@@ -92,16 +94,18 @@ namespace dtank
 
         private void Move(float deltaTime)
         {
-            var movement = Mathf.Abs(_moveAmount) < 0.1f 
-                ? Vector3.zero 
-                : transform.forward * _moveAmount * _moveSpeed * deltaTime;
+            var movement = transform.forward * _moveAmount * _moveSpeed * deltaTime;
             _rigidbody.velocity = movement;
+            
+            OnPositionChangedListener?.Invoke(_rigidbody.position);
         }
 
         private void Turn(float deltaTime)
         {
-            var turn = Mathf.Abs(_turnAmount) < 0.1f ? 0f : _turnAmount * _turnSpeed * deltaTime;
+            var turn = _turnAmount * _turnSpeed * deltaTime;
             _rigidbody.angularVelocity = new Vector3(0f, turn, 0f);
+            
+            OnForwardChangedListener?.Invoke(_rigidbody.rotation * Vector3.forward);
         }
 
         private void OnStateEnter(AnimatorStateInfo info)

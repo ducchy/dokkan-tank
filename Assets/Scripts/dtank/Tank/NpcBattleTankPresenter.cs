@@ -1,87 +1,62 @@
-using System;
-using UniRx;
-
 namespace dtank
 {
-    public class NpcBattleTankPresenter : IDisposable
+    public class NpcBattleTankPresenter : BattleTankPresenterBase
     {
-        private readonly BattleTankModel _model;
-        private readonly BattleTankActor _actor;
-
-        private readonly CompositeDisposable _disposable = new CompositeDisposable();
-
+        private readonly NpcBehaviourSelector _behaviourSelector;
+        
         public NpcBattleTankPresenter(
             BattleTankModel model,
-            BattleTankActor actor)
+            BattleTankActor actor,
+            NpcBehaviourSelector behaviourSelector)
+            : base(model, actor, behaviourSelector)
         {
-            _model = model;
-            _actor = actor;
-
-            Bind();
-            SetEvents();
+            _behaviourSelector = behaviourSelector;
         }
 
-        public void Dispose()
+        public void Update(float deltaTime)
         {
-            _disposable.Dispose();
+            _behaviourSelector.Update(deltaTime);
         }
 
-        private void Bind()
+        protected override void OnStateChanged(BattleTankState state)
         {
-            _model.BattleState
-                .Subscribe(state =>
-                {
-                    switch (state)
-                    {
-                        case BattleTankState.Damage:
-                            _actor.Play(BattleTankAnimatorState.Damage);
-                            break;
-                        case BattleTankState.ShotCurve:
-                            _actor.Play(BattleTankAnimatorState.ShotCurve);
-                            break;
-                        case BattleTankState.ShotStraight:
-                            _actor.Play(BattleTankAnimatorState.ShotStraight);
-                            break;
-                    }
-                })
-                .AddTo(_disposable);
+            base.OnStateChanged(state);
 
-            _model.Hp
-                .Subscribe(hp => { }).AddTo(_disposable);
-        }
-
-        private void SetEvents()
-        {
-            _actor.OnStateExitListener = animState =>
+            switch (state)
             {
-                switch (animState)
-                {
-                    case BattleTankAnimatorState.Damage:
-                        _model.EndDamage();
-                        if (_model.Hp.Value <= 0)
-                            _actor.Dead();
-                        break;
-                    case BattleTankAnimatorState.ShotCurve:
-                        _model.EndShotCurve();
-                        break;
-                    case BattleTankAnimatorState.ShotStraight:
-                        _model.EndShotStraight();
-                        break;
-                }
-            };
-            _actor.OnAnimationEventListener = id =>
+                case BattleTankState.Damage:
+                    _behaviourSelector.BeginDamage();
+                    break;
+            }
+        }
+
+        protected override void OnAnimatorStateExit(BattleTankAnimatorState animState)
+        {
+            base.OnAnimatorStateExit(animState);
+
+            switch (animState)
             {
-                switch (id)
-                {
-                    case "ShotCurve":
-                        _actor.ShotCurve();
-                        break;
-                    case "ShotStraight":
-                        _actor.ShotStraight();
-                        break;
-                }
-            };
-            _actor.OnDamageReceivedListener = () => { _model.Damage(); };
+                case BattleTankAnimatorState.Damage:
+                    _behaviourSelector.EndDamage();
+                    break;
+                case BattleTankAnimatorState.ShotStraight:
+                    _behaviourSelector.EndShotStraight();
+                    break;
+            }
+        }
+
+        protected override void OnDead()
+        {
+            base.OnDead();
+            
+            _behaviourSelector.SetActive(false);
+        }
+
+        public override void OnChangedState(BattleState prev, BattleState current)
+        {
+            base.OnChangedState(prev, current);
+            
+            _behaviourSelector.SetActive(current == BattleState.Playing);
         }
     }
 }
