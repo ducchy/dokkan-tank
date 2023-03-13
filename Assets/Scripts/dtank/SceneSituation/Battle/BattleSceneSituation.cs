@@ -4,7 +4,6 @@ using System.Linq;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using GameFramework.StateSystems;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -16,14 +15,17 @@ namespace dtank
 
         private readonly StateContainer<BattleStateBase, BattleState> _stateContainer =
             new StateContainer<BattleStateBase, BattleState>();
-
+        private readonly BattleResultData _resultData = new BattleResultData();
+        
         private BattlePresenter _presenter;
+        private DokkanTankRulePresenter _rulePresenter;
 
         protected override void ReleaseInternal(SituationContainer parent)
         {
             base.ReleaseInternal(parent);
 
             _stateContainer.Dispose();
+            _rulePresenter?.Dispose();
         }
 
         protected override void StandbyInternal(Situation parent)
@@ -33,6 +35,7 @@ namespace dtank
             base.StandbyInternal(parent);
 
             ServiceContainer.Set(_stateContainer);
+            ServiceContainer.Set(_resultData);
         }
 
         protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope)
@@ -109,6 +112,7 @@ namespace dtank
 
             PlayerBattleTankPresenter playerTankPresenter = null;
             var npcTankPresenters = new List<NpcBattleTankPresenter>();
+            BattleTankModel playerTankModel = null;
 
             for (var i = 0; i < tankModels.Count; i++)
             {
@@ -117,6 +121,7 @@ namespace dtank
                 var tankController = new BattleTankController(tankModel, tankActor);
                 if (i == 0)
                 {
+                    playerTankModel = tankModel;
                     playerTankPresenter =
                         new PlayerBattleTankPresenter(tankController, tankModel, tankActor, controlUiView, statusUiView);
                     playerTankPresenter.OnGameOver = () => _stateContainer.Change(BattleState.Result);
@@ -138,6 +143,10 @@ namespace dtank
             ServiceContainer.Set(controller);
 
             _presenter = new BattlePresenter(controller, playerTankPresenter, npcTankPresenters.ToArray());
+            
+            _rulePresenter = new DokkanTankRulePresenter(_resultData, playerTankModel, tankModels.ToArray());
+            _rulePresenter.OnGameEnd = () => _stateContainer.Change(BattleState.Result);
+            _stateContainer.OnChangedState += _rulePresenter.OnChangedState;
         }
 
         private void SetupStateContainer()

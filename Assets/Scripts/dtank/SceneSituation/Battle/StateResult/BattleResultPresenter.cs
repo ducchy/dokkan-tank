@@ -36,9 +36,9 @@ namespace dtank
             OnQuit = null;
         }
 
-        public void Activate(bool winFlag)
+        public void Activate()
         {
-            _uiView.PlayResult(winFlag);
+            _controller.PlayResult();
         }
 
         public void Deactivate()

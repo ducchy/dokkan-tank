@@ -52,7 +52,7 @@ namespace dtank
             if (_target == null)
                 return null;
 
-            if (_target.Hp.Value <= 0)
+            if (_target.DeadFlag)
             {
                 _target = FindTarget();
 
@@ -101,8 +101,8 @@ namespace dtank
 
         private BattleTankModel FindTarget()
         {
-            var targets = _others.Where(o => o != _target && o.Hp.Value > 0).ToArray();
-            return targets.Length == 0 ? (_target.Hp.Value > 0 ? _target : null) : targets[Random.Range(0, targets.Length)];
+            var targets = _others.Where(o => o != _target && !o.DeadFlag).ToArray();
+            return targets.Length == 0 ? (!_target.DeadFlag ? _target : null) : targets[Random.Range(0, targets.Length)];
         }
 
         private void ChangeState(NpcTankStateBase state)

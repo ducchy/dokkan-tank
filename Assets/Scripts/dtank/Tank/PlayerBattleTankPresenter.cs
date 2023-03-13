@@ -34,7 +34,7 @@ namespace dtank
             base.BindInternal();
 
             Model.Hp
-                .Subscribe(hp => { _statusUiView.SetHp(hp); }).AddTo(Disposable);
+                .Subscribe(_statusUiView.SetHp).AddTo(Disposable);
         }
 
         protected override void OnDead()

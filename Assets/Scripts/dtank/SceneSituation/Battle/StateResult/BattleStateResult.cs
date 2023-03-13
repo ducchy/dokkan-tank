@@ -11,10 +11,12 @@ namespace dtank
 
         public BattleStateResult()
         {
+            var resultData = Services.Get<BattleResultData>();
+            
             var uiView = Services.Get<BattleResultUiView>();
             uiView.Construct();
 
-            var controller = new BattleResultController();
+            var controller = new BattleResultController(resultData, uiView);
             
             _presenter = new BattleResultPresenter(controller, uiView);
             _presenter.OnQuit = () => SceneSituationContainer?.Transition(new TitleSceneSituation());
@@ -25,7 +27,7 @@ namespace dtank
         {
             Debug.Log("BattleStateResult.OnEnter()");
 
-            _presenter.Activate(true);
+            _presenter.Activate();
         }
 
         public override void OnUpdate(float deltaTime)

@@ -17,6 +17,7 @@ namespace dtank
 
         public Vector3 Position { get; private set; }
         public Vector3 Forward { get; private set; }
+        public bool DeadFlag => _hp.Value <= 0;
 
         public BattleTankModel(TransformData startPointData)
         {

@@ -88,7 +88,7 @@ namespace dtank
             {
                 case BattleTankAnimatorState.Damage:
                     Model.EndDamage();
-                    if (Model.Hp.Value <= 0)
+                    if (Model.DeadFlag)
                         OnDead();
                     break;
                 case BattleTankAnimatorState.ShotCurve:
