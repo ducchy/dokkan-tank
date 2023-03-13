@@ -35,9 +35,17 @@ namespace dtank
             Model.BattleState
                 .Subscribe(OnStateChanged)
                 .AddTo(Disposable);
-            
+
             Model.Hp
                 .Subscribe(OnHpChanged)
+                .AddTo(Disposable);
+
+            Model.MoveAmount
+                .Subscribe(Actor.SetMoveAmount)
+                .AddTo(Disposable);
+
+            Model.TurnAmount
+                .Subscribe(Actor.SetTurnAmount)
                 .AddTo(Disposable);
         }
 
@@ -46,8 +54,8 @@ namespace dtank
             BehaviourSelector.OnDamageListener = Model.Damage;
             BehaviourSelector.OnShotCurveListener = Model.ShotCurve;
             BehaviourSelector.OnShotStraightListener = Model.ShotStraight;
-            BehaviourSelector.OnTurnValueChangedListener = Actor.SetTurnAmount;
-            BehaviourSelector.OnMoveValueChangedListener = Actor.SetMoveAmount;
+            BehaviourSelector.OnTurnValueChangedListener = Model.SetInputTurnAmount;
+            BehaviourSelector.OnMoveValueChangedListener = Model.SetInputMoveAmount;
 
             Actor.OnStateExitListener = OnAnimatorStateExit;
             Actor.OnAnimationEventListener = OnAnimationEvent;
@@ -104,7 +112,7 @@ namespace dtank
         protected virtual void OnAnimationEvent(string id)
         {
             Debug.LogFormat("OnAnimationEvent: id={0}", id);
-            
+
             switch (id)
             {
                 case "ShotCurve":

@@ -13,11 +13,20 @@ namespace dtank
         private readonly ReactiveProperty<int> _hp = new ReactiveProperty<int>(3);
         public IReadOnlyReactiveProperty<int> Hp => _hp;
 
+        private readonly ReactiveProperty<float> _moveAmount = new ReactiveProperty<float>(0f);
+        public IReactiveProperty<float> MoveAmount => _moveAmount;
+
+        private readonly ReactiveProperty<float> _turnAmount = new ReactiveProperty<float>(0f);
+        public IReactiveProperty<float> TurnAmount => _turnAmount;
+
         public readonly TransformData StartPointData;
 
         public Vector3 Position { get; private set; }
         public Vector3 Forward { get; private set; }
         public bool DeadFlag => _hp.Value <= 0;
+
+        private float _inputMoveAmount;
+        private float _inputTurnAmount;
 
         public BattleTankModel(TransformData startPointData)
         {
@@ -34,15 +43,35 @@ namespace dtank
             Forward = forward;
         }
 
+        public void SetInputMoveAmount(float inputMoveAmount)
+        {
+            _inputMoveAmount = inputMoveAmount;
+
+            if (!IsMovableState(_battleState.Value))
+                return;
+
+            _moveAmount.Value = inputMoveAmount;
+        }
+
+        public void SetInputTurnAmount(float inputTurnAmount)
+        {
+            _inputTurnAmount = inputTurnAmount;
+
+            if (!IsMovableState(_battleState.Value))
+                return;
+
+            _turnAmount.Value = inputTurnAmount;
+        }
+
         public void Ready()
         {
             _hp.Value = 3;
-            _battleState.Value = BattleTankState.Ready;
+            SetState(BattleTankState.Ready);
         }
 
         public void Playing()
         {
-            _battleState.Value = BattleTankState.FreeMove;
+            SetState(BattleTankState.FreeMove);
         }
 
         public void ShotCurve()
@@ -50,15 +79,15 @@ namespace dtank
             if (_battleState.Value != BattleTankState.FreeMove)
                 return;
 
-            _battleState.Value = BattleTankState.ShotCurve;
+            SetState(BattleTankState.ShotCurve);
         }
 
         public void EndShotCurve()
         {
             if (_battleState.Value != BattleTankState.ShotCurve)
                 return;
-
-            _battleState.Value = BattleTankState.FreeMove;
+            
+            SetState(BattleTankState.FreeMove);
         }
 
         public void ShotStraight()
@@ -66,7 +95,7 @@ namespace dtank
             if (_battleState.Value != BattleTankState.FreeMove)
                 return;
 
-            _battleState.Value = BattleTankState.ShotStraight;
+            SetState(BattleTankState.ShotStraight);
         }
 
         public void EndShotStraight()
@@ -74,7 +103,7 @@ namespace dtank
             if (_battleState.Value != BattleTankState.ShotStraight)
                 return;
 
-            _battleState.Value = BattleTankState.FreeMove;
+            SetState(BattleTankState.FreeMove);
         }
 
         public void Damage()
@@ -85,7 +114,7 @@ namespace dtank
             if (_hp.Value <= 0)
                 return;
 
-            _battleState.Value = BattleTankState.Damage;
+            SetState(BattleTankState.Damage);
             _hp.Value--;
         }
 
@@ -94,12 +123,35 @@ namespace dtank
             if (_battleState.Value != BattleTankState.Damage)
                 return;
 
-            _battleState.Value = BattleTankState.FreeMove;
+            SetState(BattleTankState.FreeMove);
         }
 
         public void Result()
         {
-            _battleState.Value = BattleTankState.Result;
+            SetState(BattleTankState.Result);
+        }
+
+        private bool IsMovableState(BattleTankState state)
+        {
+            switch (state)
+            {
+                case BattleTankState.FreeMove:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private void SetMovable(bool flag)
+        {
+            _moveAmount.Value = flag ? _inputMoveAmount : 0f;
+            _turnAmount.Value = flag ? _inputTurnAmount : 0f;
+        }
+
+        private void SetState(BattleTankState state)
+        {
+            _battleState.Value = state;
+            SetMovable(IsMovableState(state));
         }
     }
 }
