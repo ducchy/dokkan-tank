@@ -65,5 +65,19 @@ namespace dtank
         {
             OnHorizontalSliderValueChangedListener?.Invoke(value);
         }
+
+#if UNITY_EDITOR
+        private void Update()
+        {
+            var vertical = Input.GetAxis("Vertical");
+            var horizontal = Input.GetAxis("Horizontal");
+            if (Mathf.Abs(vertical) > 0.01f)
+                OnVerticalSliderValueChanged(vertical);
+            if (Mathf.Abs(horizontal) > 0.01f)
+                OnHorizontalSliderValueChanged(horizontal);
+            if (Input.GetKeyDown(KeyCode.Space))
+                OnShotStraightButtonClicked();
+        }
+#endif
     }
 }
