@@ -26,12 +26,14 @@ namespace dtank
             _others = others;
 
             _failedCount = 0;
+            _target = FindTarget();
+
             SetActive(false);
         }
 
         public void Update(float deltaTime)
         {
-            if (_current == null)
+            if (_current == null || _current.State == NpcTankState.None)
                 return;
 
             _current.OnUpdate(deltaTime);
@@ -47,9 +49,20 @@ namespace dtank
 
         private NpcTankStateBase GetNextState(NpcTankStateResult result)
         {
-            if (_target == null || _target.Hp.Value <= 0)
+            if (_target == null)
+                return null;
+
+            if (_target.Hp.Value <= 0)
+            {
                 _target = FindTarget();
-            
+
+                if (_target == null)
+                {
+                    SetActive(false);
+                    return null;
+                }
+            }
+
             switch (result)
             {
                 case NpcTankStateResult.Failed:

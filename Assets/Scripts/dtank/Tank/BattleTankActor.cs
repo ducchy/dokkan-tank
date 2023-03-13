@@ -20,6 +20,8 @@ namespace dtank
         [SerializeField] private AnimatorBody _animator;
         [SerializeField] private ShellActor _shellForShotCurve;
         [SerializeField] private ShellActor _shellForShotStraight;
+        [SerializeField] private MeshRenderer[] _renderers;
+        [SerializeField] private Collider _collider;
         [SerializeField] private Transform _muzzle;
 
         [SerializeField] private float _moveSpeed = 12f;
@@ -82,7 +84,14 @@ namespace dtank
 
         public void Dead()
         {
-            gameObject.SetActive(false);
+            SetActive(false);
+        }
+
+        private void SetActive(bool active)
+        {
+            _collider.enabled = active;
+            foreach (var renderer in _renderers)
+                renderer.enabled = active;
         }
 
         private void FixedUpdate()
