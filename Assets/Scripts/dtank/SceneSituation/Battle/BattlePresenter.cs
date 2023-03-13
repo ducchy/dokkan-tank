@@ -19,7 +19,6 @@ namespace dtank
         public void Update(float deltaTime)
         {
             _controller.Update(deltaTime);
-            _playerTankPresenter.Update(deltaTime);
         }
     }
 }

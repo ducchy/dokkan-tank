@@ -1,10 +1,20 @@
 using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 
 namespace dtank
 {
-    public class BattleTankActor : TankActorBase
+    public interface IAttacker
+    {
+    }
+
+    public interface IDamageReceiver
+    {
+        bool ReceiveDamage(IAttacker attacker);
+    }
+
+    public class BattleTankActor : TankActorBase, IDamageReceiver, IAttacker
     {
         [SerializeField] private Rigidbody _rigidbody;
         [SerializeField] private AnimatorBody _animator;
@@ -20,6 +30,7 @@ namespace dtank
 
         public Action<BattleTankAnimatorState> OnStateExitListener;
         public Action<string> OnAnimationEventListener;
+        public Action OnDamageReceivedListener;
 
         public void Construct()
         {
@@ -54,7 +65,7 @@ namespace dtank
         {
             var position = _muzzle.position;
             var instance = Instantiate(prefab, position, _muzzle.rotation);
-            instance.Shot(_muzzle.forward);
+            instance.Shot(this, _muzzle.forward);
         }
 
         public void SetMoveAmount(float moveAmount)
@@ -67,17 +78,30 @@ namespace dtank
             _turnAmount = turnAmount;
         }
 
-        public void Move(float deltaTime)
+        public void Dead()
         {
-            var movement = transform.forward * _moveAmount * _moveSpeed * deltaTime;
-            _rigidbody.MovePosition(_rigidbody.position + movement);
+            gameObject.SetActive(false);
         }
 
-        public void Turn(float deltaTime)
+        private void FixedUpdate()
         {
-            var turn = _turnAmount * _turnSpeed * deltaTime;
-            Quaternion turnRotation = Quaternion.Euler(0f, turn, 0f);
-            _rigidbody.MoveRotation(_rigidbody.rotation * turnRotation);
+            float deltaTime = Time.deltaTime;
+            Move(deltaTime);
+            Turn(deltaTime);
+        }
+
+        private void Move(float deltaTime)
+        {
+            var movement = Mathf.Abs(_moveAmount) < 0.1f 
+                ? Vector3.zero 
+                : transform.forward * _moveAmount * _moveSpeed * deltaTime;
+            _rigidbody.velocity = movement;
+        }
+
+        private void Turn(float deltaTime)
+        {
+            var turn = Mathf.Abs(_turnAmount) < 0.1f ? 0f : _turnAmount * _turnSpeed * deltaTime;
+            _rigidbody.angularVelocity = new Vector3(0f, turn, 0f);
         }
 
         private void OnStateEnter(AnimatorStateInfo info)
@@ -103,6 +127,15 @@ namespace dtank
             return Enum.GetValues(typeof(BattleTankAnimatorState))
                 .Cast<BattleTankAnimatorState>()
                 .FirstOrDefault(value => info.shortNameHash == value.ToStateHash());
+        }
+
+        public bool ReceiveDamage(IAttacker attacker)
+        {
+            if (attacker == this)
+                return false;
+
+            OnDamageReceivedListener?.Invoke();
+            return true;
         }
     }
 }

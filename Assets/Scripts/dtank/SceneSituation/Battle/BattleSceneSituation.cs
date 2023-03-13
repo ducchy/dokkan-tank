@@ -116,6 +116,7 @@ namespace dtank
             {
                 ServiceContainer.Set(playerTankPresenter);
                 _stateContainer.OnChangedState += playerTankPresenter.OnChangedState;
+                playerTankPresenter.OnGameOver = () => _stateContainer.Change(BattleState.Result);
             }
 
             var controller = new BattleController(camera);

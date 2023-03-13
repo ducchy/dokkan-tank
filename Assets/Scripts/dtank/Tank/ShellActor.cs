@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace dtank
@@ -6,10 +5,15 @@ namespace dtank
     public class ShellActor : MonoBehaviour
     {
         [SerializeField] private Rigidbody _rigidbody;
+        [SerializeField] private Collider _collider;
         [SerializeField] private float _velocity;
 
-        public void Shot(Vector3 forward)
+        private IAttacker _owner;
+
+        public void Shot(IAttacker owner, Vector3 forward)
         {
+            _owner = owner;
+            
             _rigidbody.velocity = forward * _velocity;
         }
 
@@ -17,19 +21,15 @@ namespace dtank
         {
             Debug.LogFormat("OnCollisionEnter: name={0}", other.gameObject.name);
 
-            Explode();
-        }
-
-        private void OnTriggerEnter(Collider other)
-        {
-            Debug.LogFormat("OnTriggerEnter: name={0}", other.gameObject.name);
-
-            var tank = other.gameObject.GetComponent<BattleTankActor>();
-            if (tank != null)
+            var damageReceiver = other.gameObject.GetComponent<IDamageReceiver>();
+            if (damageReceiver != null)
             {
-                Debug.LogFormat("ヒット！");
+                if (!damageReceiver.ReceiveDamage(_owner))
+                    return;
+                
+                Debug.LogFormat("ダメージ！");
             }
-            
+
             Explode();
         }
 

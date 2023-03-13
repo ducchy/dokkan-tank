@@ -6,8 +6,10 @@ namespace dtank
     {
         private readonly ReactiveProperty<BattleTankState> _battleState =
             new ReactiveProperty<BattleTankState>(BattleTankState.Invalid);
-
         public IReadOnlyReactiveProperty<BattleTankState> BattleState => _battleState;
+
+        private readonly ReactiveProperty<int> _hp = new ReactiveProperty<int>(3);
+        public IReadOnlyReactiveProperty<int> Hp => _hp;
 
         public BattleTankModel()
         {
@@ -57,7 +59,14 @@ namespace dtank
 
         public void Damage()
         {
+            if (_battleState.Value == BattleTankState.Damage)
+                return;
+            
+            if (_hp.Value <= 0)
+                return;
+
             _battleState.Value = BattleTankState.Damage;
+            _hp.Value--;
         }
 
         public void EndDamage()

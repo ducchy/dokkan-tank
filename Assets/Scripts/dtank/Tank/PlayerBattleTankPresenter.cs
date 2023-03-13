@@ -10,6 +10,8 @@ namespace dtank
         private readonly BattleTankActor _actor;
         private readonly PlayerBattleTankControlUiView _controlUiView;
 
+        public Action OnGameOver;
+
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
         public PlayerBattleTankPresenter(
@@ -28,12 +30,7 @@ namespace dtank
         public void Dispose()
         {
             _disposable.Dispose();
-        }
-
-        public void Update(float deltaTime)
-        {
-            _actor.Move(deltaTime);
-            _actor.Turn(deltaTime);
+            OnGameOver = null;
         }
 
         private void Bind()
@@ -56,6 +53,14 @@ namespace dtank
                     }
                 })
                 .AddTo(_disposable);
+
+            _model.Hp
+                .Subscribe(hp =>
+                {
+                    // ビュー更新
+                    if (hp <= 0)
+                        OnGameOver?.Invoke();
+                }).AddTo(_disposable);
         }
 
         private void SetEvents()
@@ -65,7 +70,7 @@ namespace dtank
             _controlUiView.OnShotStraightButtonClickedListener = _model.ShotStraight;
             _controlUiView.OnHorizontalSliderValueChangedListener = _actor.SetTurnAmount;
             _controlUiView.OnVerticalSliderValueChangedListener = _actor.SetMoveAmount;
-            
+
             _actor.OnStateExitListener = animState =>
             {
                 Debug.LogFormat("OnStateExit: animState={0}", animState);
@@ -73,6 +78,8 @@ namespace dtank
                 {
                     case BattleTankAnimatorState.Damage:
                         _model.EndDamage();
+                        if (_model.Hp.Value <= 0)
+                            _actor.Dead();
                         break;
                     case BattleTankAnimatorState.ShotCurve:
                         _model.EndShotCurve();
@@ -85,11 +92,17 @@ namespace dtank
             _actor.OnAnimationEventListener = id =>
             {
                 Debug.LogFormat("OnAnimationEvent: id={0}", id);
-                if (id == "ShotCurve")
-                    _actor.ShotCurve();
-                else if (id == "ShotStraight")
-                    _actor.ShotStraight();
+                switch (id)
+                {
+                    case "ShotCurve":
+                        _actor.ShotCurve();
+                        break;
+                    case "ShotStraight":
+                        _actor.ShotStraight();
+                        break;
+                }
             };
+            _actor.OnDamageReceivedListener = () => { _model.Damage(); };
         }
 
         public void OnChangedState(BattleState prev, BattleState current)
