@@ -33,8 +33,6 @@ namespace dtank
 
         protected override void OnAnimatorStateExit(BattleTankAnimatorState animState)
         {
-            base.OnAnimatorStateExit(animState);
-
             switch (animState)
             {
                 case BattleTankAnimatorState.Damage:
@@ -44,6 +42,8 @@ namespace dtank
                     _behaviourSelector.EndShotStraight();
                     break;
             }
+            
+            base.OnAnimatorStateExit(animState);
         }
 
         protected override void OnDead()

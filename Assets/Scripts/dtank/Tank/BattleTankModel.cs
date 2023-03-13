@@ -15,11 +15,8 @@ namespace dtank
 
         public readonly TransformData StartPointData;
 
-        private Vector3 _position;
-        public Vector3 Position => _position;
-
-        private Vector3 _forward;
-        public Vector3 Forward => _forward;
+        public Vector3 Position { get; private set; }
+        public Vector3 Forward { get; private set; }
 
         public BattleTankModel(TransformData startPointData)
         {
@@ -28,12 +25,12 @@ namespace dtank
 
         public void SetPosition(Vector3 position)
         {
-            _position = position;
+            Position = position;
         }
 
         public void SetForward(Vector3 forward)
         {
-            _forward = forward;
+            Forward = forward;
         }
 
         public void Ready()

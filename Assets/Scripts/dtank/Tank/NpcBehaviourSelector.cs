@@ -63,22 +63,19 @@ namespace dtank
                 }
             }
 
-            switch (result)
-            {
-                case NpcTankStateResult.Failed:
-                    _failedCount++;
-                    if (_failedCount >= 3)
-                    {
-                        _target = FindTarget();
-                        _failedCount = 0;
-                        return new NpcTankStateTurn(this, _owner, _target, 2f);
-                    }
 
-                    break;
-                case NpcTankStateResult.Cancel:
+            if (result == NpcTankStateResult.Failed)
+            {
+                _failedCount++;
+                if (_failedCount >= 3)
+                {
                     _target = FindTarget();
+                    _failedCount = 0;
                     return new NpcTankStateTurn(this, _owner, _target, 2f);
+                }
             }
+            else
+                _failedCount = 0;
 
             switch (_current.State)
             {
@@ -90,7 +87,13 @@ namespace dtank
                     if (distance < 10f)
                         return new NpcTankStateShotStraight(this);
 
-                    return new NpcTankStateMove(this, 2f);
+                    return new NpcTankStateMove(this, _owner, 2f);
+                case NpcTankState.Move:
+                    if (result == NpcTankStateResult.Failed) {
+                        _target = FindTarget();
+                        return new NpcTankStateTurn(this, _owner, _target, 2f);
+                    }
+                    return new NpcTankStateTurn(this, _owner, _target, 2f);
                 default:
                     return new NpcTankStateTurn(this, _owner, _target, 2f);
             }
@@ -98,8 +101,8 @@ namespace dtank
 
         private BattleTankModel FindTarget()
         {
-            var targets = _others.Where(o => o.Hp.Value > 0).ToArray();
-            return targets.Length == 0 ? null : targets[Random.Range(0, targets.Length)];
+            var targets = _others.Where(o => o != _target && o.Hp.Value > 0).ToArray();
+            return targets.Length == 0 ? (_target.Hp.Value > 0 ? _target : null) : targets[Random.Range(0, targets.Length)];
         }
 
         private void ChangeState(NpcTankStateBase state)
