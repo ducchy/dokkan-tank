@@ -431,7 +431,7 @@ GameObject:
   - component: {fileID: 277547758859064520}
   - component: {fileID: 5748399917561406781}
   m_Layer: 5
-  m_Name: PlayerBattleTankControllerUiView
+  m_Name: TankControllerUiView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

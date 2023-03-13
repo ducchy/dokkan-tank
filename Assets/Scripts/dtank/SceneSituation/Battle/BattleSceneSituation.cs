@@ -85,8 +85,11 @@ namespace dtank
             var fieldView = Services.Get<FieldViewData>();
             var startPointDataArray = fieldView.StartPointDataArray;
 
-            var playerControlUiView = Services.Get<PlayerBattleTankControlUiView>();
-            playerControlUiView.Construct();
+            var controlUiView = Services.Get<BattleTankControlUiView>();
+            controlUiView.Construct();
+
+            var statusUiView = Services.Get<BattleTankStatusUiView>();
+            statusUiView.Construct();
 
             var tankHolder = new GameObject("Tanks").transform;
 
@@ -103,7 +106,7 @@ namespace dtank
 
                     if (i == 0)
                     {
-                        playerTankPresenter = new PlayerBattleTankPresenter(tankModel, tankActor, playerControlUiView);
+                        playerTankPresenter = new PlayerBattleTankPresenter(tankModel, tankActor, controlUiView, statusUiView);
                         camera.Construct(tankActor.transform);
                         continue;
                     }

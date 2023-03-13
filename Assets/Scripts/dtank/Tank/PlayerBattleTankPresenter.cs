@@ -8,7 +8,8 @@ namespace dtank
     {
         private readonly BattleTankModel _model;
         private readonly BattleTankActor _actor;
-        private readonly PlayerBattleTankControlUiView _controlUiView;
+        private readonly BattleTankControlUiView _controlUiView;
+        private readonly BattleTankStatusUiView _statusUiView;
 
         public Action OnGameOver;
 
@@ -17,11 +18,13 @@ namespace dtank
         public PlayerBattleTankPresenter(
             BattleTankModel model,
             BattleTankActor actor,
-            PlayerBattleTankControlUiView controlUiView)
+            BattleTankControlUiView controlUiView,
+            BattleTankStatusUiView statusUiView)
         {
             _model = model;
             _actor = actor;
             _controlUiView = controlUiView;
+            _statusUiView = statusUiView;
 
             Bind();
             SetEvents();
@@ -55,12 +58,7 @@ namespace dtank
                 .AddTo(_disposable);
 
             _model.Hp
-                .Subscribe(hp =>
-                {
-                    // ビュー更新
-                    if (hp <= 0)
-                        OnGameOver?.Invoke();
-                }).AddTo(_disposable);
+                .Subscribe(hp => { _statusUiView.SetHp(hp); }).AddTo(_disposable);
         }
 
         private void SetEvents()
@@ -78,8 +76,10 @@ namespace dtank
                 {
                     case BattleTankAnimatorState.Damage:
                         _model.EndDamage();
-                        if (_model.Hp.Value <= 0)
-                            _actor.Dead();
+                        if (_model.Hp.Value <= 0) {
+                            _actor.Dead(); 
+                            OnGameOver?.Invoke();
+                        }
                         break;
                     case BattleTankAnimatorState.ShotCurve:
                         _model.EndShotCurve();

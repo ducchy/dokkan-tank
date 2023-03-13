@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace dtank
 {
-    public class PlayerBattleTankControlUiView : MonoBehaviour
+    public class BattleTankControlUiView : MonoBehaviour
     {
         [SerializeField] private CanvasGroup _group;
         [SerializeField] private Button _damageButton;
