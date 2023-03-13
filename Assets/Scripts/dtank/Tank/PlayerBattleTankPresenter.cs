@@ -7,8 +7,6 @@ namespace dtank
         private readonly BattleTankControlUiView _controlUiView;
         private readonly BattleTankStatusUiView _statusUiView;
 
-        public Action OnGameOver;
-
         public PlayerBattleTankPresenter(
             BattleTankController controller,
             BattleTankModel model,
@@ -23,26 +21,12 @@ namespace dtank
             Bind();
             SetEvents();
         }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-            
-            OnGameOver = null;
-        }
-
+        
         protected override void OnHpChanged(int hp)
         {
             base.OnHpChanged(hp);
 
             _statusUiView.SetHp(hp);
-        }
-
-        protected override void OnDead()
-        {
-            base.OnDead();
-            
-            OnGameOver?.Invoke();
         }
 
         public override void OnChangedState(BattleState prev, BattleState current)

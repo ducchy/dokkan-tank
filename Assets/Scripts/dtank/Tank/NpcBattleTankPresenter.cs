@@ -17,8 +17,10 @@ namespace dtank
             SetEvents();
         }
 
-        public void Update(float deltaTime)
+        public override void Update(float deltaTime)
         {
+            base.Update(deltaTime);
+            
             _behaviourSelector.Update(deltaTime);
         }
 

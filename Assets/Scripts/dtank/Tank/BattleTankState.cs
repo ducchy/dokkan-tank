@@ -8,6 +8,7 @@ namespace dtank
         ShotCurve,
         ShotStraight,
         Damage,
+        Dead,
         Result,
     }
 }

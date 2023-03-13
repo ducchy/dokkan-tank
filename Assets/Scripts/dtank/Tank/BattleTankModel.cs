@@ -19,7 +19,11 @@ namespace dtank
         private readonly ReactiveProperty<float> _turnAmount = new ReactiveProperty<float>(0f);
         public IReactiveProperty<float> TurnAmount => _turnAmount;
 
+        private readonly ReactiveProperty<bool> _invincibleFlag = new ReactiveProperty<bool>(false);
+        public IReactiveProperty<bool> InvincibleFlag => _invincibleFlag;
+
         public readonly TransformData StartPointData;
+        private readonly float _invincibleDuration;
 
         public Vector3 Position { get; private set; }
         public Vector3 Forward { get; private set; }
@@ -27,10 +31,12 @@ namespace dtank
 
         private float _inputMoveAmount;
         private float _inputTurnAmount;
+        private float _invincibleRemainTime;
 
-        public BattleTankModel(TransformData startPointData)
+        public BattleTankModel(TransformData startPointData, float invincibleDuration)
         {
             StartPointData = startPointData;
+            _invincibleDuration = invincibleDuration;
         }
 
         public void SetPosition(Vector3 position)
@@ -86,7 +92,7 @@ namespace dtank
         {
             if (_battleState.Value != BattleTankState.ShotCurve)
                 return;
-            
+
             SetState(BattleTankState.FreeMove);
         }
 
@@ -108,12 +114,16 @@ namespace dtank
 
         public void Damage()
         {
+            if (_invincibleFlag.Value)
+                return;
+
             if (_battleState.Value == BattleTankState.Damage)
                 return;
 
             if (_hp.Value <= 0)
                 return;
 
+            BeginInvincible();
             SetState(BattleTankState.Damage);
             _hp.Value--;
         }
@@ -123,7 +133,19 @@ namespace dtank
             if (_battleState.Value != BattleTankState.Damage)
                 return;
 
+            if (DeadFlag)
+            {
+                Dead();
+                return;
+            }
+            
             SetState(BattleTankState.FreeMove);
+        }
+
+        private void Dead()
+        {
+            EndInvincible();
+            SetState(BattleTankState.Dead);
         }
 
         public void Result()
@@ -152,6 +174,35 @@ namespace dtank
         {
             _battleState.Value = state;
             SetMovable(IsMovableState(state));
+        }
+
+        public void Update(float deltaTime)
+        {
+            UpdateOnInvincible(deltaTime);
+        }
+
+        private void UpdateOnInvincible(float deltaTime)
+        {
+            if (!_invincibleFlag.Value)
+                return;
+
+            _invincibleRemainTime -= deltaTime;
+            if (_invincibleRemainTime <= 0f)
+                EndInvincible();
+        }
+
+        private void BeginInvincible()
+        {
+            if (_invincibleFlag.Value)
+                return;
+
+            _invincibleRemainTime = _invincibleDuration;
+            _invincibleFlag.Value = true;
+        }
+
+        private void EndInvincible()
+        {
+            _invincibleFlag.Value = false;
         }
     }
 }

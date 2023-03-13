@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
+using DG.Tweening;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
 namespace dtank
 {
@@ -35,6 +35,8 @@ namespace dtank
         public Action OnDamageReceivedListener;
         public Action<Vector3> OnPositionChangedListener;
         public Action<Vector3> OnForwardChangedListener;
+
+        private Sequence _invincibleSeq;
 
         public void Construct()
         {
@@ -96,14 +98,15 @@ namespace dtank
 
         public void Dead()
         {
+            _invincibleSeq?.Kill();
+            
             SetActive(false);
         }
 
         private void SetActive(bool active)
         {
             _collider.enabled = active;
-            foreach (var renderer in _renderers)
-                renderer.enabled = active;
+            SetVisible(active);
         }
 
         private void FixedUpdate()
@@ -115,7 +118,7 @@ namespace dtank
 
         private void Move(float deltaTime)
         {
-            var movement = transform.forward * _moveAmount * _moveSpeed * deltaTime;
+            var movement = transform.forward * (_moveAmount * _moveSpeed * deltaTime);
             _rigidbody.velocity = movement;
             
             OnPositionChangedListener?.Invoke(_rigidbody.position);
@@ -156,11 +159,38 @@ namespace dtank
 
         public bool ReceiveDamage(IAttacker attacker)
         {
-            if (attacker == this)
+            if (attacker == (IAttacker)this)
                 return false;
 
             OnDamageReceivedListener?.Invoke();
             return true;
+        }
+        
+        public void SetInvincible(bool flag)
+        {
+            _invincibleSeq?.Kill();
+
+            if (!flag) {
+                SetVisible(true);
+                return;
+            }
+
+            SetVisible(false);
+
+            _invincibleSeq = DOTween.Sequence()
+                .AppendInterval(0.05f)
+                .AppendCallback(() => SetVisible(true))
+                .AppendInterval(0.05f)
+                .AppendCallback(() => SetVisible(false))
+                .SetLoops(-1, LoopType.Restart)
+                .SetLink(gameObject)
+                .Play();
+        }
+
+        private void SetVisible(bool flag)
+        {
+            foreach (var rend in _renderers)
+                rend.enabled = flag;
         }
     }
 }

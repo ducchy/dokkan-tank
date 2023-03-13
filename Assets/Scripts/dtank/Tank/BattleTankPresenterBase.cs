@@ -47,6 +47,10 @@ namespace dtank
             Model.TurnAmount
                 .Subscribe(Actor.SetTurnAmount)
                 .AddTo(Disposable);
+
+            Model.InvincibleFlag
+                .Subscribe(Actor.SetInvincible)
+                .AddTo(Disposable);
         }
 
         protected void SetEvents()
@@ -62,6 +66,11 @@ namespace dtank
             Actor.OnDamageReceivedListener = Model.Damage;
             Actor.OnPositionChangedListener = Model.SetPosition;
             Actor.OnForwardChangedListener = Model.SetForward;
+        }
+
+        public virtual void Update(float deltaTime)
+        {
+            Model.Update(deltaTime);
         }
 
         protected virtual void OnStateChanged(BattleTankState state)
@@ -82,6 +91,9 @@ namespace dtank
                 case BattleTankState.ShotStraight:
                     Actor.Play(BattleTankAnimatorState.ShotStraight);
                     break;
+                case BattleTankState.Dead:
+                    OnDead();
+                    break;
             }
         }
 
@@ -97,8 +109,6 @@ namespace dtank
             {
                 case BattleTankAnimatorState.Damage:
                     Model.EndDamage();
-                    if (Model.DeadFlag)
-                        OnDead();
                     break;
                 case BattleTankAnimatorState.ShotCurve:
                     Model.EndShotCurve();

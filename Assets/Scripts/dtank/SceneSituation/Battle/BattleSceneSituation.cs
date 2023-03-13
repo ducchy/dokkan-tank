@@ -102,7 +102,7 @@ namespace dtank
             {
                 foreach (var startPointData in startPointDataArray)
                 {
-                    tankModels.Add(new BattleTankModel(startPointData));
+                    tankModels.Add(new BattleTankModel(startPointData, 2f));
                     var tankActor = actorFactory.Create(1, tankHolder);
                     tankActors.Add(tankActor);
                 }
@@ -122,7 +122,6 @@ namespace dtank
                     playerTankModel = tankModel;
                     playerTankPresenter =
                         new PlayerBattleTankPresenter(tankController, tankModel, tankActor, controlUiView, statusUiView);
-                    playerTankPresenter.OnGameOver = () => _stateContainer.Change(BattleState.Result);
                     ServiceContainer.Set(playerTankPresenter);
 
                     _stateContainer.OnChangedState += playerTankPresenter.OnChangedState;
