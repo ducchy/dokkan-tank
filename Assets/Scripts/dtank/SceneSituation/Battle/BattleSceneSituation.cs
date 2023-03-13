@@ -18,14 +18,12 @@ namespace dtank
         private readonly BattleResultData _resultData = new BattleResultData();
         
         private BattlePresenter _presenter;
-        private DokkanTankRulePresenter _rulePresenter;
 
         protected override void ReleaseInternal(SituationContainer parent)
         {
             base.ReleaseInternal(parent);
 
             _stateContainer.Dispose();
-            _rulePresenter?.Dispose();
         }
 
         protected override void StandbyInternal(Situation parent)
@@ -141,12 +139,12 @@ namespace dtank
 
             var controller = new BattleController(camera);
             ServiceContainer.Set(controller);
-
-            _presenter = new BattlePresenter(controller, playerTankPresenter, npcTankPresenters.ToArray());
             
-            _rulePresenter = new DokkanTankRulePresenter(_resultData, playerTankModel, tankModels.ToArray());
-            _rulePresenter.OnGameEnd = () => _stateContainer.Change(BattleState.Result);
-            _stateContainer.OnChangedState += _rulePresenter.OnChangedState;
+            var rulePresenter = new DokkanTankRulePresenter(_resultData, playerTankModel, tankModels.ToArray());
+            rulePresenter.OnGameEnd = () => _stateContainer.Change(BattleState.Result);
+            _stateContainer.OnChangedState += rulePresenter.OnChangedState;
+
+            _presenter = new BattlePresenter(controller, playerTankPresenter, npcTankPresenters.ToArray(), rulePresenter);
         }
 
         private void SetupStateContainer()

@@ -55,7 +55,7 @@ namespace dtank
             }
         }
 
-        public void OnChangedState(BattleState prev, BattleState current)
+        public override void OnChangedState(BattleState prev, BattleState current)
         {
             if (current == BattleState.Ready)
                 _resultData.SetResultType(BattleResultType.None);

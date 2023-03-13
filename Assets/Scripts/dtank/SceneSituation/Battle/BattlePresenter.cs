@@ -7,15 +7,18 @@ namespace dtank
         private readonly BattleController _controller;
         private readonly PlayerBattleTankPresenter _playerTankPresenter;
         private readonly NpcBattleTankPresenter[] _npcTankPresenters;
+        private readonly DokkanTankRulePresenter _rulePresenter;
 
         public BattlePresenter(
             BattleController controller,
             PlayerBattleTankPresenter playerTankPresenter,
-            NpcBattleTankPresenter[] npcTankPresenters)
+            NpcBattleTankPresenter[] npcTankPresenters,
+            DokkanTankRulePresenter rulePresenter)
         {
             _controller = controller;
             _playerTankPresenter = playerTankPresenter;
             _npcTankPresenters = npcTankPresenters;
+            _rulePresenter = rulePresenter;
         }
 
         public void Update(float deltaTime)
@@ -30,6 +33,7 @@ namespace dtank
             _playerTankPresenter.Dispose();
             foreach (var npcTankPresenter in _npcTankPresenters)
                 npcTankPresenter.Dispose();
+            _rulePresenter.Dispose();
         }
     }
 }
