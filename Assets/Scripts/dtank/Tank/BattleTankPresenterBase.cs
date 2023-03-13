@@ -23,9 +23,6 @@ namespace dtank
             Model = model;
             Actor = actor;
             BehaviourSelector = behaviourSelector;
-
-            Bind();
-            SetEvents();
         }
 
         public virtual void Dispose()
@@ -33,14 +30,18 @@ namespace dtank
             Disposable.Dispose();
         }
 
-        private void Bind()
+        protected void Bind()
         {
             Model.BattleState
                 .Subscribe(OnStateChanged)
                 .AddTo(Disposable);
+            
+            Model.Hp
+                .Subscribe(OnHpChanged)
+                .AddTo(Disposable);
         }
 
-        private void SetEvents()
+        protected void SetEvents()
         {
             BehaviourSelector.OnDamageListener = Model.Damage;
             BehaviourSelector.OnShotCurveListener = Model.ShotCurve;
@@ -53,10 +54,6 @@ namespace dtank
             Actor.OnDamageReceivedListener = Model.Damage;
             Actor.OnPositionChangedListener = Model.SetPosition;
             Actor.OnForwardChangedListener = Model.SetForward;
-        }
-
-        protected virtual void BindInternal()
-        {
         }
 
         protected virtual void OnStateChanged(BattleTankState state)
@@ -78,6 +75,10 @@ namespace dtank
                     Actor.Play(BattleTankAnimatorState.ShotStraight);
                     break;
             }
+        }
+
+        protected virtual void OnHpChanged(int hp)
+        {
         }
 
         protected virtual void OnAnimatorStateExit(BattleTankAnimatorState animState)

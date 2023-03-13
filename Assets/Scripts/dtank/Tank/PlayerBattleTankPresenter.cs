@@ -1,5 +1,4 @@
 using System;
-using UniRx;
 
 namespace dtank
 {
@@ -20,6 +19,9 @@ namespace dtank
         {
             _controlUiView = controlUiView;
             _statusUiView = statusUiView;
+            
+            Bind();
+            SetEvents();
         }
 
         public override void Dispose()
@@ -29,12 +31,11 @@ namespace dtank
             OnGameOver = null;
         }
 
-        protected override void BindInternal()
+        protected override void OnHpChanged(int hp)
         {
-            base.BindInternal();
+            base.OnHpChanged(hp);
 
-            Model.Hp
-                .Subscribe(_statusUiView.SetHp).AddTo(Disposable);
+            _statusUiView.SetHp(hp);
         }
 
         protected override void OnDead()

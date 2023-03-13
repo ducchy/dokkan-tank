@@ -12,6 +12,9 @@ namespace dtank
             : base(controller, model, actor, behaviourSelector)
         {
             _behaviourSelector = behaviourSelector;
+            
+            Bind();
+            SetEvents();
         }
 
         public void Update(float deltaTime)
