@@ -11,11 +11,12 @@ namespace dtank
         public Action OnGameOver;
 
         public PlayerBattleTankPresenter(
+            BattleTankController controller,
             BattleTankModel model,
             BattleTankActor actor,
             BattleTankControlUiView controlUiView,
             BattleTankStatusUiView statusUiView)
-            : base(model, actor, controlUiView)
+            : base(controller, model, actor, controlUiView)
         {
             _controlUiView = controlUiView;
             _statusUiView = statusUiView;

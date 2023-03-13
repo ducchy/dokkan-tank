@@ -7,10 +7,13 @@ namespace dtank
     {
         private readonly ReactiveProperty<BattleTankState> _battleState =
             new ReactiveProperty<BattleTankState>(BattleTankState.Invalid);
+
         public IReadOnlyReactiveProperty<BattleTankState> BattleState => _battleState;
 
         private readonly ReactiveProperty<int> _hp = new ReactiveProperty<int>(3);
         public IReadOnlyReactiveProperty<int> Hp => _hp;
+
+        public readonly TransformData StartPointData;
 
         private Vector3 _position;
         public Vector3 Position => _position;
@@ -18,8 +21,9 @@ namespace dtank
         private Vector3 _forward;
         public Vector3 Forward => _forward;
 
-        public BattleTankModel()
+        public BattleTankModel(TransformData startPointData)
         {
+            StartPointData = startPointData;
         }
 
         public void SetPosition(Vector3 position)
@@ -34,6 +38,7 @@ namespace dtank
 
         public void Ready()
         {
+            _hp.Value = 3;
             _battleState.Value = BattleTankState.Ready;
         }
 
@@ -78,7 +83,7 @@ namespace dtank
         {
             if (_battleState.Value == BattleTankState.Damage)
                 return;
-            
+
             if (_hp.Value <= 0)
                 return;
 

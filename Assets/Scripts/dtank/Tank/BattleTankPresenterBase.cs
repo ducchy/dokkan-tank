@@ -6,6 +6,7 @@ namespace dtank
 {
     public abstract class BattleTankPresenterBase : IDisposable
     {
+        protected readonly BattleTankController Controller;
         protected readonly BattleTankModel Model;
         protected readonly BattleTankActor Actor;
         protected readonly IBehaviourSelector BehaviourSelector;
@@ -13,10 +14,12 @@ namespace dtank
         protected readonly CompositeDisposable Disposable = new CompositeDisposable();
 
         protected BattleTankPresenterBase(
+            BattleTankController controller,
             BattleTankModel model,
             BattleTankActor actor,
             IBehaviourSelector behaviourSelector)
         {
+            Controller = controller;
             Model = model;
             Actor = actor;
             BehaviourSelector = behaviourSelector;
@@ -62,6 +65,9 @@ namespace dtank
 
             switch (state)
             {
+                case BattleTankState.Ready:
+                    Actor.Ready();
+                    break;
                 case BattleTankState.Damage:
                     Actor.Play(BattleTankAnimatorState.Damage);
                     break;
@@ -119,6 +125,7 @@ namespace dtank
             switch (current)
             {
                 case BattleState.Ready:
+                    Controller.SetStartPoint();
                     Model.Ready();
                     break;
                 case BattleState.Playing:

@@ -5,10 +5,11 @@ namespace dtank
         private readonly NpcBehaviourSelector _behaviourSelector;
         
         public NpcBattleTankPresenter(
+            BattleTankController controller,
             BattleTankModel model,
             BattleTankActor actor,
             NpcBehaviourSelector behaviourSelector)
-            : base(model, actor, behaviourSelector)
+            : base(controller, model, actor, behaviourSelector)
         {
             _behaviourSelector = behaviourSelector;
         }

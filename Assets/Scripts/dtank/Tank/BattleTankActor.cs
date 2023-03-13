@@ -43,16 +43,28 @@ namespace dtank
             _animator.OnStateEnterAction = OnStateEnter;
             _animator.OnStateExitAction = OnStateExit;
             _animator.OnAnimationEventAction = OnAnimationEvent;
+            
+            SetActive(false);
         }
 
         public void SetTransform(TransformData data)
         {
             transform.Set(data);
+            _rigidbody.position = data.Position;
+            _rigidbody.rotation = Quaternion.Euler(data.Angle);
+            
+            OnPositionChangedListener?.Invoke(_rigidbody.position);
+            OnForwardChangedListener?.Invoke(_rigidbody.rotation * Vector3.forward);
         }
 
         public void Play(BattleTankAnimatorState state)
         {
             _animator.Play(state.ToStateName());
+        }
+
+        public void Ready()
+        {
+            SetActive(true);
         }
 
         public void ShotCurve()

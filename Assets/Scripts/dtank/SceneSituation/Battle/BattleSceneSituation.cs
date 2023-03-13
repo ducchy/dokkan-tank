@@ -101,9 +101,8 @@ namespace dtank
             {
                 foreach (var startPointData in startPointDataArray)
                 {
-                    tankModels.Add(new BattleTankModel());
+                    tankModels.Add(new BattleTankModel(startPointData));
                     var tankActor = actorFactory.Create(1, tankHolder);
-                    tankActor.SetTransform(startPointData);
                     tankActors.Add(tankActor);
                 }
             }
@@ -115,10 +114,11 @@ namespace dtank
             {
                 var tankModel = tankModels[i];
                 var tankActor = tankActors[i];
+                var tankController = new BattleTankController(tankModel, tankActor);
                 if (i == 0)
                 {
                     playerTankPresenter =
-                        new PlayerBattleTankPresenter(tankModel, tankActor, controlUiView, statusUiView);
+                        new PlayerBattleTankPresenter(tankController, tankModel, tankActor, controlUiView, statusUiView);
                     playerTankPresenter.OnGameOver = () => _stateContainer.Change(BattleState.Result);
                     ServiceContainer.Set(playerTankPresenter);
 
@@ -129,7 +129,7 @@ namespace dtank
 
                 var npcTankBehaviourSelector =
                     new NpcBehaviourSelector(tankModel, tankModels.Where(m => m != tankModel).ToArray());
-                var npcTankPresenter = new NpcBattleTankPresenter(tankModel, tankActor, npcTankBehaviourSelector);
+                var npcTankPresenter = new NpcBattleTankPresenter(tankController, tankModel, tankActor, npcTankBehaviourSelector);
                 npcTankPresenters.Add(npcTankPresenter);
                 _stateContainer.OnChangedState += npcTankPresenter.OnChangedState;
             }
