@@ -11,7 +11,7 @@ namespace dtank
 
         public void Update(float deltaTime)
         {   
-            _camera.Update(deltaTime);
+            _camera.OnUpdate(deltaTime);
         }
     }
 }

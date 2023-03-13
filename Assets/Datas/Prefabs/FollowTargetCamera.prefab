@@ -112,3 +112,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10b8e8b3123ee45d5ba5a72ce53502ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _offsetPos: {x: 0, y: 3, z: -3.5}
+  _offsetAngle: {x: 25, y: 0, z: 0}
