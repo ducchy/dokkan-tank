@@ -24,6 +24,8 @@ namespace dtank
         [SerializeField] private MeshRenderer[] _renderers;
         [SerializeField] private Collider _collider;
         [SerializeField] private Transform _muzzle;
+        [SerializeField] private GameObject _deadEffectPrefab;
+        [SerializeField] private GameObject _fireEffectPrefab;
 
         [SerializeField] private float _moveSpeed = 12f;
         [SerializeField] private float _turnSpeed = 180f;
@@ -89,7 +91,11 @@ namespace dtank
         {
             var position = _muzzle.position;
             var instance = Instantiate(prefab, position, _muzzle.rotation);
-            instance.Shot(this, _muzzle.forward);
+            var forward = _muzzle.forward;
+            instance.Shot(this, forward);
+
+            var fireEffect = Instantiate(_fireEffectPrefab);
+            fireEffect.transform.position = position + forward;
         }
 
         public void SetMoveAmount(float moveAmount)
@@ -105,6 +111,9 @@ namespace dtank
         public void Dead()
         {
             _invincibleSeq?.Kill();
+
+            var deadEffect = Instantiate(_deadEffectPrefab);
+            deadEffect.transform.position = transform.position;
             
             SetActive(false);
         }

@@ -58,6 +58,8 @@ MonoBehaviour:
   - {fileID: 3843997106081425184}
   _collider: {fileID: 9223366740262007014}
   _muzzle: {fileID: 7143250431057222058}
+  _deadEffectPrefab: {fileID: 1892078723244562, guid: 43f1aa89c597e41d3993c7f32502fbff, type: 3}
+  _fireEffectPrefab: {fileID: 3277316613537239817, guid: 88166ed19b8f24d8aa595656ba46ab27, type: 3}
   _moveSpeed: 100
   _turnSpeed: 45
   _moveAmount: 0

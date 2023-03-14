@@ -7,13 +7,14 @@ namespace dtank
         [SerializeField] private Rigidbody _rigidbody;
         [SerializeField] private Collider _collider;
         [SerializeField] private float _velocity;
+        [SerializeField] private GameObject _explosionEffectPrefab;
 
         private IAttacker _owner;
 
         public void Shot(IAttacker owner, Vector3 forward)
         {
             _owner = owner;
-            
+
             _rigidbody.velocity = forward * _velocity;
         }
 
@@ -26,7 +27,7 @@ namespace dtank
             {
                 if (!damageReceiver.ReceiveDamage(_owner))
                     return;
-                
+
                 Debug.LogFormat("ダメージ！");
             }
 
@@ -36,6 +37,9 @@ namespace dtank
         private void Explode()
         {
             Debug.LogFormat("Explode");
+
+            var explosion = Instantiate(_explosionEffectPrefab);
+            explosion.transform.position = transform.position;
 
             Destroy(gameObject);
         }
