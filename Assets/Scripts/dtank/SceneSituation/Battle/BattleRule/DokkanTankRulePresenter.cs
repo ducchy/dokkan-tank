@@ -1,29 +1,29 @@
-using System;
-using System.Linq;
 using UniRx;
 
 namespace dtank
 {
     public class DokkanTankRulePresenter : BattleRulePresenterBase
     {
-        private readonly BattleResultData _resultData;
-        private readonly BattleTankModel _mainPlayer;
-        private readonly BattleTankModel[] _players;
-
-        public Action OnGameEnd;
+        private readonly BattleRuleModel _ruleModel;
+        private readonly BattleTankActor[] _tankActors;
+        private readonly BattleTankModel[] _tankModels;
+        private readonly BattlePlayingUiView _playingUiView;
 
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
         public DokkanTankRulePresenter(
-            BattleResultData resultData,
-            BattleTankModel mainPlayer,
-            BattleTankModel[] players)
+            BattleRuleModel ruleModel,
+            BattleTankActor[] tankActors,
+            BattleTankModel[] tankModels,
+            BattlePlayingUiView playingUiView)
         {
-            _resultData = resultData;
-            _mainPlayer = mainPlayer;
-            _players = players;
+            _ruleModel = ruleModel;
+            _tankActors = tankActors;
+            _tankModels = tankModels;
+            _playingUiView = playingUiView;
 
             Bind();
+            SetEvent();
         }
 
         public override void Dispose()
@@ -33,32 +33,40 @@ namespace dtank
 
         private void Bind()
         {
-            foreach (var player in _players)
-                player.BattleState.Subscribe(_ => CheckResult()).AddTo(_disposable);
+            foreach (var tankModel in _tankModels)
+            {
+                tankModel.BattleState.Subscribe(state =>
+                {
+                    if (state == BattleTankState.Dead)
+                        _ruleModel.Dead(tankModel.PlayerId);
+                }).AddTo(_disposable);
+            }
+
+            _ruleModel.RemainTime.Subscribe(_playingUiView.SetTime).AddTo(_disposable);
         }
 
-        private void CheckResult()
+        private void SetEvent()
         {
-            if (_resultData.ResultType != BattleResultType.None)
-                return;
-
-            if (_mainPlayer.BattleState.Value == BattleTankState.Dead)
-            {
-                _resultData.SetResultType(BattleResultType.Lose);
-                OnGameEnd?.Invoke();
-                return;
-            }
-
-            if (_players.All(p => p == _mainPlayer || p.BattleState.Value == BattleTankState.Dead)) {
-                _resultData.SetResultType(BattleResultType.Win);
-                OnGameEnd?.Invoke();
-            }
+            foreach (var tankActor in _tankActors)
+                tankActor.OnDealDamageListener = () => _ruleModel.IncrementScore(tankActor.OwnerId);
         }
 
         public override void OnChangedState(BattleState prev, BattleState current)
         {
-            if (current == BattleState.Ready)
-                _resultData.SetResultType(BattleResultType.None);
+            switch (current)
+            {
+                case BattleState.Ready:
+                    _ruleModel.Ready();
+                    break;
+                case BattleState.Playing:
+                    _ruleModel.Start();
+                    break;
+            }
+        }
+
+        public void Update(float deltaTime)
+        {
+            _ruleModel.Update(deltaTime);
         }
     }
 }

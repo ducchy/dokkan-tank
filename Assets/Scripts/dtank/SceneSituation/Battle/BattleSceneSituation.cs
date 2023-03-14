@@ -15,7 +15,7 @@ namespace dtank
 
         private readonly StateContainer<BattleStateBase, BattleState> _stateContainer =
             new StateContainer<BattleStateBase, BattleState>();
-        private readonly BattleResultData _resultData = new BattleResultData();
+        private readonly BattleRuleModel _ruleModel = new BattleRuleModel(30f);
         
         private BattlePresenter _presenter;
 
@@ -33,7 +33,7 @@ namespace dtank
             base.StandbyInternal(parent);
 
             ServiceContainer.Set(_stateContainer);
-            ServiceContainer.Set(_resultData);
+            ServiceContainer.Set(_ruleModel);
         }
 
         protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope)
@@ -77,13 +77,17 @@ namespace dtank
 
         private void SetupAll()
         {
-            SetupStateContainer();
             SetupPresenter();
+            SetupStateContainer();
         }
 
         private void SetupPresenter()
         {
-            var camera = Services.Get<FollowTargetCamera>();
+            var uiView = Services.Get<BattleUiView>();
+            uiView.Construct();
+            
+            var camera = Services.Get<BattleCamera>();
+            camera.Construct();
 
             var fieldView = Services.Get<FieldViewData>();
             var startPointDataArray = fieldView.StartPointDataArray;
@@ -98,15 +102,22 @@ namespace dtank
 
             var tankModels = new List<BattleTankModel>();
             var tankActors = new List<BattleTankActor>();
+            var tankActorDictionary = new Dictionary<int, BattleTankActor>();
             using (var actorFactory = new BattleTankActorFactory())
             {
+                var tankId = 1;
                 foreach (var startPointData in startPointDataArray)
                 {
-                    tankModels.Add(new BattleTankModel(startPointData, 2f));
-                    var tankActor = actorFactory.Create(1, tankHolder);
+                    int playerId = tankId;
+                    tankModels.Add(new BattleTankModel(playerId, startPointData, 2f));
+                    var tankActor = actorFactory.Create(tankId, tankHolder);
+                    tankActor.Construct(playerId);
                     tankActors.Add(tankActor);
+                    tankActorDictionary.Add(tankId++, tankActor);
                 }
             }
+            var tankActorContainer = new TankActorContainer(tankActorDictionary);
+            ServiceContainer.Set(tankActorContainer);
 
             PlayerBattleTankPresenter playerTankPresenter = null;
             var npcTankPresenters = new List<NpcBattleTankPresenter>();
@@ -123,9 +134,6 @@ namespace dtank
                     playerTankPresenter =
                         new PlayerBattleTankPresenter(tankController, tankModel, tankActor, controlUiView, statusUiView);
                     ServiceContainer.Set(playerTankPresenter);
-
-                    _stateContainer.OnChangedState += playerTankPresenter.OnChangedState;
-                    camera.Construct(tankActor.transform);
                     continue;
                 }
 
@@ -133,15 +141,14 @@ namespace dtank
                     new NpcBehaviourSelector(tankModel, tankModels.Where(m => m != tankModel).ToArray());
                 var npcTankPresenter = new NpcBattleTankPresenter(tankController, tankModel, tankActor, npcTankBehaviourSelector);
                 npcTankPresenters.Add(npcTankPresenter);
-                _stateContainer.OnChangedState += npcTankPresenter.OnChangedState;
             }
 
-            var controller = new BattleController(camera);
+            var controller = new BattleController(camera, playerTankModel, tankActorContainer);
             ServiceContainer.Set(controller);
+
+            var playingUiView = Services.Get<BattlePlayingUiView>();
             
-            var rulePresenter = new DokkanTankRulePresenter(_resultData, playerTankModel, tankModels.ToArray());
-            rulePresenter.OnGameEnd = () => _stateContainer.Change(BattleState.Result);
-            _stateContainer.OnChangedState += rulePresenter.OnChangedState;
+            var rulePresenter = new DokkanTankRulePresenter(_ruleModel, tankActors.ToArray(), tankModels.ToArray(), playingUiView);
 
             _presenter = new BattlePresenter(controller, playerTankPresenter, npcTankPresenters.ToArray(), rulePresenter);
         }
@@ -155,6 +162,7 @@ namespace dtank
                 new BattleStateResult()
             };
             _stateContainer.Setup(BattleState.Invalid, states.ToArray());
+            _stateContainer.OnChangedState += _presenter.OnChangedState;
         }
 
         #endregion Setup

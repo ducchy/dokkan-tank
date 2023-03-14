@@ -7,6 +7,7 @@ namespace dtank
 {
     public interface IAttacker
     {
+        void DealDamage();
     }
 
     public interface IDamageReceiver
@@ -32,14 +33,19 @@ namespace dtank
 
         public Action<BattleTankAnimatorState> OnStateExitListener;
         public Action<string> OnAnimationEventListener;
-        public Action OnDamageReceivedListener;
+        public Action<IAttacker> OnDamageReceivedListener;
         public Action<Vector3> OnPositionChangedListener;
         public Action<Vector3> OnForwardChangedListener;
+        public Action OnDealDamageListener;
 
         private Sequence _invincibleSeq;
+        
+        public int OwnerId { get; private set; }
 
-        public void Construct()
+        public void Construct(int ownerId)
         {
+            OwnerId = ownerId;
+            
             _animator.Construct();
 
             _animator.OnStateEnterAction = OnStateEnter;
@@ -162,7 +168,7 @@ namespace dtank
             if (attacker == (IAttacker)this)
                 return false;
 
-            OnDamageReceivedListener?.Invoke();
+            OnDamageReceivedListener?.Invoke(attacker);
             return true;
         }
         
@@ -191,6 +197,11 @@ namespace dtank
         {
             foreach (var rend in _renderers)
                 rend.enabled = flag;
+        }
+
+        public void DealDamage()
+        {
+            OnDealDamageListener?.Invoke();
         }
     }
 }

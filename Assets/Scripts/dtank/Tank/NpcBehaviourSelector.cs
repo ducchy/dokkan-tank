@@ -7,7 +7,7 @@ namespace dtank
 {
     public class NpcBehaviourSelector : IBehaviourSelector
     {
-        public Action OnDamageListener { get; set; }
+        public Action<IAttacker> OnDamageListener { get; set; }
         public Action OnShotCurveListener { get; set; }
         public Action OnShotStraightListener { get; set; }
         public Action<float> OnTurnValueChangedListener { get; set; }

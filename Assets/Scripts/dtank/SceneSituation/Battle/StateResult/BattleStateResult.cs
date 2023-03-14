@@ -11,14 +11,16 @@ namespace dtank
 
         public BattleStateResult()
         {
-            var resultData = Services.Get<BattleResultData>();
+            var ruleModel = Services.Get<BattleRuleModel>();
+            var uiView = Services.Get<BattleUiView>();
+            var controller = Services.Get<BattleController>();
             
-            var uiView = Services.Get<BattleResultUiView>();
-            uiView.Construct();
+            var resultUiView = Services.Get<BattleResultUiView>();
+            resultUiView.Construct();
 
-            var controller = new BattleResultController(resultData, uiView);
+            var resultController = new BattleResultController(ruleModel, resultUiView);
             
-            _presenter = new BattleResultPresenter(controller, uiView);
+            _presenter = new BattleResultPresenter(ruleModel, controller, resultController, uiView, resultUiView);
             _presenter.OnQuit = () => SceneSituationContainer?.Transition(new TitleSceneSituation());
             _presenter.OnRetry = () => StateContainer.Change(BattleState.Ready);
         }

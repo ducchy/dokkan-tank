@@ -1896,6 +1896,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1403218254}
     - target: {fileID: 4555430698816459267, guid: 29af70ebdd0bd174a905e976bb8d0614, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4555430698816459267, guid: 29af70ebdd0bd174a905e976bb8d0614, type: 3}
       propertyPath: m_SelectedEditorRenderState
       value: 2
       objectReference: {fileID: 0}
@@ -1917,7 +1921,7 @@ PrefabInstance:
       objectReference: {fileID: 1403218254}
     - target: {fileID: 8034875552387429931, guid: 29af70ebdd0bd174a905e976bb8d0614, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 2147483647
+      value: 127
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 29af70ebdd0bd174a905e976bb8d0614, type: 3}
@@ -4498,15 +4502,15 @@ Light:
   serializedVersion: 10
   m_Type: 1
   m_Shape: 0
-  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 2
-    m_Resolution: -1
+    m_Type: 1
+    m_Resolution: 2
     m_CustomResolution: -1
     m_Strength: 1
     m_Bias: 0.05
@@ -5063,7 +5067,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &640474797
 Transform:
   m_ObjectHideFlags: 0
@@ -10169,6 +10173,10 @@ PrefabInstance:
       value: Environment_1
       objectReference: {fileID: 0}
     - target: {fileID: 1256858306203008, guid: 93acc49b5a9f4e84b89aa62e0282a2a3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1256858306203008, guid: 93acc49b5a9f4e84b89aa62e0282a2a3, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
@@ -13402,7 +13410,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1638311628
 Transform:
   m_ObjectHideFlags: 0

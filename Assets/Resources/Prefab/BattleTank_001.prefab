@@ -102,9 +102,49 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 7223a35417cad4c3693897218484a565, type: 2}
+    - target: {fileID: 6231138466194349569, guid: f03fa24a6ac8150469e5eea51161aae9, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 2113151d298a74d2881491295688f278, type: 2}
+    - target: {fileID: 6231138466194349569, guid: f03fa24a6ac8150469e5eea51161aae9, type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: 21ab5aa191e19447d994a1c48c69a4ed, type: 2}
+    - target: {fileID: 6231138466194349569, guid: f03fa24a6ac8150469e5eea51161aae9, type: 3}
+      propertyPath: m_Materials.Array.data[2]
+      value: 
+      objectReference: {fileID: 2100000, guid: 21ab5aa191e19447d994a1c48c69a4ed, type: 2}
+    - target: {fileID: 6231138466194349571, guid: f03fa24a6ac8150469e5eea51161aae9, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 2113151d298a74d2881491295688f278, type: 2}
+    - target: {fileID: 6231138466194349571, guid: f03fa24a6ac8150469e5eea51161aae9, type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: 21ab5aa191e19447d994a1c48c69a4ed, type: 2}
+    - target: {fileID: 6231138466194349575, guid: f03fa24a6ac8150469e5eea51161aae9, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 2113151d298a74d2881491295688f278, type: 2}
+    - target: {fileID: 6231138466194349575, guid: f03fa24a6ac8150469e5eea51161aae9, type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: 21ab5aa191e19447d994a1c48c69a4ed, type: 2}
+    - target: {fileID: 6231138466194349577, guid: f03fa24a6ac8150469e5eea51161aae9, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 2113151d298a74d2881491295688f278, type: 2}
+    - target: {fileID: 6231138466194349577, guid: f03fa24a6ac8150469e5eea51161aae9, type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: 21ab5aa191e19447d994a1c48c69a4ed, type: 2}
     - target: {fileID: 6231138466196603249, guid: f03fa24a6ac8150469e5eea51161aae9, type: 3}
       propertyPath: m_Name
       value: prfb_tank001_00
+      objectReference: {fileID: 0}
+    - target: {fileID: 6231138466196603253, guid: f03fa24a6ac8150469e5eea51161aae9, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6231138466196603261, guid: f03fa24a6ac8150469e5eea51161aae9, type: 3}
       propertyPath: m_Layer

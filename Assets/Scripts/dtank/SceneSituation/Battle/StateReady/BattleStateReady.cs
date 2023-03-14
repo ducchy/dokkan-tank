@@ -11,15 +11,17 @@ namespace dtank
 
         public BattleStateReady()
         {
-            var uiView = Services.Get<BattleReadyUiView>();
-            uiView.Construct();
-            
-            var controller = new BattleReadyController();
-            
-            _presenter = new BattleReadyPresenter(controller, uiView);
+            var camera = Services.Get<BattleCamera>();
+            var controller = Services.Get<BattleController>();
+            var uiView = Services.Get<BattleUiView>();
+
+            var readyUiView = Services.Get<BattleReadyUiView>();
+            readyUiView.Construct();
+
+            _presenter = new BattleReadyPresenter(camera, controller, uiView, readyUiView);
             _presenter.OnStartPlaying = () => StateContainer?.Change(BattleState.Playing);
         }
-        
+
         public override void OnEnter(BattleState prevKey, IScope scope)
         {
             Debug.Log("BattleStateReady.OnEnter()");
@@ -34,7 +36,7 @@ namespace dtank
         public override void OnExit(BattleState nextKey)
         {
             Debug.Log("BattleStateReady.OnExit()");
-            
+
             _presenter.Deactivate();
         }
     }

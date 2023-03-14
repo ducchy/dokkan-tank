@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,11 +14,13 @@ namespace dtank
         [SerializeField] private Slider _verticalSlider;
         [SerializeField] private Slider _horizontalSlider;
         
-        public Action OnDamageListener { private get; set; }
+        public Action<IAttacker> OnDamageListener { private get; set; }
         public Action OnShotCurveListener { private get; set; }
         public Action OnShotStraightListener { private get; set; }
         public Action<float> OnTurnValueChangedListener { private get; set; }
         public Action<float> OnMoveValueChangedListener { private get; set; }
+        
+        private Sequence _sequence;
 
         public void Construct()
         {
@@ -32,7 +35,7 @@ namespace dtank
             SetActive(false);
         }
 
-        public void SetActive(bool flag)
+        private void SetActive(bool flag)
         {
             if (_group == null)
                 return;
@@ -43,7 +46,7 @@ namespace dtank
 
         private void OnDamageButtonClicked()
         {
-            OnDamageListener?.Invoke();
+            OnDamageListener?.Invoke(null);
         }
 
         private void OnShotCurveButtonClicked()
@@ -64,6 +67,30 @@ namespace dtank
         private void OnHorizontalSliderValueChanged(float value)
         {
             OnTurnValueChangedListener?.Invoke(value);
+        }
+
+        public void Open()
+        {
+            _sequence?.Kill();
+            
+            SetActive(false);
+
+            _sequence = DOTween.Sequence()
+                .Append(_group.DOFade(1f, 0.3f))
+                .OnComplete(() => SetActive(true))
+                .SetLink(gameObject)
+                .Play();
+        }
+
+        public void Close()
+        {
+            _sequence?.Kill();
+
+            _sequence = DOTween.Sequence()
+                .Append(_group.DOFade(0f, 0.3f))
+                .OnComplete(() => SetActive(false))
+                .SetLink(gameObject)
+                .Play();
         }
 
 #if UNITY_EDITOR

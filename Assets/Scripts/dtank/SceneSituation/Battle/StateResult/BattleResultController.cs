@@ -4,14 +4,14 @@ namespace dtank
 {
     public class BattleResultController : IDisposable
     {
-        private readonly BattleResultData _resultData;
+        private readonly BattleRuleModel _ruleModel;
         private readonly BattleResultUiView _uiView;
         
         public BattleResultController(
-            BattleResultData resultData,
+            BattleRuleModel ruleModel,
             BattleResultUiView uiView)
         {
-            _resultData = resultData;
+            _ruleModel = ruleModel;
             _uiView = uiView;
         }
 
@@ -21,7 +21,7 @@ namespace dtank
 
         public void PlayResult()
         {
-            _uiView.PlayResult(_resultData.ResultType == BattleResultType.Win);
+            _uiView.PlayResult(_ruleModel.ResultType.Value == BattleResultType.Win);
         }
     }
 }

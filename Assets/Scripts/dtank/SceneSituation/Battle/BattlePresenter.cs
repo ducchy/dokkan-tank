@@ -27,6 +27,7 @@ namespace dtank
             _playerTankPresenter.Update(deltaTime);
             foreach (var npcTankPresenter in _npcTankPresenters)
                 npcTankPresenter.Update(deltaTime);
+            _rulePresenter.Update(deltaTime);
         }
 
         public void Dispose()
@@ -35,6 +36,14 @@ namespace dtank
             foreach (var npcTankPresenter in _npcTankPresenters)
                 npcTankPresenter.Dispose();
             _rulePresenter.Dispose();
+        }
+
+        public void OnChangedState(BattleState prev, BattleState current)
+        {
+            _playerTankPresenter.OnChangedState(prev, current);
+            foreach (var npcTankPresenter in _npcTankPresenters)
+                npcTankPresenter.OnChangedState(prev, current);
+            _rulePresenter.OnChangedState(prev, current);
         }
     }
 }

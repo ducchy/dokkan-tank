@@ -1,75 +1,71 @@
 using System;
 using DG.Tweening;
-using TMPro;
-using UniRx;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace dtank
 {
     public class BattleReadyUiView : MonoBehaviour
     {
         [SerializeField] private CanvasGroup _group;
-        [SerializeField] private TextMeshProUGUI _countDownLabel;
+        [SerializeField] private Button _skipButton;
 
-        private readonly Subject<Unit> _onStart = new Subject<Unit>();
-        public IObservable<Unit> OnStartObservable => _onStart;
-        
-        private Sequence _countDownSeq;		
-        
+        public Action OnSkipButtonClickedListener;
+
+        private Sequence _seq;
+
         public void Construct()
         {
             Debug.Log("BattleReadyUiView.Construct()");
 
+            _skipButton.onClick.AddListener(OnSkipButtonClicked);
+            
             SetActive(false);
         }
 
         private void OnDestroy()
         {
-            _countDownSeq?.Kill();
+            _seq?.Kill();
+            
+            _skipButton.onClick.RemoveListener(OnSkipButtonClicked);
         }
 
         private void SetActive(bool flag)
         {
+            if (_group == null)
+                return;
+            
             _group.alpha = flag ? 1f : 0f;
             _group.blocksRaycasts = flag;
         }
-        
-        public void PlayCountDown()
+
+        public void BeginReady()
         {
-            SetActive(true);
-            SetCountDownSecondText(3);
-            
-            _countDownSeq?.Kill();
-            _countDownSeq = DOTween.Sequence()
-                .AppendInterval(1f)
-                .AppendCallback(() => SetCountDownSecondText(2))
-                .AppendInterval(1f)
-                .AppendCallback(() => SetCountDownSecondText(1))
-                .AppendInterval(1f)
-                .AppendCallback(OnStart)
-                .AppendInterval(1f)
-                .OnComplete(() =>
-                {
-                    SetActive(false);
-                })
+            SetActive(false);
+
+            _seq?.Kill();
+            _seq = DOTween.Sequence()
+                .Append(_group.DOFade(1f, 0.3f))
+                .OnComplete(() => SetActive(true))
                 .SetLink(gameObject)
                 .Play();
         }
 
-        private void OnStart()
+        public void EndReady()
         {
-            _onStart.OnNext(Unit.Default);
-            SetCountDownStartText();
+            SetActive(true);
+
+            _seq?.Kill();
+            _seq = DOTween.Sequence()
+                .Append(_group.DOFade(0f, 0.3f))
+                .OnComplete(() => SetActive(false))
+                .SetLink(gameObject)
+                .Play();
         }
 
-        private void SetCountDownSecondText(int second)
+        private void OnSkipButtonClicked()
         {
-            _countDownLabel.text = second.ToString();
-        }
-
-        private void SetCountDownStartText()
-        {
-            _countDownLabel.text = "スタート！";
+            OnSkipButtonClickedListener?.Invoke();
         }
     }
 }

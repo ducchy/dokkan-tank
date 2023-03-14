@@ -4,7 +4,7 @@ namespace dtank
 {
     public interface IBehaviourSelector
     {
-        Action OnDamageListener { set; }
+        Action<IAttacker> OnDamageListener { set; }
         Action OnShotCurveListener { set; }
         Action OnShotStraightListener { set; }
         Action<float> OnTurnValueChangedListener { set; }

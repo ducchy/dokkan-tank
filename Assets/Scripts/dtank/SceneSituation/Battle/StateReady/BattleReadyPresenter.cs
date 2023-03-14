@@ -5,42 +5,59 @@ namespace dtank
 {
     public class BattleReadyPresenter : IDisposable
     {
-        private readonly BattleReadyController _controller;
-        private readonly BattleReadyUiView _uiView;
+        private readonly BattleCamera _camera;
+        private readonly BattleController _controller;
+        private readonly BattleUiView _uiView;
+        private readonly BattleReadyUiView _readyUiView;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
-
-        public Action OnStartPlaying = null;
         
+        public Action OnStartPlaying;
+
         public BattleReadyPresenter(
-            BattleReadyController controller, 
-            BattleReadyUiView uiView)
+            BattleCamera camera,
+            BattleController controller, 
+            BattleUiView uiView,
+            BattleReadyUiView readyUiView)
         {
+            _camera = camera;
             _controller = controller;
             _uiView = uiView;
+            _readyUiView = readyUiView;
 
-            _uiView.OnStartObservable
-                .Subscribe(_ => OnStartPlaying?.Invoke())
-                .AddTo(_disposable);
+            SetEvent();
         }
 
         public void Dispose()
         {
-            _controller.Dispose();
             _disposable.Dispose();
-            
-            OnStartPlaying = null;
         }
 
         public void Activate()
-        {
-            _controller.Activate();
-            
-            _uiView.PlayCountDown();
+        { 
+            _controller.PlayReady();
+            _uiView.BeginBattle();
         }
 
         public void Deactivate()
         {
-            _controller.Deactivate();
+            _readyUiView.EndReady();
+        }
+
+        private void SetEvent()
+        {
+            _camera.OnEndReady = OnEndReady;
+            _readyUiView.OnSkipButtonClickedListener = _camera.SkipReady;
+            _uiView.OnBeginBattleListener = OnBeginBattle;
+        }
+
+        private void OnEndReady()
+        {
+            OnStartPlaying.Invoke();
+        }
+
+        private void OnBeginBattle()
+        {
+            _readyUiView.BeginReady();
         }
     }
 }

@@ -22,6 +22,7 @@ namespace dtank
         private readonly ReactiveProperty<bool> _invincibleFlag = new ReactiveProperty<bool>(false);
         public IReactiveProperty<bool> InvincibleFlag => _invincibleFlag;
 
+        public readonly int PlayerId;
         public readonly TransformData StartPointData;
         private readonly float _invincibleDuration;
 
@@ -33,8 +34,9 @@ namespace dtank
         private float _inputTurnAmount;
         private float _invincibleRemainTime;
 
-        public BattleTankModel(TransformData startPointData, float invincibleDuration)
+        public BattleTankModel(int playerId, TransformData startPointData, float invincibleDuration)
         {
+            PlayerId = playerId;
             StartPointData = startPointData;
             _invincibleDuration = invincibleDuration;
         }
@@ -112,7 +114,7 @@ namespace dtank
             SetState(BattleTankState.FreeMove);
         }
 
-        public void Damage()
+        public void Damage(IAttacker attacker)
         {
             if (_invincibleFlag.Value)
                 return;
@@ -126,6 +128,7 @@ namespace dtank
             BeginInvincible();
             SetState(BattleTankState.Damage);
             _hp.Value--;
+            attacker.DealDamage();
         }
 
         public void EndDamage()
@@ -138,7 +141,7 @@ namespace dtank
                 Dead();
                 return;
             }
-            
+
             SetState(BattleTankState.FreeMove);
         }
 
