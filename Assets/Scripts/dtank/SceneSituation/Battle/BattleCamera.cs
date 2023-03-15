@@ -78,7 +78,6 @@ namespace dtank
 
             _resultSeq = DOTween.Sequence()
                 .Append(_transform.DOLocalRotate(new Vector3(0, 360f, 0), 4f, RotateMode.FastBeyond360).SetEase(Ease.Linear))
-                .OnComplete(() => OnEndReady?.Invoke())
                 .SetLoops(-1, LoopType.Restart)
                 .SetLink(gameObject)
                 .Play();

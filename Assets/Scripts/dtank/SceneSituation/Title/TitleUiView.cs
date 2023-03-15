@@ -1,5 +1,4 @@
 using System;
-using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,22 +8,26 @@ namespace dtank
 	{
 		[SerializeField] private Button _startButton;
 
-		private readonly Subject<Unit> _onCompleteStart = new Subject<Unit>();
-
-		public IObservable<Unit> OnClickObservable => _startButton.OnClickAsObservable();
-		public IObservable<Unit> OnCompleteStartObservable => _onCompleteStart;
-
+		public Action OnStartButtonClickedListener;
+		public Action OnCompleteStartListener;
 
 		public void Construct()
 		{
 			Debug.Log("TitleUIView.Construct()");
+			
+			_startButton.onClick.AddListener(OnStartButtonClicked);
 		}
 
 		public void PlayStart()
 		{
 			Debug.Log("TitleUIView.PlayStart()");
 			
-			_onCompleteStart.OnNext(Unit.Default);
+			OnCompleteStartListener?.Invoke();
+		}
+
+		private void OnStartButtonClicked()
+		{
+			OnStartButtonClickedListener?.Invoke();
 		}
 	}
 }

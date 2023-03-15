@@ -46,6 +46,8 @@ namespace dtank
 
 			Debug.Log("End TitleSceneSituation.LoadRoutineInternal()");
 
+			yield return LoadField();
+			
 			SetupAll();
 		}
 
@@ -64,13 +66,19 @@ namespace dtank
 
 			_stateContainer.Update(Time.deltaTime);
 		}
+
+		private IEnumerator LoadField()
+		{
+			var fieldScene = new FieldScene(1);
+			yield return fieldScene.LoadRoutine(ServiceContainer);
+		}
 		
 		#region Setup
 
 		private void SetupAll()
 		{
-			SetupStateContainer();
 			SetupPresenter();
+			SetupStateContainer();
 		}
 
 		private void SetupStateContainer()
@@ -81,6 +89,7 @@ namespace dtank
 				new TitleStateStart()
 			};
 			_stateContainer.Setup(TitleState.Invalid, states.ToArray());
+			_stateContainer.OnChangedState += _presenter.OnChangeState;
 		}
 		
 		private void SetupPresenter()
@@ -88,11 +97,12 @@ namespace dtank
 			var uiView = Services.Get<TitleUiView>();
 			uiView.Construct();
 
-			_presenter = new TitlePresenter(uiView);
+			var camera = Services.Get<TitleCamera>();
+			camera.Construct();
+
+			_presenter = new TitlePresenter(uiView, camera);
 			_presenter.OnTouchToStart = () => _stateContainer.Change(TitleState.Start);
 			_presenter.OnEndTitle = () => _sceneSituationContainer.Transition(new BattleSceneSituation());
-			
-			_stateContainer.OnChangedState += _presenter.OnChangeState;
 		}
 		
 		#endregion Setup
