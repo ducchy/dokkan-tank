@@ -10,6 +10,9 @@ namespace dtank
     /// </summary>
     public class MainSystem : GameFramework.Core.MainSystem
     {
+        [SerializeField]
+        private ServiceContainerInstaller _globalObject;
+        
         private SceneSituationContainer _sceneSituationContainer;
 
         protected override IEnumerator RebootRoutineInternal(object[] args)
@@ -24,9 +27,13 @@ namespace dtank
         protected override IEnumerator StartRoutineInternal(object[] args)
         {
             Debug.Log("Begin StartRoutineInternal()");
+            
+            // GlobalObjectを初期化
+            DontDestroyOnLoad(_globalObject.gameObject);
+            // RootのServiceにインスタンスを登録
+            _globalObject.Install(Services.Instance);
 
             _sceneSituationContainer = new SceneSituationContainer();
-            Services.Instance.Set(_sceneSituationContainer);
 
             SceneSituation startSituation = null;
             if (args.Length > 0)
