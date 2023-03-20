@@ -21,6 +21,7 @@ namespace dtank
             _model = model;
             _scope = new DisposableScope();
 
+            Bind();
             SetEvent();
         }
 
@@ -29,17 +30,23 @@ namespace dtank
             _scope.Dispose();
         }
 
-        public void OnChangeState(TitleState prev, TitleState current)
+        private void Bind()
         {
-            switch (current)
-            {
-                case TitleState.Idle:
-                    _camera.Play();
-                    break;
-                case TitleState.Start:
-                    _model.EndScene();
-                    break;
-            }
+            _model.CurrentState
+                .TakeUntil(_scope)
+                .Subscribe(state =>
+                {
+                    switch (state)
+                    {
+                        case TitleState.Idle:
+                            _camera.Play();
+                            break;
+                        case TitleState.Start:
+                            _model.EndScene();
+                            break;
+                    }
+                })
+                .ScopeTo(_scope);
         }
 
         private void SetEvent()

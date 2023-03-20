@@ -11,22 +11,24 @@ namespace dtank
 
         private Sequence _sequence;
 
-        public Action OnBeginBattleListener;
-        public Action OnEndBattleListener;
-        public Action OnEndPlayingListener;
-        public Action OnBeginResultListener;
+        public Action OnBeginBattleAction;
+        public Action OnQuitBattleAction;
+        public Action OnRetryBattleAction;
+        public Action OnEndPlayingAction;
+        public Action OnBeginResultAction;
 
-        public void Construct()
+        public void Setup()
         {
             _screenFill.color = Color.black;
         }
 
         private void OnDestroy()
         {
-            OnBeginBattleListener = null;
-            OnEndBattleListener = null;
-            OnEndPlayingListener = null;
-            OnBeginResultListener = null;
+            OnBeginBattleAction = null;
+            OnQuitBattleAction = null;
+            OnRetryBattleAction = null;
+            OnEndPlayingAction = null;
+            OnBeginResultAction = null;
         }
 
         private void SetActive(bool active)
@@ -36,22 +38,27 @@ namespace dtank
 
         public void BeginBattle()
         {
-            PlayFadeIn(() => OnBeginBattleListener?.Invoke());
+            PlayFadeIn(() => OnBeginBattleAction?.Invoke());
         }
 
-        public void EndBattle()
+        public void QuitBattle()
         {
-            PlayFadeOut(() => OnEndBattleListener?.Invoke());
+            PlayFadeOut(() => OnQuitBattleAction?.Invoke());
+        }
+
+        public void RetryBattle()
+        {
+            PlayFadeOut(() => OnRetryBattleAction?.Invoke());
         }
 
         public void EndPlaying()
         {
-            PlayFadeOut(() => OnEndPlayingListener?.Invoke());
+            PlayFadeOut(() => OnEndPlayingAction?.Invoke());
         }
 
         public void BeginResult()
         {
-            PlayFadeIn(() => OnBeginResultListener?.Invoke());
+            PlayFadeIn(() => OnBeginResultAction?.Invoke());
         }
 
         private void PlayFadeIn(Action onComplete = null)

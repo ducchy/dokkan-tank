@@ -10,7 +10,6 @@ namespace dtank
         protected readonly BattleTankModel Model;
         protected readonly BattleTankActor Actor;
         protected readonly IBehaviourSelector BehaviourSelector;
-
         protected readonly CompositeDisposable Disposable = new CompositeDisposable();
 
         protected BattleTankPresenterBase(
@@ -66,11 +65,6 @@ namespace dtank
             Actor.OnDamageReceivedListener = Model.Damage;
             Actor.OnPositionChangedListener = Model.SetPosition;
             Actor.OnForwardChangedListener = Model.SetForward;
-        }
-
-        public virtual void Update(float deltaTime)
-        {
-            Model.Update(deltaTime);
         }
 
         protected virtual void OnStateChanged(BattleTankState state)
@@ -144,6 +138,7 @@ namespace dtank
             switch (current)
             {
                 case BattleState.Ready:
+                    BehaviourSelector.Reset();
                     Controller.SetStartPoint();
                     Model.Ready();
                     break;

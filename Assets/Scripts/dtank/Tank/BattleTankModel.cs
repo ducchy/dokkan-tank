@@ -1,3 +1,4 @@
+using GameFramework.TaskSystems;
 using UniRx;
 using UnityEngine;
 
@@ -22,10 +23,9 @@ namespace dtank
         private readonly ReactiveProperty<bool> _invincibleFlag = new ReactiveProperty<bool>(false);
         public IReactiveProperty<bool> InvincibleFlag => _invincibleFlag;
 
-        public readonly int PlayerId;
+        public readonly TankData Data;
         public readonly TransformData StartPointData;
-        private readonly float _invincibleDuration;
-
+        
         public Vector3 Position { get; private set; }
         public Vector3 Forward { get; private set; }
         public bool DeadFlag => _hp.Value <= 0;
@@ -33,12 +33,22 @@ namespace dtank
         private float _inputMoveAmount;
         private float _inputTurnAmount;
         private float _invincibleRemainTime;
+        private ITask _taskImplementation;
+        private bool _isActive;
 
-        public BattleTankModel(int playerId, TransformData startPointData, float invincibleDuration)
+        public BattleTankModel(TankData data, TransformData startPointData)
         {
-            PlayerId = playerId;
+            Data = data;
             StartPointData = startPointData;
-            _invincibleDuration = invincibleDuration;
+        }
+
+        public override void Dispose()
+        {
+        }
+
+        public void Update()
+        {
+            UpdateOnInvincible(Time.deltaTime);
         }
 
         public void SetPosition(Vector3 position)
@@ -179,11 +189,6 @@ namespace dtank
             SetMovable(IsMovableState(state));
         }
 
-        public void Update(float deltaTime)
-        {
-            UpdateOnInvincible(deltaTime);
-        }
-
         private void UpdateOnInvincible(float deltaTime)
         {
             if (!_invincibleFlag.Value)
@@ -199,7 +204,7 @@ namespace dtank
             if (_invincibleFlag.Value)
                 return;
 
-            _invincibleRemainTime = _invincibleDuration;
+            _invincibleRemainTime = Data.InvincibleDuration;
             _invincibleFlag.Value = true;
         }
 

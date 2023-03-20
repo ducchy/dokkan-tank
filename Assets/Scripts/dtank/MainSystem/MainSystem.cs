@@ -1,6 +1,7 @@
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using System.Collections;
+using GameFramework.TaskSystems;
 using UnityEngine;
 
 namespace dtank
@@ -13,6 +14,7 @@ namespace dtank
         [SerializeField]
         private ServiceContainerInstaller _globalObject;
         
+        private TaskRunner _taskRunner;
         private SceneSituationContainer _sceneSituationContainer;
 
         protected override IEnumerator RebootRoutineInternal(object[] args)
@@ -33,7 +35,12 @@ namespace dtank
             // RootのServiceにインスタンスを登録
             _globalObject.Install(Services.Instance);
 
+            // 各種システム初期化
+            _taskRunner = new TaskRunner();
+            Services.Instance.Set(_taskRunner);
+            
             _sceneSituationContainer = new SceneSituationContainer();
+            _taskRunner.Register(_sceneSituationContainer, TaskOrder.PreSystem);
 
             SceneSituation startSituation = null;
             if (args.Length > 0)
@@ -51,12 +58,12 @@ namespace dtank
 
         protected override void UpdateInternal()
         {
-            _sceneSituationContainer.Update();
+            _taskRunner.Update();
         }
 
         protected override void LateUpdateInternal()
         {
-            _sceneSituationContainer.LateUpdate();
+            _taskRunner.LateUpdate();
         }
 
         protected override void OnDestroyInternal()

@@ -11,20 +11,19 @@ namespace dtank
 
         public BattleStatePlaying()
         {
+            var model = BattleModel.Get();
             var uiView = Services.Get<BattleUiView>();
 
             var playingUiView = Services.Get<BattlePlayingUiView>();
-            playingUiView.Construct();
+            playingUiView.Setup();
 
             var controller = new BattlePlayingController();
 
-            var ruleModel = BattleRuleModel.Get();
             var statusUiView = Services.Get<BattleTankStatusUiView>();
             var controlUiView = Services.Get<BattleTankControlUiView>();
 
-            _presenter = new BattlePlayingPresenter(ruleModel, controller, uiView, playingUiView, statusUiView,
+            _presenter = new BattlePlayingPresenter(model, controller, uiView, playingUiView, statusUiView,
                 controlUiView);
-            _presenter.OnFinished = () => StateContainer?.Change(BattleState.Result);
         }
 
         public override void OnEnter(BattleState prevKey, IScope scope)

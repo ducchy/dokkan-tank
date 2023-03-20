@@ -17,9 +17,9 @@ namespace dtank
 
         public Action OnEndFinishListener;
 
-        public void Construct()
+        public void Setup()
         {
-            Debug.Log("BattlePlayingUiView.Construct()");
+            Debug.Log("BattlePlayingUiView.Setup()");
 
             SetActive(false);
         }

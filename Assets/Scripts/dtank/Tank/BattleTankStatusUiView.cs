@@ -16,7 +16,7 @@ namespace dtank
         private Sequence _sequence;
         private Sequence _changeHpSequence;
 
-        public void Construct()
+        public void Setup()
         {
             _openFlag = false;
             SetActive(false);

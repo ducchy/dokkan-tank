@@ -14,7 +14,6 @@ namespace dtank
 
         public override void OnUpdate(float deltaTime)
         {
-            // Debug.Log("TitleStateIdle.OnUpdate()");
         }
 
         public override void OnExit(TitleState nextKey)

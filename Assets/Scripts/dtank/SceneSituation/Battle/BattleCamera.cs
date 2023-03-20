@@ -16,20 +16,12 @@ namespace dtank
         private Sequence _readySeq;
         private Sequence _resultSeq;
 
-        public Action OnEndReady;
-
-        public void Construct()
-        {
-        }
+        public Action OnEndReadyAction;
 
         private void OnDestroy()
         {
             _readySeq?.Kill();
             _resultSeq?.Kill();
-        }
-
-        public void OnUpdate(float deltaTime)
-        {
         }
 
         public void SetFollowTarget(Transform target)
@@ -62,7 +54,7 @@ namespace dtank
                 .AppendInterval(1f)
                 .Append(_transform.DOLocalRotate(new Vector3(0, 360f, 0), 4f, RotateMode.FastBeyond360).SetEase(Ease.Linear))
                 .AppendInterval(1f)
-                .OnComplete(() => OnEndReady?.Invoke())
+                .OnComplete(() => OnEndReadyAction?.Invoke())
                 .SetLink(gameObject)
                 .Play();
         }

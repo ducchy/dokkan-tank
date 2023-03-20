@@ -1,26 +1,22 @@
 using System;
+using GameFramework.Core;
 using UniRx;
 
 namespace dtank
 {
     public class BattleReadyPresenter : IDisposable
     {
-        private readonly BattleCamera _camera;
-        private readonly BattleController _controller;
+        private readonly BattleCameraController _cameraController;
         private readonly BattleUiView _uiView;
         private readonly BattleReadyUiView _readyUiView;
-        private readonly CompositeDisposable _disposable = new CompositeDisposable();
+        private readonly DisposableScope _scope = new DisposableScope();
         
-        public Action OnStartPlaying;
-
         public BattleReadyPresenter(
-            BattleCamera camera,
-            BattleController controller, 
+            BattleCameraController cameraController, 
             BattleUiView uiView,
             BattleReadyUiView readyUiView)
         {
-            _camera = camera;
-            _controller = controller;
+            _cameraController = cameraController;
             _uiView = uiView;
             _readyUiView = readyUiView;
 
@@ -29,12 +25,11 @@ namespace dtank
 
         public void Dispose()
         {
-            _disposable.Dispose();
+            _scope.Dispose();
         }
 
         public void Activate()
         { 
-            _controller.PlayReady();
             _uiView.BeginBattle();
         }
 
@@ -45,14 +40,12 @@ namespace dtank
 
         private void SetEvent()
         {
-            _camera.OnEndReady = OnEndReady;
-            _readyUiView.OnSkipButtonClickedListener = _camera.SkipReady;
-            _uiView.OnBeginBattleListener = OnBeginBattle;
-        }
-
-        private void OnEndReady()
-        {
-            OnStartPlaying.Invoke();
+            _readyUiView.OnSkipButtonClickAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_ => _cameraController.SkipReady())
+                .ScopeTo(_scope);
+            
+            _uiView.OnBeginBattleAction = OnBeginBattle;
         }
 
         private void OnBeginBattle()

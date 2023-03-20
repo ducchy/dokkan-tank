@@ -1,11 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using dtank.StateQuit;
-using dtank.StateRetry;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using GameFramework.StateSystems;
+using GameFramework.TaskSystems;
 using UniRx;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -16,57 +15,28 @@ namespace dtank
     {
         protected override string SceneAssetPath => "Battle";
 
-        private readonly StateContainer<BattleStateBase, BattleState> _stateContainer =
-            new StateContainer<BattleStateBase, BattleState>();
-
+        private StateContainer<BattleStateBase, BattleState> _stateContainer;
         private BattlePresenter _presenter;
-
-        protected override void ReleaseInternal(SituationContainer parent)
-        {
-            base.ReleaseInternal(parent);
-
-            _stateContainer.Dispose();
-        }
+        private List<ITask> _tasks = new List<ITask>();
 
         protected override void StandbyInternal(Situation parent)
         {
             Debug.Log("BattleSceneSituation.StandbyInternal()");
 
             base.StandbyInternal(parent);
-
-            ServiceContainer.Set(_stateContainer);
         }
 
         protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope)
         {
-            var ruleModel = BattleRuleModel.Create();
-            ruleModel.Setup(90f);
-            ruleModel.ScopeTo(scope);
-
-            var battleModel = BattleModel.Create();
-            battleModel.State.TakeUntil(scope).Subscribe(state =>
-            {
-                switch (state)
-                {
-                    case BattleState.Quit:
-                        ParentContainer.Transition(new TitleSceneSituation());
-                        break;
-                    case BattleState.Retry:
-                        _stateContainer.Change(BattleState.Ready);
-                        break;
-                }
-            });
-            battleModel.ScopeTo(scope);
-
             Debug.Log("Begin BattleSceneSituation.LoadRoutineInternal()");
 
             yield return base.LoadRoutineInternal(handle, scope);
 
-            Debug.Log("End TitleSceneSituation.LoadRoutineInternal()");
+            Debug.Log("End BattleSceneSituation.LoadRoutineInternal()");
 
             yield return LoadAll();
 
-            SetupAll();
+            SetupAll(scope);
         }
 
         protected override void UnloadInternal(TransitionHandle handle)
@@ -82,7 +52,7 @@ namespace dtank
 
             base.ActivateInternal(handle, scope);
 
-            _stateContainer.Change(BattleState.Ready);
+            BattleModel.Get().ChangeState(BattleState.Ready);
         }
 
         protected override void UpdateInternal()
@@ -90,120 +60,17 @@ namespace dtank
             base.UpdateInternal();
 
             _stateContainer.Update(Time.deltaTime);
-            _presenter?.Update(Time.deltaTime);
         }
-
-        #region Setup
-
-        private void SetupAll()
-        {
-            SetupPresenter();
-            SetupStateContainer();
-        }
-
-        private void SetupPresenter()
-        {
-            var uiView = Services.Get<BattleUiView>();
-            uiView.Construct();
-
-            var camera = Services.Get<BattleCamera>();
-            camera.Construct();
-
-            var fieldView = Services.Get<FieldViewData>();
-            var startPointDataArray = fieldView.StartPointDataArray;
-
-            var controlUiView = Services.Get<BattleTankControlUiView>();
-            controlUiView.Construct();
-
-            var statusUiView = Services.Get<BattleTankStatusUiView>();
-            statusUiView.Construct();
-
-            var tankHolder = new GameObject("Tanks").transform;
-
-            var tankModels = new List<BattleTankModel>();
-            var tankActors = new List<BattleTankActor>();
-            var tankActorDictionary = new Dictionary<int, BattleTankActor>();
-            using (var actorFactory = new BattleTankActorFactory())
-            {
-                var tankId = 1;
-                foreach (var startPointData in startPointDataArray)
-                {
-                    int playerId = tankId;
-                    tankModels.Add(new BattleTankModel(playerId, startPointData, 2f));
-                    var tankActor = actorFactory.Create(tankId, tankHolder);
-                    tankActor.Construct(playerId);
-                    tankActors.Add(tankActor);
-                    tankActorDictionary.Add(tankId++, tankActor);
-                }
-            }
-
-            var tankActorContainer = new TankActorContainer(tankActorDictionary);
-            ServiceContainer.Set(tankActorContainer);
-
-            PlayerBattleTankPresenter playerTankPresenter = null;
-            var npcTankPresenters = new List<NpcBattleTankPresenter>();
-            BattleTankModel playerTankModel = null;
-
-            for (var i = 0; i < tankModels.Count; i++)
-            {
-                var tankModel = tankModels[i];
-                var tankActor = tankActors[i];
-                var tankController = new BattleTankController(tankModel, tankActor);
-                if (i == 0)
-                {
-                    playerTankModel = tankModel;
-                    playerTankPresenter =
-                        new PlayerBattleTankPresenter(tankController, tankModel, tankActor, controlUiView,
-                            statusUiView);
-                    ServiceContainer.Set(playerTankPresenter);
-                    continue;
-                }
-
-                var npcTankBehaviourSelector =
-                    new NpcBehaviourSelector(tankModel, tankModels.Where(m => m != tankModel).ToArray());
-                var npcTankPresenter =
-                    new NpcBattleTankPresenter(tankController, tankModel, tankActor, npcTankBehaviourSelector);
-                npcTankPresenters.Add(npcTankPresenter);
-            }
-
-            var controller = new BattleController(camera, playerTankModel, tankActorContainer);
-            ServiceContainer.Set(controller);
-
-            var playingUiView = Services.Get<BattlePlayingUiView>();
-
-            var ruleModel = BattleRuleModel.Get();
-            var rulePresenter =
-                new DokkanTankRulePresenter(ruleModel, tankActors.ToArray(), tankModels.ToArray(), playingUiView);
-
-            var model = BattleModel.Get();
-            
-            _presenter = new BattlePresenter(model, controller, playerTankPresenter, npcTankPresenters.ToArray(),
-                rulePresenter);
-        }
-
-        private void SetupStateContainer()
-        {
-            var states = new List<BattleStateBase>()
-            {
-                new BattleStateReady(),
-                new BattleStatePlaying(),
-                new BattleStateResult(),
-                new BattleStateQuit(),
-                new BattleStateRetry(),
-            };
-            _stateContainer.Setup(BattleState.Invalid, states.ToArray());
-            
-            var model = BattleModel.Get();
-            _stateContainer.OnChangedState += model.OnChangedState;
-        }
-
-        #endregion Setup
 
         #region Load
 
         private IEnumerator LoadAll()
         {
+            Debug.Log("Begin BattleSceneSituation.LoadAll()");
+
             yield return LoadField();
+
+            Debug.Log("End BattleSceneSituation.LoadAll()");
         }
 
         private IEnumerator LoadField()
@@ -212,9 +79,197 @@ namespace dtank
             yield return fieldScene.LoadRoutine(ServiceContainer);
         }
 
+        private void SetupAll(IScope scope)
+        {
+            SetupModel(scope);
+            SetupPresenter(scope);
+            SetupStateContainer(scope);
+
+            Bind(scope);
+        }
+
+        private List<TankData> CreateTankDataList()
+        {
+            return new List<TankData>()
+            {
+                new(1, 1, 0, CharacterType.Player, 2f),
+                new(2, 2, 1, CharacterType.NonPlayer, 2f),
+                new(3, 3, 2, CharacterType.NonPlayer, 2f),
+                new(4, 4, 3, CharacterType.NonPlayer, 2f),
+            };
+        }
+
+        private void SetupModel(IScope scope)
+        {
+            var tankDataList = CreateTankDataList();
+
+            var fieldViewData = Services.Get<FieldViewData>();
+            var tankModels = new List<BattleTankModel>();
+            var tankModelDictionary = new Dictionary<int, BattleTankModel>();
+            foreach (var tankData in tankDataList)
+            {
+                var startPointData = fieldViewData.StartPointDataArray[tankData.PositionIndex];
+
+                var tankModel = new BattleTankModel(tankData, startPointData);
+                tankModels.Add(tankModel);
+                tankModelDictionary.Add(tankData.OwnerId, tankModel);
+            }
+
+            var behaviourSelectorDictionary = new Dictionary<int, IBehaviourSelector>();
+            foreach (var tankModel in tankModels)
+            {
+                if (tankModel.Data.CharacterType == CharacterType.Player)
+                    continue;
+
+                var npcBehaviourSelector =
+                    new NpcBehaviourSelector(tankModel, tankModels.Where(m => m != tankModel).ToArray());
+                behaviourSelectorDictionary.Add(tankModel.Data.OwnerId, npcBehaviourSelector);
+            }
+
+            var ruleModel = new BattleRuleModel(90f);
+            ruleModel.ScopeTo(scope);
+
+            var battleModel = BattleModel.Create();
+            battleModel.Setup(ruleModel, tankModelDictionary, behaviourSelectorDictionary);
+            battleModel.ScopeTo(scope);
+
+            RegisterTask(battleModel, TaskOrder.Logic);
+        }
+
+        private void SetupPresenter(IScope scope)
+        {
+            var model = BattleModel.Get();
+
+            var uiView = Services.Get<BattleUiView>();
+            uiView.Setup();
+
+            var controlUiView = Services.Get<BattleTankControlUiView>();
+            controlUiView.Setup();
+            RegisterTask(controlUiView, TaskOrder.UI);
+
+            var statusUiView = Services.Get<BattleTankStatusUiView>();
+            statusUiView.Setup();
+
+            PlayerBattleTankPresenter playerTankPresenter = null;
+            var npcTankPresenters = new List<NpcBattleTankPresenter>();
+            BattleTankModel playerTankModel = null;
+
+            var tankHolder = new GameObject("Tanks").transform;
+
+            var tankActors = new List<BattleTankActor>();
+            var tankActorDictionary = new Dictionary<int, BattleTankActor>();
+            using (var actorFactory = new BattleTankActorFactory())
+            {
+                foreach (var tankModel in model.TankModelDictionary.Values)
+                {
+                    var tankActor = actorFactory.Create(tankModel.Data.ModelId, tankHolder);
+                    tankActor.Construct(tankModel.Data.OwnerId);
+                    tankActors.Add(tankActor);
+                    tankActorDictionary.Add(tankModel.Data.OwnerId, tankActor);
+
+                    var tankController = new BattleTankController(tankModel, tankActor);
+                    if (tankModel.Data.CharacterType == CharacterType.Player)
+                    {
+                        if (playerTankModel != null)
+                        {
+                            Debug.LogError("CharacterType=Playerのタンクが複数存在");
+                            continue;
+                        }
+
+                        playerTankModel = tankModel;
+                        playerTankPresenter =
+                            new PlayerBattleTankPresenter(tankController, tankModel, tankActor, controlUiView,
+                                statusUiView);
+                        continue;
+                    }
+
+                    if (!model.BehaviourSelectorDictionary.TryGetValue(tankModel.Data.OwnerId,
+                            out var npcTankBehaviourSelector))
+                    {
+                        Debug.LogError("CharacterType=NonPlayerのBehaviourSelectorが未生成");
+                        continue;
+                    }
+
+                    var npcTankPresenter =
+                        new NpcBattleTankPresenter(tankController, tankModel, tankActor, npcTankBehaviourSelector);
+                    npcTankPresenters.Add(npcTankPresenter);
+                }
+            }
+
+            var tankActorContainer = new TankActorContainer(tankActorDictionary);
+            tankActorContainer.ScopeTo(scope);
+            ServiceContainer.Set(tankActorContainer);
+
+            var cameraController = Services.Get<BattleCameraController>();
+            cameraController.Setup(playerTankModel, tankActorContainer);
+            RegisterTask(cameraController, TaskOrder.Camera);
+
+            var playingUiView = Services.Get<BattlePlayingUiView>();
+            playingUiView.Setup();
+
+            _presenter = new BattlePresenter(model, cameraController, playerTankPresenter, npcTankPresenters.ToArray(),
+                tankActors.ToArray());
+            _presenter.ScopeTo(scope);
+        }
+
+        private void SetupStateContainer(IScope scope)
+        {
+            Debug.Log("BattleSceneSituation.SetupStateContainer");
+
+            _stateContainer = new StateContainer<BattleStateBase, BattleState>();
+            _stateContainer.ScopeTo(scope);
+
+            var states = new List<BattleStateBase>()
+            {
+                new BattleStateReady(),
+                new BattleStatePlaying(),
+                new BattleStateResult(),
+            };
+            _stateContainer.Setup(BattleState.Invalid, states.ToArray());
+        }
+
+        private void Bind(IScope scope)
+        {
+            var battleModel = BattleModel.Get();
+            battleModel.CurrentState
+                .TakeUntil(scope)
+                .Subscribe(state =>
+                {
+                    switch (state)
+                    {
+                        case BattleState.Quit:
+                            ParentContainer.Transition(new TitleSceneSituation());
+                            break;
+                        case BattleState.Retry:
+                            Debug.LogError("BattleState.Retryは未実装");
+                            break;
+                        default:
+                            _stateContainer.Change(state);
+                            break;
+                    }
+                });
+        }
+
+        private void RegisterTask(ITask task, TaskOrder order)
+        {
+            var taskRunner = Services.Get<TaskRunner>();
+            taskRunner.Register(task, order);
+            _tasks.Add(task);
+        }
+
+        #endregion Load
+
+        #region Unload
+
         private void UnloadAll()
         {
             UnloadField();
+
+            var taskRunner = Services.Get<TaskRunner>();
+            foreach (var task in _tasks)
+                taskRunner.Unregister(task);
+
+            BattleModel.Delete();
         }
 
         private void UnloadField()
@@ -222,6 +277,6 @@ namespace dtank
             SceneManager.UnloadSceneAsync("field001");
         }
 
-        #endregion Laod
+        #endregion Unload
     }
 }

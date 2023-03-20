@@ -5,5 +5,6 @@ namespace dtank
         Invalid,
         Idle,
         Start,
+        End,
     }
 }

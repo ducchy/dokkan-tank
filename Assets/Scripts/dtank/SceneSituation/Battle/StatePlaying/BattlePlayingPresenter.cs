@@ -1,30 +1,28 @@
 using System;
+using GameFramework.Core;
 using UniRx;
 
 namespace dtank
 {
     public class BattlePlayingPresenter : IDisposable
     {
-        private readonly BattleRuleModel _ruleModel;
+        private readonly BattleModel _model;
         private readonly BattlePlayingController _controller;
         private readonly BattleUiView _uiView;
         private readonly BattlePlayingUiView _playingUiView;
         private readonly BattleTankStatusUiView _statusUiView;
         private readonly BattleTankControlUiView _controlUiView;
-        
-        private readonly CompositeDisposable _disposable = new CompositeDisposable();
+        private readonly DisposableScope _scope = new DisposableScope();
 
-        public Action OnFinished;
-        
         public BattlePlayingPresenter(
-            BattleRuleModel ruleModel,
+            BattleModel model,
             BattlePlayingController controller,
             BattleUiView uiView,
             BattlePlayingUiView playingUiView, 
             BattleTankStatusUiView statusUiView,
             BattleTankControlUiView controlUiView)
         {
-            _ruleModel = ruleModel;
+            _model = model;
             _controller = controller;
             _uiView = uiView;
             _playingUiView = playingUiView;
@@ -37,7 +35,7 @@ namespace dtank
 
         public void Dispose()
         {
-            _disposable.Dispose();
+            _scope.Dispose();
         }
 
         public void Activate()
@@ -56,13 +54,21 @@ namespace dtank
 
         private void Bind()
         {
-            _ruleModel.ResultType.Subscribe(OnResultTypeChanged).AddTo(_disposable);
+            _model.RuleModel.ResultType
+                .TakeUntil(_scope)
+                .Subscribe(OnResultTypeChanged)
+                .ScopeTo(_scope);
+
+            _model.RuleModel.RemainTime
+                .TakeUntil(_scope)
+                .Subscribe(_playingUiView.SetTime)
+                .ScopeTo(_scope);
         }
 
         private void SetEvent()
         {
             _playingUiView.OnEndFinishListener = OnEndFinish;
-            _uiView.OnEndPlayingListener = OnEndPlaying;
+            _uiView.OnEndPlayingAction = OnEndPlaying;
         }
 
         private void OnResultTypeChanged(BattleResultType type)
@@ -82,7 +88,7 @@ namespace dtank
 
         private void OnEndPlaying()
         {
-            OnFinished?.Invoke();
+            _model.ChangeState(BattleState.Result);
         }
     }
 }

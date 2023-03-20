@@ -8,7 +8,7 @@ namespace dtank
         private Transform _transform;
         private Sequence _sequence;
 
-        public void Construct()
+        public void Setup()
         {
             _transform = transform;
         }

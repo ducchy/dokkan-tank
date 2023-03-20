@@ -11,15 +11,13 @@ namespace dtank
 
         public BattleStateReady()
         {
-            var camera = Services.Get<BattleCamera>();
-            var controller = Services.Get<BattleController>();
+            var controller = Services.Get<BattleCameraController>();
             var uiView = Services.Get<BattleUiView>();
 
             var readyUiView = Services.Get<BattleReadyUiView>();
             readyUiView.Construct();
 
-            _presenter = new BattleReadyPresenter(camera, controller, uiView, readyUiView);
-            _presenter.OnStartPlaying = () => StateContainer?.Change(BattleState.Playing);
+            _presenter = new BattleReadyPresenter(controller, uiView, readyUiView);
         }
 
         public override void OnEnter(BattleState prevKey, IScope scope)

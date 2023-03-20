@@ -2,26 +2,19 @@ namespace dtank
 {
     public class NpcBattleTankPresenter : BattleTankPresenterBase
     {
-        private readonly NpcBehaviourSelector _behaviourSelector;
+        private readonly IBehaviourSelector _behaviourSelector;
         
         public NpcBattleTankPresenter(
             BattleTankController controller,
             BattleTankModel model,
             BattleTankActor actor,
-            NpcBehaviourSelector behaviourSelector)
+            IBehaviourSelector behaviourSelector)
             : base(controller, model, actor, behaviourSelector)
         {
             _behaviourSelector = behaviourSelector;
             
             Bind();
             SetEvents();
-        }
-
-        public override void Update(float deltaTime)
-        {
-            base.Update(deltaTime);
-            
-            _behaviourSelector.Update(deltaTime);
         }
 
         protected override void OnStateChanged(BattleTankState state)

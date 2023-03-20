@@ -5,7 +5,7 @@ using Random = UnityEngine.Random;
 
 namespace dtank
 {
-    public class NpcBehaviourSelector : IBehaviourSelector
+    public class NpcBehaviourSelector : IBehaviourSelector, IDisposable
     {
         public Action<IAttacker> OnDamageListener { get; set; }
         public Action OnShotCurveListener { get; set; }
@@ -31,15 +31,44 @@ namespace dtank
             SetActive(false);
         }
 
-        public void Update(float deltaTime)
+        public void Dispose()
+        {
+        }
+
+        public void Reset()
+        {
+        }
+
+        public void Update()
         {
             if (_current == null || _current.State == NpcTankState.None)
                 return;
 
-            _current.OnUpdate(deltaTime);
+            _current.OnUpdate(Time.deltaTime);
 
             if (_current.Result != NpcTankStateResult.None)
                 ToNextState(_current.Result);
+        }
+
+        void IBehaviourSelector.BeginDamage()
+        {
+            ChangeState(new NpcTankStateDamage());
+        }
+
+        void IBehaviourSelector.EndDamage()
+        {
+            ToNextState(NpcTankStateResult.Cancel);
+        }
+
+        void IBehaviourSelector.EndShotStraight()
+        {
+            _target = FindTarget();
+            ChangeState(new NpcTankStateIdle(2f));
+        }
+
+        public void SetActive(bool active)
+        {
+            ChangeState(active ? new NpcTankStateIdle(0.5f) : new NpcTankStateNone());
         }
 
         private void ToNextState(NpcTankStateResult result)
@@ -89,10 +118,12 @@ namespace dtank
 
                     return new NpcTankStateMove(this, _owner, 2f);
                 case NpcTankState.Move:
-                    if (result == NpcTankStateResult.Failed) {
+                    if (result == NpcTankStateResult.Failed)
+                    {
                         _target = FindTarget();
                         return new NpcTankStateTurn(this, _owner, _target, 2f);
                     }
+
                     return new NpcTankStateTurn(this, _owner, _target, 2f);
                 default:
                     return new NpcTankStateTurn(this, _owner, _target, 2f);
@@ -102,7 +133,9 @@ namespace dtank
         private BattleTankModel FindTarget()
         {
             var targets = _others.Where(o => o != _target && !o.DeadFlag).ToArray();
-            return targets.Length == 0 ? (!_target.DeadFlag ? _target : null) : targets[Random.Range(0, targets.Length)];
+            return targets.Length == 0
+                ? (!_target.DeadFlag ? _target : null)
+                : targets[Random.Range(0, targets.Length)];
         }
 
         private void ChangeState(NpcTankStateBase state)
@@ -113,27 +146,6 @@ namespace dtank
             _current?.OnExit();
             _current = state;
             _current.OnEnter();
-        }
-
-        public void SetActive(bool active)
-        {
-            ChangeState(active ? new NpcTankStateIdle(0.5f) : new NpcTankStateNone());
-        }
-
-        public void BeginDamage()
-        {
-            ChangeState(new NpcTankStateDamage());
-        }
-
-        public void EndDamage()
-        {
-            ToNextState(NpcTankStateResult.Cancel);
-        }
-
-        public void EndShotStraight()
-        {
-            _target = FindTarget();
-            ChangeState(new NpcTankStateIdle(2f));
         }
     }
 }

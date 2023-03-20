@@ -1,23 +1,39 @@
+using GameFramework.ModelSystems;
 using UniRx;
+using UnityEngine;
 
 namespace dtank
 {
-    public class TitleModel
+    public class TitleModel : SingleModel<TitleModel>
     {
         private readonly ReactiveProperty<TitleState> _currentState = new ReactiveProperty<TitleState>();
         public IReadOnlyReactiveProperty<TitleState> CurrentState => _currentState;
 
-        private readonly ReactiveProperty<bool> _endFlag = new ReactiveProperty<bool>(false);
-        public IReadOnlyReactiveProperty<bool> EndFlag => _endFlag;
+        private TitleModel(object empty) : base(empty)
+        {
+        }
 
         public void PushStart()
         {
             _currentState.Value = TitleState.Start;
+            SetState(TitleState.Start);
         }
 
         public void EndScene()
         {
-            _endFlag.Value = true;
+            SetState(TitleState.End);
+        }
+
+        private void SetState(TitleState state)
+        {
+            _currentState.Value = state;
+        }
+
+        public void OnChangedState(TitleState prev, TitleState current)
+        {
+            Debug.LogFormat("TitleModel.OnChangedState: current={0}", current);
+            
+            SetState(current);
         }
     }
 }

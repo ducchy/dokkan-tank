@@ -7,38 +7,27 @@ namespace dtank
     public class BattlePresenter : IDisposable
     {
         private readonly BattleModel _model;
-        private readonly BattleController _controller;
+        private readonly BattleCameraController _cameraController;
         private readonly PlayerBattleTankPresenter _playerTankPresenter;
         private readonly NpcBattleTankPresenter[] _npcTankPresenters;
-        private readonly DokkanTankRulePresenter _rulePresenter;
-
-        private readonly DisposableScope _scope;
+        private readonly BattleTankActor[] _tankActors;
+        private readonly DisposableScope _scope = new DisposableScope();
 
         public BattlePresenter(
             BattleModel model,
-            BattleController controller,
+            BattleCameraController cameraController,
             PlayerBattleTankPresenter playerTankPresenter,
-            NpcBattleTankPresenter[] npcTankPresenters,
-            DokkanTankRulePresenter rulePresenter)
+            NpcBattleTankPresenter[] npcTankPresenters, 
+            BattleTankActor[] tankActors)
         {
             _model = model;
-            _controller = controller;
+            _cameraController = cameraController;
             _playerTankPresenter = playerTankPresenter;
             _npcTankPresenters = npcTankPresenters;
-            _rulePresenter = rulePresenter;
-
-            _scope = new DisposableScope();
+            _tankActors = tankActors;
 
             Bind();
-        }
-
-        public void Update(float deltaTime)
-        {
-            _controller.Update(deltaTime);
-            _playerTankPresenter.Update(deltaTime);
-            foreach (var npcTankPresenter in _npcTankPresenters)
-                npcTankPresenter.Update(deltaTime);
-            _rulePresenter.Update(deltaTime);
+            SetEvent();
         }
 
         public void Dispose()
@@ -46,24 +35,36 @@ namespace dtank
             _playerTankPresenter.Dispose();
             foreach (var npcTankPresenter in _npcTankPresenters)
                 npcTankPresenter.Dispose();
-            _rulePresenter.Dispose();
-            
+
             _scope.Dispose();
         }
 
         private void Bind()
         {
-            _model.State.TakeUntil(_scope).Subscribe(state =>
-            {
-                _playerTankPresenter.OnChangedState(state);
-                foreach (var npcTankPresenter in _npcTankPresenters)
-                    npcTankPresenter.OnChangedState(state);
-                _rulePresenter.OnChangedState(state);
-            });
-    }
+            _model.CurrentState
+                .TakeUntil(_scope)
+                .Subscribe(state =>
+                {
+                    switch (state)
+                    {
+                        case BattleState.Ready:
+                            _cameraController.PlayReady();
+                            break;
+                    }
 
-        public void OnChangedState(BattleState prev, BattleState current)
+                    _playerTankPresenter.OnChangedState(state);
+                    foreach (var npcTankPresenter in _npcTankPresenters)
+                        npcTankPresenter.OnChangedState(state);
+                })
+                .ScopeTo(_scope);
+        }
+
+        private void SetEvent()
         {
+            _cameraController.OnEndReadyAction = () => { _model.ChangeState(BattleState.Playing); };
+            
+            foreach (var tankActor in _tankActors)
+                tankActor.OnDealDamageListener = () => _model.RuleModel.IncrementScore(tankActor.OwnerId);
         }
     }
 }

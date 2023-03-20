@@ -12,32 +12,7 @@ namespace dtank
     {
         protected override string SceneAssetPath => "Title";
 
-        private readonly StateContainer<TitleStateBase, TitleState> _stateContainer =
-            new StateContainer<TitleStateBase, TitleState>();
-
-        private TitlePresenter _presenter = null;
-
-        public TitleSceneSituation()
-        {
-        }
-
-        protected override void ReleaseInternal(SituationContainer parent)
-        {
-            base.ReleaseInternal(parent);
-
-            _stateContainer.OnChangedState -= _presenter.OnChangeState;
-            _stateContainer.Dispose();
-            _presenter?.Dispose();
-        }
-
-        protected override void StandbyInternal(Situation parent)
-        {
-            Debug.Log("TitleSceneSituation.StandbyInternal()");
-
-            base.StandbyInternal(parent);
-
-            ServiceContainer.Set(_stateContainer);
-        }
+        private StateContainer<TitleStateBase, TitleState> _stateContainer;
 
         protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope)
         {
@@ -64,10 +39,10 @@ namespace dtank
         protected override void UpdateInternal()
         {
             base.UpdateInternal();
-
+            
             _stateContainer.Update(Time.deltaTime);
         }
-
+        
         private IEnumerator LoadField()
         {
             var fieldScene = new FieldScene(1);
@@ -78,19 +53,17 @@ namespace dtank
 
         private void SetupAll(IScope scope)
         {
+            SetupModel(scope);
             SetupPresenter(scope);
-            SetupStateContainer();
+            SetupStateContainer(scope);
+            
+            Bind(scope);
         }
 
-        private void SetupStateContainer()
+        private void SetupModel(IScope scope)
         {
-            var states = new List<TitleStateBase>()
-            {
-                new TitleStateIdle(),
-                new TitleStateStart()
-            };
-            _stateContainer.Setup(TitleState.Invalid, states.ToArray());
-            _stateContainer.OnChangedState += _presenter.OnChangeState;
+            var model = TitleModel.Create();
+            model.ScopeTo(scope);
         }
 
         private void SetupPresenter(IScope scope)
@@ -98,17 +71,48 @@ namespace dtank
             var uiView = Services.Get<TitleUiView>();
 
             var camera = Services.Get<TitleCamera>();
-            camera.Construct();
+            camera.Setup();
 
-            var model = new TitleModel();
-            model.CurrentState.TakeUntil(scope).Subscribe(state => { _stateContainer.Change(state); });
-            model.EndFlag.TakeUntil(scope).Subscribe(flag =>
+            var model = TitleModel.Get();
+
+            var presenter = new TitlePresenter(uiView, camera, model);
+            presenter.ScopeTo(scope);
+        }
+
+        private void SetupStateContainer(IScope scope)
+        {
+            _stateContainer = new StateContainer<TitleStateBase, TitleState>();
+            _stateContainer.ScopeTo(scope);
+
+            var states = new List<TitleStateBase>()
             {
-                if (flag)
-                    ParentContainer.Transition(new BattleSceneSituation());
-            });
+                new TitleStateIdle(),
+                new TitleStateStart()
+            };
+            _stateContainer.Setup(TitleState.Invalid, states.ToArray());
 
-            _presenter = new TitlePresenter(uiView, camera, model);
+            var model = TitleModel.Get();
+            _stateContainer.OnChangedState += model.OnChangedState;
+        }
+
+        private void Bind(IScope scope)
+        {
+            var model = TitleModel.Get();
+            model.CurrentState
+                .TakeUntil(scope)
+                .Subscribe(state =>
+                {
+                    switch (state)
+                    {
+                        case TitleState.End:
+                            ParentContainer.Transition(new BattleSceneSituation());
+                            break;
+                        default: 
+                            _stateContainer.Change(state);
+                            break;
+                    }
+                })
+                .ScopeTo(scope);
         }
 
         #endregion Setup

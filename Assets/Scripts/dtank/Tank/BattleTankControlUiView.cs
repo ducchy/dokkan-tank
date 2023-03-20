@@ -1,11 +1,12 @@
 using System;
 using DG.Tweening;
+using GameFramework.TaskSystems;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace dtank
 {
-    public class BattleTankControlUiView : MonoBehaviour, IBehaviourSelector
+    public class BattleTankControlUiView : MonoBehaviour, IBehaviourSelector, ITask
     {
         [SerializeField] private CanvasGroup _group;
         [SerializeField] private Button _damageButton;
@@ -13,18 +14,20 @@ namespace dtank
         [SerializeField] private Button _shotStraightButton;
         [SerializeField] private Slider _verticalSlider;
         [SerializeField] private Slider _horizontalSlider;
-        
+
         public Action<IAttacker> OnDamageListener { private get; set; }
         public Action OnShotCurveListener { private get; set; }
         public Action OnShotStraightListener { private get; set; }
         public Action<float> OnTurnValueChangedListener { private get; set; }
         public Action<float> OnMoveValueChangedListener { private get; set; }
-        
+
+        public bool IsActive => isActiveAndEnabled;
+
         private Sequence _sequence;
 
-        public void Construct()
+        public void Setup()
         {
-            Debug.Log("PlayerBattleTankControlUiView.Construct()");
+            Debug.Log("PlayerBattleTankControlUiView.Setup()");
 
             _damageButton.onClick.AddListener(OnDamageButtonClicked);
             _shotCurveButton.onClick.AddListener(OnShotCurveButtonClicked);
@@ -35,13 +38,54 @@ namespace dtank
             SetActive(false);
         }
 
-        private void SetActive(bool flag)
+        public void Dispose()
+        {
+            OnDamageListener = null;
+            OnShotCurveListener = null;
+            OnShotStraightListener = null;
+            OnTurnValueChangedListener = null;
+            OnMoveValueChangedListener = null;
+        }
+
+        public void Reset()
+        {
+            _verticalSlider.value = 0f;
+            _horizontalSlider.value = 0f;
+        }
+
+        public void SetActive(bool flag)
         {
             if (_group == null)
                 return;
 
             _group.alpha = flag ? 1f : 0f;
             _group.blocksRaycasts = flag;
+        }
+
+        public void BeginDamage()
+        {
+        }
+
+        public void EndDamage()
+        {
+        }
+
+        public void EndShotStraight()
+        {
+        }
+
+        void ITask.Update()
+        {
+#if UNITY_EDITOR
+            var vertical = Input.GetAxis("Vertical");
+            var horizontal = Input.GetAxis("Horizontal");
+            if (Mathf.Abs(vertical) > 0.01f)
+                OnVerticalSliderValueChanged(vertical);
+            if (Mathf.Abs(horizontal) > 0.01f)
+                OnHorizontalSliderValueChanged(horizontal);
+            if (Input.GetKeyDown(KeyCode.Space))
+                OnShotStraightButtonClicked();
+#endif
         }
 
         private void OnDamageButtonClicked()
@@ -72,7 +116,7 @@ namespace dtank
         public void Open()
         {
             _sequence?.Kill();
-            
+
             SetActive(false);
 
             _sequence = DOTween.Sequence()
@@ -92,19 +136,5 @@ namespace dtank
                 .SetLink(gameObject)
                 .Play();
         }
-
-#if UNITY_EDITOR
-        private void Update()
-        {
-            var vertical = Input.GetAxis("Vertical");
-            var horizontal = Input.GetAxis("Horizontal");
-            if (Mathf.Abs(vertical) > 0.01f)
-                OnVerticalSliderValueChanged(vertical);
-            if (Mathf.Abs(horizontal) > 0.01f)
-                OnHorizontalSliderValueChanged(horizontal);
-            if (Input.GetKeyDown(KeyCode.Space))
-                OnShotStraightButtonClicked();
-        }
-#endif
     }
 }

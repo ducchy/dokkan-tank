@@ -1,5 +1,6 @@
 using System;
 using DG.Tweening;
+using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,15 +11,13 @@ namespace dtank
         [SerializeField] private CanvasGroup _group;
         [SerializeField] private Button _skipButton;
 
-        public Action OnSkipButtonClickedListener;
+        public IObservable<Unit> OnSkipButtonClickAsObservable => _skipButton.OnClickAsObservable();
 
         private Sequence _seq;
 
         public void Construct()
         {
             Debug.Log("BattleReadyUiView.Construct()");
-
-            _skipButton.onClick.AddListener(OnSkipButtonClicked);
             
             SetActive(false);
         }
@@ -26,8 +25,6 @@ namespace dtank
         private void OnDestroy()
         {
             _seq?.Kill();
-            
-            _skipButton.onClick.RemoveListener(OnSkipButtonClicked);
         }
 
         private void SetActive(bool flag)
@@ -61,11 +58,6 @@ namespace dtank
                 .OnComplete(() => SetActive(false))
                 .SetLink(gameObject)
                 .Play();
-        }
-
-        private void OnSkipButtonClicked()
-        {
-            OnSkipButtonClickedListener?.Invoke();
         }
     }
 }

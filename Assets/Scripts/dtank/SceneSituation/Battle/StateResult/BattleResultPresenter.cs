@@ -1,45 +1,37 @@
 using System;
+using GameFramework.Core;
 using UniRx;
 
 namespace dtank
 {
     public class BattleResultPresenter : IDisposable
     {
-        private readonly BattleRuleModel _ruleModel;
-        private readonly BattleController _controller;
+        private readonly BattleModel _model;
+        private readonly BattleCameraController _cameraController;
         private readonly BattleResultController _resultController;
         private readonly BattleUiView _uiView;
         private readonly BattleResultUiView _resultUiView;
-        private readonly CompositeDisposable _disposable = new CompositeDisposable();
+        private readonly DisposableScope _scope = new DisposableScope();
 
-        public Action OnRetry = null;
-        public Action OnQuit = null;
-
-        private Action _onEnd;
-        
         public BattleResultPresenter(
-            BattleRuleModel ruleModel,
-            BattleController controller,
+            BattleModel model,
+            BattleCameraController cameraController,
             BattleResultController resultController,
             BattleUiView uiView,
             BattleResultUiView resultUiView)
         {
-            _ruleModel = ruleModel;
-            _controller = controller;
+            _model = model;
+            _cameraController = cameraController;
             _resultController = resultController;
             _uiView = uiView;
             _resultUiView = resultUiView;
-
+            
             SetEvent();
         }
 
         public void Dispose()
         {
-            _disposable.Dispose();
-            
-            OnRetry = null;
-            OnQuit = null;
-            _onEnd = null;
+            _scope.Dispose();
         }
 
         private void SetEvent()
@@ -47,32 +39,31 @@ namespace dtank
             _resultUiView.OnQuitButtonClickedListener = OnQuitButtonClicked;
             _resultUiView.OnRetryButtonClickedListener = OnRetryButtonClicked;
 
-            _uiView.OnBeginResultListener = OnBeginResult;
-            _uiView.OnEndBattleListener = OnEndBattle;
+            _uiView.OnBeginResultAction = OnBeginResult;
+            _uiView.OnQuitBattleAction = OnQuitBattle;
+            _uiView.OnRetryBattleAction = OnRetryBattle;
         }
 
         public void Activate()
         {
-            _controller.PlayResult(_ruleModel.WinnerId);
+            _cameraController.PlayResult(_model.RuleModel.WinnerId);
             _uiView.BeginResult();
         }
 
         public void Deactivate()
         {
-            _controller.EndResult();
+            _cameraController.EndResult();
             _resultUiView.SetActive(false);
         }
 
         private void OnQuitButtonClicked()
         {
-            _onEnd = OnQuit;
-            _uiView.EndBattle();
+            _uiView.QuitBattle();
         }
 
         private void OnRetryButtonClicked()
         {
-            _onEnd = OnRetry;
-            _uiView.EndBattle();
+            _uiView.RetryBattle();
         }
 
         private void OnBeginResult()
@@ -80,9 +71,14 @@ namespace dtank
             _resultController.PlayResult();
         }
 
-        private void OnEndBattle()
+        private void OnQuitBattle()
         {
-            _onEnd?.Invoke();
+            _model.ChangeState(BattleState.Quit);
+        }
+
+        private void OnRetryBattle()
+        {
+            _model.ChangeState(BattleState.Retry);
         }
     }
 }

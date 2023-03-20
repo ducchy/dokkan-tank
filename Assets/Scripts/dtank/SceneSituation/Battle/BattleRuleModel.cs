@@ -1,5 +1,5 @@
+using System;
 using System.Collections.Generic;
-using GameFramework.ModelSystems;
 using UniRx;
 using UnityEngine;
 
@@ -12,7 +12,7 @@ namespace dtank
         Lose,
     }
 
-    public class BattleRuleModel : SingleModel<BattleRuleModel>
+    public class BattleRuleModel : IDisposable
     {
         private readonly ReactiveProperty<BattleResultType> _resultType =
             new ReactiveProperty<BattleResultType>(BattleResultType.None);
@@ -26,26 +26,27 @@ namespace dtank
         private bool _playingFlag;
 
         private readonly Dictionary<int, int> _scoreDictionary = new Dictionary<int, int>();
-        private float _duration;
+        private readonly float _duration;
+        private bool _isActive;
 
         public int WinnerId { get; private set; }
 
-        public void Setup(float duration)
+        public BattleRuleModel(float duration)
         {
-            _duration = 5f;
+            _duration = duration;
         }
 
-        public void SetResultType(BattleResultType resultType)
+        public void Dispose()
         {
-            _resultType.Value = resultType;
+            _scoreDictionary.Clear();
         }
 
-        public void Update(float deltaTime)
+        public void Update()
         {
             if (!_playingFlag)
                 return;
 
-            _remainTime -= deltaTime;
+            _remainTime -= Time.deltaTime;
             _remainTimeInt.Value = Mathf.CeilToInt(_remainTime);
 
             if (_remainTime < 0f)
@@ -113,10 +114,6 @@ namespace dtank
             }
 
             return topPlayerId;
-        }
-
-        private BattleRuleModel(object empty) : base(empty)
-        {
         }
     }
 }
