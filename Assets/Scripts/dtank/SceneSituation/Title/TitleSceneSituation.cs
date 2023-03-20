@@ -3,108 +3,116 @@ using GameFramework.SituationSystems;
 using GameFramework.StateSystems;
 using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 namespace dtank
 {
-	public class TitleSceneSituation : SceneSituation
-	{
-		protected override string SceneAssetPath => "Title";
+    public class TitleSceneSituation : SceneSituation
+    {
+        protected override string SceneAssetPath => "Title";
 
-		private readonly SceneSituationContainer _sceneSituationContainer = null;
-		private readonly StateContainer<TitleStateBase, TitleState> _stateContainer = new StateContainer<TitleStateBase, TitleState>();
-		private TitlePresenter _presenter = null;
+        private readonly SceneSituationContainer _sceneSituationContainer = null;
 
-		public TitleSceneSituation()
-		{
-			_sceneSituationContainer = Services.Get<SceneSituationContainer>();
-		}
+        private readonly StateContainer<TitleStateBase, TitleState> _stateContainer =
+            new StateContainer<TitleStateBase, TitleState>();
 
-		protected override void ReleaseInternal(SituationContainer parent)
-		{
-			base.ReleaseInternal(parent);
+        private TitlePresenter _presenter = null;
 
-			_stateContainer.OnChangedState -= _presenter.OnChangeState;
-			_stateContainer.Dispose();
-			_presenter?.Dispose();
-		}
+        public TitleSceneSituation()
+        {
+            _sceneSituationContainer = Services.Get<SceneSituationContainer>();
+        }
 
-		protected override void StandbyInternal(Situation parent)
-		{
-			Debug.Log("TitleSceneSituation.StandbyInternal()");
+        protected override void ReleaseInternal(SituationContainer parent)
+        {
+            base.ReleaseInternal(parent);
 
-			base.StandbyInternal(parent);
-			
-			ServiceContainer.Set(_stateContainer);
-		}
+            _stateContainer.OnChangedState -= _presenter.OnChangeState;
+            _stateContainer.Dispose();
+            _presenter?.Dispose();
+        }
 
-		protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope)
-		{
-			Debug.Log("Begin TitleSceneSituation.LoadRoutineInternal()");
+        protected override void StandbyInternal(Situation parent)
+        {
+            Debug.Log("TitleSceneSituation.StandbyInternal()");
 
-			yield return base.LoadRoutineInternal(handle, scope);
+            base.StandbyInternal(parent);
 
-			Debug.Log("End TitleSceneSituation.LoadRoutineInternal()");
+            ServiceContainer.Set(_stateContainer);
+        }
 
-			yield return LoadField();
-			
-			SetupAll();
-		}
+        protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope)
+        {
+            Debug.Log("Begin TitleSceneSituation.LoadRoutineInternal()");
 
-		protected override void ActivateInternal(TransitionHandle handle, IScope scope)
-		{
-			Debug.Log("TitleSceneSituation.ActivateInternal()");
+            yield return base.LoadRoutineInternal(handle, scope);
 
-			base.ActivateInternal(handle, scope);
+            Debug.Log("End TitleSceneSituation.LoadRoutineInternal()");
 
-			_stateContainer.Change(TitleState.Idle);
-		}
+            yield return LoadField();
 
-		protected override void UpdateInternal()
-		{
-			base.UpdateInternal();
+            SetupAll(scope);
+        }
 
-			_stateContainer.Update(Time.deltaTime);
-		}
+        protected override void ActivateInternal(TransitionHandle handle, IScope scope)
+        {
+            Debug.Log("TitleSceneSituation.ActivateInternal()");
 
-		private IEnumerator LoadField()
-		{
-			var fieldScene = new FieldScene(1);
-			yield return fieldScene.LoadRoutine(ServiceContainer);
-		}
-		
-		#region Setup
+            base.ActivateInternal(handle, scope);
 
-		private void SetupAll()
-		{
-			SetupPresenter();
-			SetupStateContainer();
-		}
+            _stateContainer.Change(TitleState.Idle);
+        }
 
-		private void SetupStateContainer()
-		{
-			var states = new List<TitleStateBase>()
-			{
-				new TitleStateIdle(),
-				new TitleStateStart()
-			};
-			_stateContainer.Setup(TitleState.Invalid, states.ToArray());
-			_stateContainer.OnChangedState += _presenter.OnChangeState;
-		}
-		
-		private void SetupPresenter()
-		{
-			var uiView = Services.Get<TitleUiView>();
-			uiView.Construct();
+        protected override void UpdateInternal()
+        {
+            base.UpdateInternal();
 
-			var camera = Services.Get<TitleCamera>();
-			camera.Construct();
+            _stateContainer.Update(Time.deltaTime);
+        }
 
-			_presenter = new TitlePresenter(uiView, camera);
-			_presenter.OnTouchToStart = () => _stateContainer.Change(TitleState.Start);
-			_presenter.OnEndTitle = () => _sceneSituationContainer.Transition(new BattleSceneSituation());
-		}
-		
-		#endregion Setup
-	}
+        private IEnumerator LoadField()
+        {
+            var fieldScene = new FieldScene(1);
+            yield return fieldScene.LoadRoutine(ServiceContainer);
+        }
+
+        #region Setup
+
+        private void SetupAll(IScope scope)
+        {
+            SetupPresenter(scope);
+            SetupStateContainer();
+        }
+
+        private void SetupStateContainer()
+        {
+            var states = new List<TitleStateBase>()
+            {
+                new TitleStateIdle(),
+                new TitleStateStart()
+            };
+            _stateContainer.Setup(TitleState.Invalid, states.ToArray());
+            _stateContainer.OnChangedState += _presenter.OnChangeState;
+        }
+
+        private void SetupPresenter(IScope scope)
+        {
+            var uiView = Services.Get<TitleUiView>();
+
+            var camera = Services.Get<TitleCamera>();
+            camera.Construct();
+
+            var model = new TitleModel();
+            model.CurrentState.TakeUntil(scope).Subscribe(state => { _stateContainer.Change(state); });
+            model.EndFlag.TakeUntil(scope).Subscribe(_ =>
+            {
+                _sceneSituationContainer.Transition(new BattleSceneSituation());
+            });
+
+            _presenter = new TitlePresenter(uiView, camera, model);
+        }
+
+        #endregion Setup
+    }
 }

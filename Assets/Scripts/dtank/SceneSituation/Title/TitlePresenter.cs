@@ -1,63 +1,52 @@
 using System;
+using GameFramework.Core;
 using UniRx;
 using UnityEngine;
 
 namespace dtank
 {
-	public class TitlePresenter : IDisposable
-	{
-		private readonly TitleUiView _uiView;
-		private readonly TitleCamera _camera;
-		private readonly CompositeDisposable _disposable = new CompositeDisposable();
-		
-		public Action OnTouchToStart = null;
-		public Action OnEndTitle = null;
+    public class TitlePresenter : IDisposable
+    {
+        private readonly TitleUiView _uiView;
+        private readonly TitleCamera _camera;
+        private readonly TitleModel _model;
+        private readonly DisposableScope _scope;
 
-		public TitlePresenter(TitleUiView uiView, TitleCamera camera)
-		{
-			Debug.Log("TitlePresenter.TitlePresenter()");
+        public TitlePresenter(TitleUiView uiView, TitleCamera camera, TitleModel model)
+        {
+            Debug.Log("TitlePresenter.TitlePresenter()");
 
-			_uiView = uiView;
-			_camera = camera;
-			
-			SetEvent();
-		}
+            _uiView = uiView;
+            _camera = camera;
+            _model = model;
+            _scope = new DisposableScope();
 
-		public void Dispose()
-		{
-			_disposable.Dispose();
+            SetEvent();
+        }
 
-			OnTouchToStart = null;
-			OnEndTitle = null;
-		}
+        public void Dispose()
+        {
+            _scope.Dispose();
+        }
 
-		public void OnChangeState(TitleState prev, TitleState current)
-		{
-			switch (current)
-			{
-				case TitleState.Idle:
-					_camera.Play();
-					break;
-				case TitleState.Start:
-					_uiView.PlayStart();
-					break;
-			}
-		}
+        public void OnChangeState(TitleState prev, TitleState current)
+        {
+            switch (current)
+            {
+                case TitleState.Idle:
+                    _camera.Play();
+                    break;
+                case TitleState.Start:
+                    _model.EndScene();
+                    break;
+            }
+        }
 
-		private void SetEvent()
-		{
-			_uiView.OnStartButtonClickedListener = OnStartButtonClicked;
-			_uiView.OnCompleteStartListener = OnCompleteStart;
-		}
-
-		private void OnStartButtonClicked()
-		{
-			OnTouchToStart?.Invoke();
-		}
-
-		private void OnCompleteStart()
-		{
-			OnEndTitle?.Invoke();
-		}
-	}
+        private void SetEvent()
+        {
+            _uiView.OnStartButtonClickAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_ => _model.PushStart());
+        }
+    }
 }
