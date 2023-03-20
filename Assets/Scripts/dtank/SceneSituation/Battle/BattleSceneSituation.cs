@@ -15,8 +15,7 @@ namespace dtank
 
         private readonly StateContainer<BattleStateBase, BattleState> _stateContainer =
             new StateContainer<BattleStateBase, BattleState>();
-        private readonly BattleRuleModel _ruleModel = new BattleRuleModel(30f);
-        
+
         private BattlePresenter _presenter;
 
         protected override void ReleaseInternal(SituationContainer parent)
@@ -33,11 +32,14 @@ namespace dtank
             base.StandbyInternal(parent);
 
             ServiceContainer.Set(_stateContainer);
-            ServiceContainer.Set(_ruleModel);
         }
 
         protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope)
         {
+            var ruleModel = BattleRuleModel.Create();
+            ruleModel.Setup(90f);
+            ruleModel.ScopeTo(scope);
+
             Debug.Log("Begin BattleSceneSituation.LoadRoutineInternal()");
 
             yield return base.LoadRoutineInternal(handle, scope);
@@ -85,7 +87,7 @@ namespace dtank
         {
             var uiView = Services.Get<BattleUiView>();
             uiView.Construct();
-            
+
             var camera = Services.Get<BattleCamera>();
             camera.Construct();
 
@@ -116,6 +118,7 @@ namespace dtank
                     tankActorDictionary.Add(tankId++, tankActor);
                 }
             }
+
             var tankActorContainer = new TankActorContainer(tankActorDictionary);
             ServiceContainer.Set(tankActorContainer);
 
@@ -132,14 +135,16 @@ namespace dtank
                 {
                     playerTankModel = tankModel;
                     playerTankPresenter =
-                        new PlayerBattleTankPresenter(tankController, tankModel, tankActor, controlUiView, statusUiView);
+                        new PlayerBattleTankPresenter(tankController, tankModel, tankActor, controlUiView,
+                            statusUiView);
                     ServiceContainer.Set(playerTankPresenter);
                     continue;
                 }
 
                 var npcTankBehaviourSelector =
                     new NpcBehaviourSelector(tankModel, tankModels.Where(m => m != tankModel).ToArray());
-                var npcTankPresenter = new NpcBattleTankPresenter(tankController, tankModel, tankActor, npcTankBehaviourSelector);
+                var npcTankPresenter =
+                    new NpcBattleTankPresenter(tankController, tankModel, tankActor, npcTankBehaviourSelector);
                 npcTankPresenters.Add(npcTankPresenter);
             }
 
@@ -147,10 +152,13 @@ namespace dtank
             ServiceContainer.Set(controller);
 
             var playingUiView = Services.Get<BattlePlayingUiView>();
-            
-            var rulePresenter = new DokkanTankRulePresenter(_ruleModel, tankActors.ToArray(), tankModels.ToArray(), playingUiView);
 
-            _presenter = new BattlePresenter(controller, playerTankPresenter, npcTankPresenters.ToArray(), rulePresenter);
+            var ruleModel = BattleRuleModel.Get();
+            var rulePresenter =
+                new DokkanTankRulePresenter(ruleModel, tankActors.ToArray(), tankModels.ToArray(), playingUiView);
+
+            _presenter = new BattlePresenter(controller, playerTankPresenter, npcTankPresenters.ToArray(),
+                rulePresenter);
         }
 
         private void SetupStateContainer()
