@@ -12,8 +12,6 @@ namespace dtank
     {
         protected override string SceneAssetPath => "Title";
 
-        private readonly SceneSituationContainer _sceneSituationContainer = null;
-
         private readonly StateContainer<TitleStateBase, TitleState> _stateContainer =
             new StateContainer<TitleStateBase, TitleState>();
 
@@ -21,7 +19,6 @@ namespace dtank
 
         public TitleSceneSituation()
         {
-            _sceneSituationContainer = Services.Get<SceneSituationContainer>();
         }
 
         protected override void ReleaseInternal(SituationContainer parent)
@@ -105,9 +102,10 @@ namespace dtank
 
             var model = new TitleModel();
             model.CurrentState.TakeUntil(scope).Subscribe(state => { _stateContainer.Change(state); });
-            model.EndFlag.TakeUntil(scope).Subscribe(_ =>
+            model.EndFlag.TakeUntil(scope).Subscribe(flag =>
             {
-                _sceneSituationContainer.Transition(new BattleSceneSituation());
+                if (flag)
+                    ParentContainer.Transition(new BattleSceneSituation());
             });
 
             _presenter = new TitlePresenter(uiView, camera, model);

@@ -1,5 +1,4 @@
 using GameFramework.Core;
-using GameFramework.SituationSystems;
 using GameFramework.StateSystems;
 
 namespace dtank
@@ -9,10 +8,6 @@ namespace dtank
         protected StateContainer<BattleStateBase, BattleState> StateContainer =>
             _stateContainer ??= Services.Get<StateContainer<BattleStateBase, BattleState>>();
         private StateContainer<BattleStateBase, BattleState> _stateContainer;
-        
-        protected SceneSituationContainer SceneSituationContainer =>
-            _sceneSituationContainer ??= Services.Get<SceneSituationContainer>();
-        private SceneSituationContainer _sceneSituationContainer;
         
         public abstract BattleState Key { get; }
 

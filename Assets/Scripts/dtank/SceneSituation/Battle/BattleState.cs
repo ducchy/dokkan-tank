@@ -5,6 +5,8 @@ namespace dtank
         Invalid,
         Ready,
         Playing,
-        Result
+        Result, 
+        Retry,
+        Quit,
     }
 }

@@ -11,7 +11,7 @@ namespace dtank
 
         public BattleStateResult()
         {
-            var ruleModel = Services.Get<BattleRuleModel>();
+            var ruleModel = BattleRuleModel.Get();
             var uiView = Services.Get<BattleUiView>();
             var controller = Services.Get<BattleController>();
             
@@ -21,8 +21,8 @@ namespace dtank
             var resultController = new BattleResultController(ruleModel, resultUiView);
             
             _presenter = new BattleResultPresenter(ruleModel, controller, resultController, uiView, resultUiView);
-            _presenter.OnQuit = () => SceneSituationContainer?.Transition(new TitleSceneSituation());
-            _presenter.OnRetry = () => StateContainer.Change(BattleState.Ready);
+            _presenter.OnQuit = () => StateContainer.Change(BattleState.Quit);
+            _presenter.OnRetry = () => StateContainer.Change(BattleState.Retry);
         }
         
         public override void OnEnter(BattleState prevKey, IScope scope)

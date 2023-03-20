@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using dtank.StateQuit;
+using dtank.StateRetry;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using GameFramework.StateSystems;
+using UniRx;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -39,6 +42,21 @@ namespace dtank
             var ruleModel = BattleRuleModel.Create();
             ruleModel.Setup(90f);
             ruleModel.ScopeTo(scope);
+
+            var battleModel = BattleModel.Create();
+            battleModel.State.TakeUntil(scope).Subscribe(state =>
+            {
+                switch (state)
+                {
+                    case BattleState.Quit:
+                        ParentContainer.Transition(new TitleSceneSituation());
+                        break;
+                    case BattleState.Retry:
+                        _stateContainer.Change(BattleState.Ready);
+                        break;
+                }
+            });
+            battleModel.ScopeTo(scope);
 
             Debug.Log("Begin BattleSceneSituation.LoadRoutineInternal()");
 
@@ -157,7 +175,9 @@ namespace dtank
             var rulePresenter =
                 new DokkanTankRulePresenter(ruleModel, tankActors.ToArray(), tankModels.ToArray(), playingUiView);
 
-            _presenter = new BattlePresenter(controller, playerTankPresenter, npcTankPresenters.ToArray(),
+            var model = BattleModel.Get();
+            
+            _presenter = new BattlePresenter(model, controller, playerTankPresenter, npcTankPresenters.ToArray(),
                 rulePresenter);
         }
 
@@ -167,10 +187,14 @@ namespace dtank
             {
                 new BattleStateReady(),
                 new BattleStatePlaying(),
-                new BattleStateResult()
+                new BattleStateResult(),
+                new BattleStateQuit(),
+                new BattleStateRetry(),
             };
             _stateContainer.Setup(BattleState.Invalid, states.ToArray());
-            _stateContainer.OnChangedState += _presenter.OnChangedState;
+            
+            var model = BattleModel.Get();
+            _stateContainer.OnChangedState += model.OnChangedState;
         }
 
         #endregion Setup

@@ -6,6 +6,6 @@ namespace dtank
     {
         public abstract void Dispose();
 
-        public abstract void OnChangedState(BattleState prev, BattleState current);
+        public abstract void OnChangedState(BattleState state);
     }
 }

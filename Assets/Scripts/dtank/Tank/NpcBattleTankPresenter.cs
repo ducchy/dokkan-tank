@@ -58,11 +58,11 @@ namespace dtank
             _behaviourSelector.SetActive(false);
         }
 
-        public override void OnChangedState(BattleState prev, BattleState current)
+        public override void OnChangedState(BattleState state)
         {
-            base.OnChangedState(prev, current);
+            base.OnChangedState(state);
             
-            _behaviourSelector.SetActive(current == BattleState.Playing);
+            _behaviourSelector.SetActive(state == BattleState.Playing);
         }
     }
 }

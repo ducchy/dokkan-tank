@@ -139,7 +139,7 @@ namespace dtank
             Actor.Dead();
         }
 
-        public virtual void OnChangedState(BattleState prev, BattleState current)
+        public virtual void OnChangedState(BattleState current)
         {
             switch (current)
             {

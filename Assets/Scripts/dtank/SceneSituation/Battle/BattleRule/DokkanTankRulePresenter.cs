@@ -51,9 +51,9 @@ namespace dtank
                 tankActor.OnDealDamageListener = () => _ruleModel.IncrementScore(tankActor.OwnerId);
         }
 
-        public override void OnChangedState(BattleState prev, BattleState current)
+        public override void OnChangedState(BattleState state)
         {
-            switch (current)
+            switch (state)
             {
                 case BattleState.Ready:
                     _ruleModel.Ready();

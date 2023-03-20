@@ -32,7 +32,7 @@ namespace dtank
 
         public void Setup(float duration)
         {
-            _duration = duration;
+            _duration = 5f;
         }
 
         public void SetResultType(BattleResultType resultType)
