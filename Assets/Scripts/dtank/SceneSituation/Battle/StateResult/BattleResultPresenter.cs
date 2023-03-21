@@ -39,9 +39,10 @@ namespace dtank
             _resultUiView.OnQuitButtonClickedListener = OnQuitButtonClicked;
             _resultUiView.OnRetryButtonClickedListener = OnRetryButtonClicked;
 
-            _uiView.OnBeginResultAction = OnBeginResult;
-            _uiView.OnQuitBattleAction = OnQuitBattle;
-            _uiView.OnRetryBattleAction = OnRetryBattle;
+            _uiView.OnBeginResultAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_ => _resultController.PlayResult())
+                .ScopeTo(_scope);
         }
 
         public void Activate()
@@ -58,25 +59,10 @@ namespace dtank
 
         private void OnQuitButtonClicked()
         {
-            _uiView.QuitBattle();
-        }
-
-        private void OnRetryButtonClicked()
-        {
-            _uiView.RetryBattle();
-        }
-
-        private void OnBeginResult()
-        {
-            _resultController.PlayResult();
-        }
-
-        private void OnQuitBattle()
-        {
             _model.ChangeState(BattleState.Quit);
         }
 
-        private void OnRetryBattle()
+        private void OnRetryButtonClicked()
         {
             _model.ChangeState(BattleState.Retry);
         }

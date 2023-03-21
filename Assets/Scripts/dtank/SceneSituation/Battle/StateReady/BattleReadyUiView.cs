@@ -42,6 +42,7 @@ namespace dtank
 
             _seq?.Kill();
             _seq = DOTween.Sequence()
+                .AppendInterval(0.5f)
                 .Append(_group.DOFade(1f, 0.3f))
                 .OnComplete(() => SetActive(true))
                 .SetLink(gameObject)

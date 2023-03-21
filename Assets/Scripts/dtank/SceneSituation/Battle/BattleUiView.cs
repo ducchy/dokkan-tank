@@ -1,5 +1,8 @@
 using System;
 using DG.Tweening;
+using GameFramework.Core;
+using GameFramework.CoroutineSystems;
+using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,86 +10,51 @@ namespace dtank
 {
     public class BattleUiView : MonoBehaviour
     {
-        [SerializeField] private Image _screenFill;
-
+        private FadeController _fadeController;
         private Sequence _sequence;
+        private readonly DisposableScope _fadeScope = new DisposableScope();
 
-        public Action OnBeginBattleAction;
-        public Action OnQuitBattleAction;
-        public Action OnRetryBattleAction;
-        public Action OnEndPlayingAction;
-        public Action OnBeginResultAction;
+        private readonly Subject<Unit> _onEndPlayingSubject = new Subject<Unit>();
+        public IObservable<Unit> OnEndPlayingAsObservable => _onEndPlayingSubject;
 
-        public void Setup()
+        private readonly Subject<Unit> _onBeginResultSubject = new Subject<Unit>();
+        public IObservable<Unit> OnBeginResultAsObservable => _onBeginResultSubject;
+
+        public void Setup(FadeController fadeController)
         {
-            _screenFill.color = Color.black;
+            _fadeController = fadeController;
         }
 
         private void OnDestroy()
         {
-            OnBeginBattleAction = null;
-            OnQuitBattleAction = null;
-            OnRetryBattleAction = null;
-            OnEndPlayingAction = null;
-            OnBeginResultAction = null;
+            _onEndPlayingSubject.Dispose();
+            _onBeginResultSubject.Dispose();
         }
 
         private void SetActive(bool active)
         {
-            _screenFill.enabled = active;
-        }
-
-        public void BeginBattle()
-        {
-            PlayFadeIn(() => OnBeginBattleAction?.Invoke());
-        }
-
-        public void QuitBattle()
-        {
-            PlayFadeOut(() => OnQuitBattleAction?.Invoke());
-        }
-
-        public void RetryBattle()
-        {
-            PlayFadeOut(() => OnRetryBattleAction?.Invoke());
         }
 
         public void EndPlaying()
         {
-            PlayFadeOut(() => OnEndPlayingAction?.Invoke());
+            _fadeScope.Dispose();
+            _fadeController.FadeOutAsync(Color.black, 0.5f)
+                .Subscribe(
+                    onNext: _ => { },
+                    onCompleted: () => _onEndPlayingSubject.OnNext(Unit.Default)
+                )
+                .ScopeTo(_fadeScope);
         }
 
         public void BeginResult()
         {
-            PlayFadeIn(() => OnBeginResultAction?.Invoke());
-        }
-
-        private void PlayFadeIn(Action onComplete = null)
-        {
-            _sequence?.Kill();
-            
-            _screenFill.color = Color.black;
-
-            _sequence = DOTween.Sequence()
-                .AppendInterval(0.3f)
-                .Append(_screenFill.DOFade(0f, 0.3f))
-                .OnComplete(() => onComplete?.Invoke())
-                .SetLink(gameObject)
-                .Play();
-        }
-
-        private void PlayFadeOut(Action onComplete = null)
-        {
-            _sequence?.Kill();
-            
-            _screenFill.color = Color.clear;
-
-            _sequence = DOTween.Sequence()
-                .Append(_screenFill.DOFade(1f, 0.3f))
-                .AppendInterval(0.3f)
-                .OnComplete(() => onComplete?.Invoke())
-                .SetLink(gameObject)
-                .Play();
+            _fadeScope.Dispose();
+            _fadeController.FadeInAsync(0.5f)
+                .Subscribe(
+                    onNext: _ => { },
+                    onCompleted: () => _onBeginResultSubject.OnNext(Unit.Default)
+                )
+                .ScopeTo(_fadeScope);
         }
     }
 }

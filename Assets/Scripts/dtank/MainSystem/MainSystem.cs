@@ -38,6 +38,9 @@ namespace dtank
             // 各種システム初期化
             _taskRunner = new TaskRunner();
             Services.Instance.Set(_taskRunner);
+
+            // 各種GlobalObjectのタスク登録
+            _taskRunner.Register(Services.Get<FadeController>(), TaskOrder.UI);
             
             _sceneSituationContainer = new SceneSituationContainer();
             _taskRunner.Register(_sceneSituationContainer, TaskOrder.PreSystem);
@@ -49,7 +52,7 @@ namespace dtank
             if (startSituation == null)
                 startSituation = new TitleSceneSituation();
 
-            var handle = _sceneSituationContainer.Transition(startSituation);
+            var handle = _sceneSituationContainer.Transition(startSituation, new CommonFadeTransitionEffect());
 
             yield return handle;
 

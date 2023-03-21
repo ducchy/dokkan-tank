@@ -68,7 +68,11 @@ namespace dtank
         private void SetEvent()
         {
             _playingUiView.OnEndFinishListener = OnEndFinish;
-            _uiView.OnEndPlayingAction = OnEndPlaying;
+            
+            _uiView.OnEndPlayingAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_ => _model.ChangeState(BattleState.Result))
+                .ScopeTo(_scope);
         }
 
         private void OnResultTypeChanged(BattleResultType type)
@@ -84,11 +88,6 @@ namespace dtank
         private void OnEndFinish()
         {
             _uiView.EndPlaying();
-        }
-
-        private void OnEndPlaying()
-        {
-            _model.ChangeState(BattleState.Result);
         }
     }
 }

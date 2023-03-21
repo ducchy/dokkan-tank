@@ -17,7 +17,7 @@ namespace dtank
 
         private StateContainer<BattleStateBase, BattleState> _stateContainer;
         private BattlePresenter _presenter;
-        private List<ITask> _tasks = new List<ITask>();
+        private readonly List<ITask> _tasks = new List<ITask>();
 
         protected override void StandbyInternal(Situation parent)
         {
@@ -140,8 +140,9 @@ namespace dtank
         {
             var model = BattleModel.Get();
 
+            var fadeController = Services.Get<FadeController>();
             var uiView = Services.Get<BattleUiView>();
-            uiView.Setup();
+            uiView.Setup(fadeController);
 
             var controlUiView = Services.Get<BattleTankControlUiView>();
             controlUiView.Setup();
@@ -238,7 +239,7 @@ namespace dtank
                     switch (state)
                     {
                         case BattleState.Quit:
-                            ParentContainer.Transition(new TitleSceneSituation());
+                            ParentContainer.Transition(new TitleSceneSituation(), new CommonFadeTransitionEffect());
                             break;
                         case BattleState.Retry:
                             Debug.LogError("BattleState.Retryは未実装");

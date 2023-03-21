@@ -30,7 +30,7 @@ namespace dtank
 
         public void Activate()
         { 
-            _uiView.BeginBattle();
+            _readyUiView.BeginReady();
         }
 
         public void Deactivate()
@@ -44,13 +44,6 @@ namespace dtank
                 .TakeUntil(_scope)
                 .Subscribe(_ => _cameraController.SkipReady())
                 .ScopeTo(_scope);
-            
-            _uiView.OnBeginBattleAction = OnBeginBattle;
-        }
-
-        private void OnBeginBattle()
-        {
-            _readyUiView.BeginReady();
         }
     }
 }

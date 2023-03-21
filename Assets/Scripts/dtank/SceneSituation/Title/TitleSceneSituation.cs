@@ -105,7 +105,7 @@ namespace dtank
                     switch (state)
                     {
                         case TitleState.End:
-                            ParentContainer.Transition(new BattleSceneSituation());
+                            ParentContainer.Transition(new BattleSceneSituation(), new CommonFadeTransitionEffect());
                             break;
                         default: 
                             _stateContainer.Change(state);
