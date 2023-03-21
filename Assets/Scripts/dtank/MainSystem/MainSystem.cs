@@ -45,6 +45,9 @@ namespace dtank
             _sceneSituationContainer = new SceneSituationContainer();
             _taskRunner.Register(_sceneSituationContainer, TaskOrder.PreSystem);
 
+            var fieldManager = new FieldManager(Services.Instance);
+            Services.Instance.Set(fieldManager);
+
             SceneSituation startSituation = null;
             if (args.Length > 0)
                 startSituation = args[0] as SceneSituation;

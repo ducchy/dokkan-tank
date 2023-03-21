@@ -7,7 +7,6 @@ using GameFramework.StateSystems;
 using GameFramework.TaskSystems;
 using UniRx;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace dtank
 {
@@ -25,9 +24,7 @@ namespace dtank
 
             yield return base.LoadRoutineInternal(handle, scope);
 
-            yield return LoadAll();
-
-            SetupAll(scope);
+            yield return LoadAllRoutine(scope);
 
             BattleModel.Get().ChangeState(BattleState.Ready);
 
@@ -50,23 +47,11 @@ namespace dtank
 
         #region Load
 
-        private IEnumerator LoadAll()
+        private IEnumerator LoadAllRoutine(IScope scope)
         {
-            Debug.Log("Begin BattleSceneSituation.LoadAll()");
-
-            yield return LoadField();
-
-            Debug.Log("End BattleSceneSituation.LoadAll()");
-        }
-
-        private IEnumerator LoadField()
-        {
-            var fieldScene = new FieldScene(1);
-            yield return fieldScene.LoadRoutine(ServiceContainer);
-        }
-
-        private void SetupAll(IScope scope)
-        {
+            var fieldManager = Services.Get<FieldManager>();
+            yield return fieldManager.LoadRoutine(1);
+            
             SetupModel(scope);
             SetupPresenter(scope);
             SetupStateContainer(scope);
@@ -158,7 +143,8 @@ namespace dtank
 
                         playerTankModel = tankModel;
                         playerTankPresenter =
-                            new PlayerBattleTankPresenter(tankController, model, tankModel, tankActor, uiView.TankControlUiView,
+                            new PlayerBattleTankPresenter(tankController, model, tankModel, tankActor,
+                                uiView.TankControlUiView,
                                 uiView.TankStatusUiView);
                         continue;
                     }
@@ -171,7 +157,8 @@ namespace dtank
                     }
 
                     var npcTankPresenter =
-                        new NpcBattleTankPresenter(tankController, model, tankModel, tankActor, npcTankBehaviourSelector);
+                        new NpcBattleTankPresenter(tankController, model, tankModel, tankActor,
+                            npcTankBehaviourSelector);
                     npcTankPresenters.Add(npcTankPresenter);
                 }
             }
@@ -241,18 +228,14 @@ namespace dtank
 
         private void UnloadAll()
         {
-            UnloadField();
+            var fieldManager = Services.Get<FieldManager>();
+            fieldManager.Unload();
 
             var taskRunner = Services.Get<TaskRunner>();
             foreach (var task in _tasks)
                 taskRunner.Unregister(task);
 
             BattleModel.Delete();
-        }
-
-        private void UnloadField()
-        {
-            SceneManager.UnloadSceneAsync("field001");
         }
 
         #endregion Unload

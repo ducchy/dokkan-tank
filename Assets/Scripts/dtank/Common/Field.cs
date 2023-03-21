@@ -7,13 +7,19 @@ using UnityEngine.SceneManagement;
 
 namespace dtank
 {
-    public abstract class AdditiveSceneBase
+    public class Field
     {
-        protected abstract string SceneAssetPath { get; }
-
         public Scene Scene { get; private set; }
+        public readonly int FieldId;
+        
+        private string SceneAssetPath => $"field{FieldId:d3}";
 
-        public IEnumerator LoadRoutine(ServiceContainer mainSceneServiceContainer)
+        public Field(int fieldId)
+        {
+            FieldId = fieldId;
+        }
+
+        public IEnumerator LoadRoutine(IServiceContainer container)
         {
             yield return SceneManager.LoadSceneAsync(SceneAssetPath, LoadSceneMode.Additive);
 
@@ -27,10 +33,14 @@ namespace dtank
             var installers = Scene.GetRootGameObjects()
                 .SelectMany(x => x.GetComponentsInChildren<ServiceContainerInstaller>(true))
                 .ToArray();
+            
             foreach (var installer in installers)
-            {
-                installer.Install(mainSceneServiceContainer);
-            }
+                installer.Install(container);
+        }
+
+        public void UnloadRoutine()
+        {
+            SceneManager.UnloadSceneAsync(SceneAssetPath);
         }
     }
 }

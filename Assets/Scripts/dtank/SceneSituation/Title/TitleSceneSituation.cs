@@ -21,9 +21,7 @@ namespace dtank
 
             yield return base.LoadRoutineInternal(handle, scope);
 
-            yield return LoadField();
-
-            SetupAll(scope);
+            yield return LoadAllRoutine(scope);
 
             _stateContainer.Change(TitleState.Idle);
 
@@ -46,14 +44,11 @@ namespace dtank
 
         #region Load
 
-        private IEnumerator LoadField()
+        private IEnumerator LoadAllRoutine(IScope scope)
         {
-            var fieldScene = new FieldScene(1);
-            yield return fieldScene.LoadRoutine(ServiceContainer);
-        }
-
-        private void SetupAll(IScope scope)
-        {
+            var fieldManager = Services.Get<FieldManager>();
+            yield return fieldManager.LoadRoutine(1);
+            
             SetupModel(scope);
             SetupPresenter(scope);
             SetupStateContainer(scope);
@@ -124,14 +119,10 @@ namespace dtank
 
         private void UnloadAll()
         {
-            UnloadField();
+            var fieldManager = Services.Get<FieldManager>();
+            fieldManager.Unload();
 
             TitleModel.Delete();
-        }
-
-        private void UnloadField()
-        {
-            SceneManager.UnloadSceneAsync("field001");
         }
 
         #endregion Unload
