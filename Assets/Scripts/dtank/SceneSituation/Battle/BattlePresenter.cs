@@ -51,10 +51,6 @@ namespace dtank
                             _cameraController.PlayReady();
                             break;
                     }
-
-                    _playerTankPresenter.OnChangedState(state);
-                    foreach (var npcTankPresenter in _npcTankPresenters)
-                        npcTankPresenter.OnChangedState(state);
                 })
                 .ScopeTo(_scope);
         }

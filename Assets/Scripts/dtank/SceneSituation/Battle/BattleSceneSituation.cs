@@ -158,7 +158,7 @@ namespace dtank
 
                         playerTankModel = tankModel;
                         playerTankPresenter =
-                            new PlayerBattleTankPresenter(tankController, tankModel, tankActor, uiView.TankControlUiView,
+                            new PlayerBattleTankPresenter(tankController, model, tankModel, tankActor, uiView.TankControlUiView,
                                 uiView.TankStatusUiView);
                         continue;
                     }
@@ -171,7 +171,7 @@ namespace dtank
                     }
 
                     var npcTankPresenter =
-                        new NpcBattleTankPresenter(tankController, tankModel, tankActor, npcTankBehaviourSelector);
+                        new NpcBattleTankPresenter(tankController, model, tankModel, tankActor, npcTankBehaviourSelector);
                     npcTankPresenters.Add(npcTankPresenter);
                 }
             }

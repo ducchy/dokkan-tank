@@ -30,6 +30,7 @@ namespace dtank
         private BattleTankModel _target;
         private NpcTankStateBase _current;
         private int _failedCount;
+        private bool _activeFlag;
 
         public NpcBehaviourSelector(BattleTankModel owner, BattleTankModel[] others)
         {
@@ -44,6 +45,7 @@ namespace dtank
                 _onMoveValueChangedSubject);
 
             _failedCount = 0;
+            _activeFlag = false;
             _target = FindTarget();
 
             SetActive(false);
@@ -60,6 +62,11 @@ namespace dtank
 
         public void Reset()
         {
+            _onMoveValueChangedSubject.OnNext(0f);
+            _onTurnValueChangedSubject.OnNext(0f);
+
+            _failedCount = 0;
+            _target = null;
         }
 
         public void Update()
@@ -91,7 +98,19 @@ namespace dtank
 
         public void SetActive(bool active)
         {
-            ChangeState(active ? new NpcTankStateIdle(0.5f) : new NpcTankStateNone());
+            Debug.LogFormat("NpcBehaviourSelector.SetActive(): active={0}", active);
+
+            if (_activeFlag == active)
+                return;
+
+            _activeFlag = active;
+
+            if (active)
+                _target = FindTarget();
+            else
+                Reset();
+            
+            ChangeState(active ? new NpcTankStateIdle(0.5f) : new NpcTankStateNone(), force: true);
         }
 
         private void ToNextState(NpcTankStateResult result)
@@ -114,7 +133,6 @@ namespace dtank
                     return null;
                 }
             }
-
 
             if (result == NpcTankStateResult.Failed)
             {
@@ -161,9 +179,12 @@ namespace dtank
                 : targets[Random.Range(0, targets.Length)];
         }
 
-        private void ChangeState(NpcTankStateBase state)
+        private void ChangeState(NpcTankStateBase state, bool force = false)
         {
             if (state == null)
+                return;
+
+            if (!force && !_activeFlag)
                 return;
 
             _current?.OnExit();

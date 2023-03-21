@@ -9,11 +9,12 @@ namespace dtank
 
         public PlayerBattleTankPresenter(
             BattleTankController controller,
-            BattleTankModel model,
+            BattleModel model,
+            BattleTankModel tankModel,
             BattleTankActor actor,
             IBehaviourSelector behaviourSelector,
             BattleTankStatusUiView statusUiView)
-            : base(controller, model, actor, behaviourSelector)
+            : base(controller, model, tankModel, actor, behaviourSelector)
         {
             _statusUiView = statusUiView;
             
@@ -23,7 +24,7 @@ namespace dtank
 
         protected override void BindInternal()
         {
-            _model.Hp
+            _tankModel.Hp
                 .TakeUntil(_scope)
                 .Subscribe(_statusUiView.SetHp)
                 .ScopeTo(_scope);

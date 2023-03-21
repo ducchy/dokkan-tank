@@ -51,6 +51,9 @@ namespace dtank
         {
             SetActive(true);
 
+            if (_group == null)
+                return;
+
             _seq?.Kill();
             _seq = DOTween.Sequence()
                 .Append(_group.DOFade(0f, 0.3f))
