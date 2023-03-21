@@ -138,7 +138,7 @@ namespace dtank
             BeginInvincible();
             SetState(BattleTankState.Damage);
             _hp.Value--;
-            attacker.DealDamage();
+            attacker?.DealDamage();
         }
 
         public void EndDamage()
