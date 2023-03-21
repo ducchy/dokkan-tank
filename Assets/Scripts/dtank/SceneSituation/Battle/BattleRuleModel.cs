@@ -33,7 +33,7 @@ namespace dtank
 
         public BattleRuleModel(float duration)
         {
-            _duration = 20f;
+            _duration = duration;
         }
 
         public void Dispose()
@@ -72,6 +72,11 @@ namespace dtank
         public void Start()
         {
             _playingFlag = true;
+        }
+
+        public void ForceEnd()
+        {
+            TimeUp();
         }
 
         private void TimeUp()

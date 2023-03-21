@@ -3,6 +3,7 @@ using DG.Tweening;
 using TMPro;
 using UniRx;
 using UnityEngine;
+using UnityEngine.UI;
 using Sequence = DG.Tweening.Sequence;
 
 namespace dtank
@@ -10,6 +11,7 @@ namespace dtank
     public class BattlePlayingUiView : MonoBehaviour, IDisposable
     {
         [SerializeField] private CanvasGroup _group;
+        [SerializeField] private Button _forceEndButton;
         [SerializeField] private TextMeshProUGUI _centerLabel;
         [SerializeField] private TextMeshProUGUI _remainTime;
 
@@ -18,6 +20,8 @@ namespace dtank
 
         private readonly Subject<Unit> _onEndFinishSubject = new Subject<Unit>();
         public IObservable<Unit> OnEndFinishAsObservable => _onEndFinishSubject;
+
+        public IObservable<Unit> OnForceEndAsObservable => _forceEndButton.OnClickAsObservable();
 
         public void Setup()
         {

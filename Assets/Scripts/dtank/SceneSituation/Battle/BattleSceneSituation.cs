@@ -171,7 +171,7 @@ namespace dtank
             cameraController.ScopeTo(scope);
             RegisterTask(cameraController, TaskOrder.Camera);
 
-            _presenter = new BattlePresenter(model, cameraController, playerTankPresenter, npcTankPresenters.ToArray(),
+            _presenter = new BattlePresenter(model, uiView, cameraController, playerTankPresenter, npcTankPresenters.ToArray(),
                 tankActorContainer);
             _presenter.ScopeTo(scope);
         }

@@ -7,6 +7,7 @@ namespace dtank
     public class BattlePresenter : IDisposable
     {
         private readonly BattleModel _model;
+        private readonly BattleUiView _uiView;
         private readonly BattleCameraController _cameraController;
         private readonly PlayerBattleTankPresenter _playerTankPresenter;
         private readonly NpcBattleTankPresenter[] _npcTankPresenters;
@@ -15,12 +16,14 @@ namespace dtank
 
         public BattlePresenter(
             BattleModel model,
+            BattleUiView uiView,
             BattleCameraController cameraController,
             PlayerBattleTankPresenter playerTankPresenter,
             NpcBattleTankPresenter[] npcTankPresenters, 
             TankActorContainer tankActorContainer)
         {
             _model = model;
+            _uiView = uiView;
             _cameraController = cameraController;
             _playerTankPresenter = playerTankPresenter;
             _npcTankPresenters = npcTankPresenters;
@@ -66,7 +69,12 @@ namespace dtank
                 tankActor.OnDealDamageAsObservable
                     .TakeUntil(_scope)
                     .Subscribe(_ => _model.RuleModel.IncrementScore(tankActor.OwnerId))
-                    .ScopeTo(_scope);;
+                    .ScopeTo(_scope);
+
+            _uiView.PlayingUiView.OnForceEndAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_ => _model.RuleModel.ForceEnd())
+                .ScopeTo(_scope);
         }
     }
 }
