@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace dtank
 {
@@ -25,13 +26,6 @@ namespace dtank
             yield return LoadField();
 
             SetupAll(scope);
-        }
-
-        protected override void ActivateInternal(TransitionHandle handle, IScope scope)
-        {
-            Debug.Log("TitleSceneSituation.ActivateInternal()");
-
-            base.ActivateInternal(handle, scope);
 
             _stateContainer.Change(TitleState.Idle);
         }
@@ -39,24 +33,31 @@ namespace dtank
         protected override void UpdateInternal()
         {
             base.UpdateInternal();
-            
+
             _stateContainer.Update(Time.deltaTime);
         }
-        
+
+        protected override void UnloadInternal(TransitionHandle handle)
+        {
+            base.UnloadInternal(handle);
+
+            UnloadAll();
+        }
+
+        #region Load
+
         private IEnumerator LoadField()
         {
             var fieldScene = new FieldScene(1);
             yield return fieldScene.LoadRoutine(ServiceContainer);
         }
 
-        #region Setup
-
         private void SetupAll(IScope scope)
         {
             SetupModel(scope);
             SetupPresenter(scope);
             SetupStateContainer(scope);
-            
+
             Bind(scope);
         }
 
@@ -107,7 +108,7 @@ namespace dtank
                         case TitleState.End:
                             ParentContainer.Transition(new BattleSceneSituation(), new CommonFadeTransitionEffect());
                             break;
-                        default: 
+                        default:
                             _stateContainer.Change(state);
                             break;
                     }
@@ -115,6 +116,22 @@ namespace dtank
                 .ScopeTo(scope);
         }
 
-        #endregion Setup
+        #endregion Load
+
+        #region Unload
+
+        private void UnloadAll()
+        {
+            UnloadField();
+
+            TitleModel.Delete();
+        }
+
+        private void UnloadField()
+        {
+            SceneManager.UnloadSceneAsync("field001");
+        }
+
+        #endregion Unload
     }
 }

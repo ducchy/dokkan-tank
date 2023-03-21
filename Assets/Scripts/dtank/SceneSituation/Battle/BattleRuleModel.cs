@@ -78,7 +78,7 @@ namespace dtank
         {
             _playingFlag = false;
             WinnerId = GetTopPlayerId();
-            _resultType.Value = WinnerId == 1 ?  BattleResultType.Win : BattleResultType.Lose;
+            _resultType.Value = WinnerId == 1 ? BattleResultType.Win : BattleResultType.Lose;
         }
 
         public void IncrementScore(int playerId)

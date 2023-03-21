@@ -19,13 +19,6 @@ namespace dtank
         private BattlePresenter _presenter;
         private readonly List<ITask> _tasks = new List<ITask>();
 
-        protected override void StandbyInternal(Situation parent)
-        {
-            Debug.Log("BattleSceneSituation.StandbyInternal()");
-
-            base.StandbyInternal(parent);
-        }
-
         protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope)
         {
             Debug.Log("Begin BattleSceneSituation.LoadRoutineInternal()");
@@ -37,20 +30,6 @@ namespace dtank
             yield return LoadAll();
 
             SetupAll(scope);
-        }
-
-        protected override void UnloadInternal(TransitionHandle handle)
-        {
-            base.UnloadInternal(handle);
-
-            UnloadAll();
-        }
-
-        protected override void ActivateInternal(TransitionHandle handle, IScope scope)
-        {
-            Debug.Log("BattleSceneSituation.ActivateInternal()");
-
-            base.ActivateInternal(handle, scope);
 
             BattleModel.Get().ChangeState(BattleState.Ready);
         }
@@ -60,6 +39,13 @@ namespace dtank
             base.UpdateInternal();
 
             _stateContainer.Update(Time.deltaTime);
+        }
+
+        protected override void UnloadInternal(TransitionHandle handle)
+        {
+            base.UnloadInternal(handle);
+
+            UnloadAll();
         }
 
         #region Load
