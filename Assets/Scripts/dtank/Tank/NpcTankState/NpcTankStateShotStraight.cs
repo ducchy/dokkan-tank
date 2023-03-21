@@ -1,3 +1,5 @@
+using UniRx;
+
 namespace dtank
 {
     public class NpcTankStateShotStraight : NpcTankStateBase
@@ -5,16 +7,16 @@ namespace dtank
         public override NpcTankState State => NpcTankState.ShotStraight;
         public override NpcTankStateResult Result => NpcTankStateResult.None;
 
-        private readonly NpcBehaviourSelector _behaviourSelector;
+        private readonly NpcBehaviourObserver _observer;
 
-        public NpcTankStateShotStraight(NpcBehaviourSelector behaviourSelector)
+        public NpcTankStateShotStraight(NpcBehaviourObserver observer)
         {
-            _behaviourSelector = behaviourSelector;
+            _observer = observer;
         }
 
         public override void OnEnter()
         {
-            _behaviourSelector.OnShotStraightListener?.Invoke();
+            _observer.OnShotStraightObserver.OnNext(Unit.Default);
         }
 
         public override void OnUpdate(float deltaTime)

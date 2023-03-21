@@ -1,12 +1,13 @@
 using System;
 using DG.Tweening;
 using TMPro;
+using UniRx;
 using UnityEngine;
 using Sequence = DG.Tweening.Sequence;
 
 namespace dtank
 {
-    public class BattlePlayingUiView : MonoBehaviour
+    public class BattlePlayingUiView : MonoBehaviour, IDisposable
     {
         [SerializeField] private CanvasGroup _group;
         [SerializeField] private TextMeshProUGUI _centerLabel;
@@ -15,24 +16,23 @@ namespace dtank
         private Sequence _seq;
         private Sequence _finishSeq;
 
-        public Action OnEndFinishListener;
+        private readonly Subject<Unit> _onEndFinishSubject = new Subject<Unit>();
+        public IObservable<Unit> OnEndFinishAsObservable => _onEndFinishSubject;
 
         public void Setup()
         {
-            Debug.Log("BattlePlayingUiView.Setup()");
-
             SetActive(false);
         }
 
-        private void OnDestroy()
+        public void Dispose()
         {
             _seq?.Kill();
             _finishSeq?.Kill();
 
-            OnEndFinishListener = null;
+            _onEndFinishSubject.Dispose();
         }
 
-        public void SetActive(bool flag)
+        private void SetActive(bool flag)
         {
             if (_group == null)
                 return;
@@ -78,7 +78,7 @@ namespace dtank
                 .OnComplete(() =>
                 {
                     SetActive(false);
-                    OnEndFinishListener?.Invoke();
+                    _onEndFinishSubject.OnNext(Unit.Default);
                 })
                 .SetLink(gameObject)
                 .Play();

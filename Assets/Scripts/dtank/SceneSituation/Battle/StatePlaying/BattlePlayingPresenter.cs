@@ -7,7 +7,6 @@ namespace dtank
     public class BattlePlayingPresenter : IDisposable
     {
         private readonly BattleModel _model;
-        private readonly BattlePlayingController _controller;
         private readonly BattleUiView _uiView;
         private readonly BattlePlayingUiView _playingUiView;
         private readonly BattleTankStatusUiView _statusUiView;
@@ -16,14 +15,12 @@ namespace dtank
 
         public BattlePlayingPresenter(
             BattleModel model,
-            BattlePlayingController controller,
             BattleUiView uiView,
             BattlePlayingUiView playingUiView, 
             BattleTankStatusUiView statusUiView,
             BattleTankControlUiView controlUiView)
         {
             _model = model;
-            _controller = controller;
             _uiView = uiView;
             _playingUiView = playingUiView;
             _statusUiView = statusUiView;
@@ -40,8 +37,6 @@ namespace dtank
 
         public void Activate()
         {
-            _controller.Activate();
-            
             _playingUiView.Start();
             _statusUiView.Open();
             _controlUiView.Open();
@@ -49,7 +44,6 @@ namespace dtank
 
         public void Deactivate()
         {
-            _controller.Deactivate();
         }
 
         private void Bind()
@@ -67,7 +61,10 @@ namespace dtank
 
         private void SetEvent()
         {
-            _playingUiView.OnEndFinishListener = OnEndFinish;
+            _playingUiView.OnEndFinishAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_ => _uiView.EndPlaying())
+                .ScopeTo(_scope);
             
             _uiView.OnEndPlayingAsObservable
                 .TakeUntil(_scope)
@@ -83,11 +80,6 @@ namespace dtank
             _playingUiView.Finish();
             _statusUiView.Close();
             _controlUiView.Close();
-        }
-
-        private void OnEndFinish()
-        {
-            _uiView.EndPlaying();
         }
     }
 }

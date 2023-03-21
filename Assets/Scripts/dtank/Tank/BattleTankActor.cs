@@ -1,21 +1,12 @@
 using System;
 using System.Linq;
 using DG.Tweening;
+using UniRx;
 using UnityEngine;
 
 namespace dtank
 {
-    public interface IAttacker
-    {
-        void DealDamage();
-    }
-
-    public interface IDamageReceiver
-    {
-        bool ReceiveDamage(IAttacker attacker);
-    }
-
-    public class BattleTankActor : TankActorBase, IDamageReceiver, IAttacker
+    public class BattleTankActor : TankActorBase, IDamageReceiver, IAttacker, IDisposable
     {
         [SerializeField] private Rigidbody _rigidbody;
         [SerializeField] private AnimatorBody _animator;
@@ -33,18 +24,29 @@ namespace dtank
         [SerializeField] private float _moveAmount;
         [SerializeField] private float _turnAmount;
 
-        public Action<BattleTankAnimatorState> OnStateExitListener;
-        public Action<string> OnAnimationEventListener;
-        public Action<IAttacker> OnDamageReceivedListener;
-        public Action<Vector3> OnPositionChangedListener;
-        public Action<Vector3> OnForwardChangedListener;
-        public Action OnDealDamageListener;
+        private readonly Subject<BattleTankAnimatorState> _onStateExitSubject = new Subject<BattleTankAnimatorState>();
+        public IObservable<BattleTankAnimatorState> OnStateExitAsObservable => _onStateExitSubject;
+
+        private readonly Subject<string> _onAnimationEventSubject = new Subject<string>();
+        public IObservable<string> OnAnimationEventAsObservable => _onAnimationEventSubject;
+
+        private readonly Subject<IAttacker> _onDamageReceivedSubject = new Subject<IAttacker>();
+        public IObservable<IAttacker> OnDamageReceivedAsObservable => _onDamageReceivedSubject;
+
+        private readonly Subject<Vector3> _onPositionChangedSubject = new Subject<Vector3>();
+        public IObservable<Vector3> OnPositionChangedAsObservable => _onPositionChangedSubject;
+
+        private readonly Subject<Vector3> _onForwardChangedSubject = new Subject<Vector3>();
+        public IObservable<Vector3> OnForwardChangedAsObservable => _onForwardChangedSubject;
+
+        private readonly Subject<Unit> _onDealDamageSubject = new Subject<Unit>();
+        public IObservable<Unit> OnDealDamageAsObservable => _onDealDamageSubject;
 
         private Sequence _invincibleSeq;
         
         public int OwnerId { get; private set; }
 
-        public void Construct(int ownerId)
+        public void Setup(int ownerId)
         {
             OwnerId = ownerId;
             
@@ -57,14 +59,26 @@ namespace dtank
             SetActive(false);
         }
 
+        public void Dispose()
+        {
+            _invincibleSeq.Kill();
+            
+            _onStateExitSubject.Dispose();
+            _onAnimationEventSubject.Dispose();
+            _onDamageReceivedSubject.Dispose();
+            _onPositionChangedSubject.Dispose();
+            _onForwardChangedSubject.Dispose();
+            _onDealDamageSubject.Dispose();
+        }
+
         public void SetTransform(TransformData data)
         {
             transform.Set(data);
             _rigidbody.position = data.Position;
             _rigidbody.rotation = Quaternion.Euler(data.Angle);
             
-            OnPositionChangedListener?.Invoke(_rigidbody.position);
-            OnForwardChangedListener?.Invoke(_rigidbody.rotation * Vector3.forward);
+            _onPositionChangedSubject.OnNext(_rigidbody.position);
+            _onForwardChangedSubject.OnNext(_rigidbody.rotation * Vector3.forward);
         }
 
         public void Play(BattleTankAnimatorState state)
@@ -136,7 +150,7 @@ namespace dtank
             var movement = transform.forward * (_moveAmount * _moveSpeed * deltaTime);
             _rigidbody.velocity = movement;
             
-            OnPositionChangedListener?.Invoke(_rigidbody.position);
+            _onPositionChangedSubject.OnNext(_rigidbody.position);
         }
 
         private void Turn(float deltaTime)
@@ -144,7 +158,7 @@ namespace dtank
             var turn = _turnAmount * _turnSpeed * deltaTime;
             _rigidbody.angularVelocity = new Vector3(0f, turn, 0f);
             
-            OnForwardChangedListener?.Invoke(_rigidbody.rotation * Vector3.forward);
+            _onForwardChangedSubject.OnNext(_rigidbody.rotation * Vector3.forward);
         }
 
         private void OnStateEnter(AnimatorStateInfo info)
@@ -157,12 +171,12 @@ namespace dtank
             if (state == BattleTankAnimatorState.Invalid)
                 return;
 
-            OnStateExitListener?.Invoke(state);
+            _onStateExitSubject.OnNext(state);
         }
 
         private void OnAnimationEvent(string id)
         {
-            OnAnimationEventListener?.Invoke(id);
+            _onAnimationEventSubject.OnNext(id);
         }
 
         private BattleTankAnimatorState GetStateFromInfo(AnimatorStateInfo info)
@@ -177,7 +191,7 @@ namespace dtank
             if (attacker == (IAttacker)this)
                 return false;
 
-            OnDamageReceivedListener?.Invoke(attacker);
+            _onDamageReceivedSubject.OnNext(attacker);
             return true;
         }
         
@@ -210,7 +224,7 @@ namespace dtank
 
         public void DealDamage()
         {
-            OnDealDamageListener?.Invoke();
+            _onDealDamageSubject.OnNext(Unit.Default); 
         }
     }
 }

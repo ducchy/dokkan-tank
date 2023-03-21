@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace dtank
 {
-    public class BattleTankStatusUiView : MonoBehaviour
+    public class BattleTankStatusUiView : MonoBehaviour, IDisposable
     {
         [SerializeField] private CanvasGroup _group;
         [SerializeField] private Image[] _hpImages;
@@ -22,7 +22,7 @@ namespace dtank
             SetActive(false);
         }
 
-        private void OnDestroy()
+        public void Dispose()
         {
             _sequence?.Kill();
             _changeHpSequence?.Kill();

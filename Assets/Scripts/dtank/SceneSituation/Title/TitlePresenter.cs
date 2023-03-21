@@ -10,7 +10,7 @@ namespace dtank
         private readonly TitleUiView _uiView;
         private readonly TitleCamera _camera;
         private readonly TitleModel _model;
-        private readonly DisposableScope _scope;
+        private readonly DisposableScope _scope = new DisposableScope();
 
         public TitlePresenter(TitleUiView uiView, TitleCamera camera, TitleModel model)
         {
@@ -19,8 +19,7 @@ namespace dtank
             _uiView = uiView;
             _camera = camera;
             _model = model;
-            _scope = new DisposableScope();
-
+            
             Bind();
             SetEvent();
         }
@@ -53,7 +52,8 @@ namespace dtank
         {
             _uiView.OnStartButtonClickAsObservable
                 .TakeUntil(_scope)
-                .Subscribe(_ => _model.PushStart());
+                .Subscribe(_ => _model.PushStart())
+                .ScopeTo(_scope);
         }
     }
 }

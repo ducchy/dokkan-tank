@@ -1,11 +1,12 @@
 using System;
 using DG.Tweening;
+using UniRx;
 using UnityEngine;
 using Sequence = DG.Tweening.Sequence;
 
 namespace dtank
 {
-    public class BattleCamera : MonoBehaviour
+    public class BattleCamera : MonoBehaviour, IDisposable
     {
         [SerializeField] private Camera _camera;
         [SerializeField] private Vector3 _offsetPos = new Vector3(0f, 1.5f, -3.5f);
@@ -16,16 +17,22 @@ namespace dtank
         private Sequence _readySeq;
         private Sequence _resultSeq;
 
-        public Action OnEndReadyAction;
+        private readonly Subject<Unit> _onEndReadySubject = new Subject<Unit>();
+        public IObservable<Unit> OnEndReadyAsObservable => _onEndReadySubject;
 
-        private void OnDestroy()
+        public void Dispose()
         {
             _readySeq?.Kill();
             _resultSeq?.Kill();
+            
+            _onEndReadySubject.Dispose();
         }
 
         public void SetFollowTarget(Transform target)
         {
+            _readySeq?.Kill();
+            _resultSeq?.Kill();
+            
             _transform = transform;
             _cameraTransform = _camera.transform;
             
@@ -54,7 +61,7 @@ namespace dtank
                 .AppendInterval(1f)
                 .Append(_transform.DOLocalRotate(new Vector3(0, 360f, 0), 4f, RotateMode.FastBeyond360).SetEase(Ease.Linear))
                 .AppendInterval(1f)
-                .OnComplete(() => OnEndReadyAction?.Invoke())
+                .OnComplete(() => _onEndReadySubject.OnNext(Unit.Default))
                 .SetLink(gameObject)
                 .Play();
         }

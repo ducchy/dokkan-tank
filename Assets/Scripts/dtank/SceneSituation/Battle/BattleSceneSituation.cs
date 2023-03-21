@@ -25,13 +25,13 @@ namespace dtank
 
             yield return base.LoadRoutineInternal(handle, scope);
 
-            Debug.Log("End BattleSceneSituation.LoadRoutineInternal()");
-
             yield return LoadAll();
 
             SetupAll(scope);
 
             BattleModel.Get().ChangeState(BattleState.Ready);
+
+            Debug.Log("End BattleSceneSituation.LoadRoutineInternal()");
         }
 
         protected override void UpdateInternal()
@@ -129,13 +129,8 @@ namespace dtank
             var fadeController = Services.Get<FadeController>();
             var uiView = Services.Get<BattleUiView>();
             uiView.Setup(fadeController);
-
-            var controlUiView = Services.Get<BattleTankControlUiView>();
-            controlUiView.Setup();
-            RegisterTask(controlUiView, TaskOrder.UI);
-
-            var statusUiView = Services.Get<BattleTankStatusUiView>();
-            statusUiView.Setup();
+            uiView.ScopeTo(scope);
+            RegisterTask(uiView, TaskOrder.UI);
 
             PlayerBattleTankPresenter playerTankPresenter = null;
             var npcTankPresenters = new List<NpcBattleTankPresenter>();
@@ -143,15 +138,13 @@ namespace dtank
 
             var tankHolder = new GameObject("Tanks").transform;
 
-            var tankActors = new List<BattleTankActor>();
             var tankActorDictionary = new Dictionary<int, BattleTankActor>();
             using (var actorFactory = new BattleTankActorFactory())
             {
                 foreach (var tankModel in model.TankModelDictionary.Values)
                 {
                     var tankActor = actorFactory.Create(tankModel.Data.ModelId, tankHolder);
-                    tankActor.Construct(tankModel.Data.OwnerId);
-                    tankActors.Add(tankActor);
+                    tankActor.Setup(tankModel.Data.OwnerId);
                     tankActorDictionary.Add(tankModel.Data.OwnerId, tankActor);
 
                     var tankController = new BattleTankController(tankModel, tankActor);
@@ -165,8 +158,8 @@ namespace dtank
 
                         playerTankModel = tankModel;
                         playerTankPresenter =
-                            new PlayerBattleTankPresenter(tankController, tankModel, tankActor, controlUiView,
-                                statusUiView);
+                            new PlayerBattleTankPresenter(tankController, tankModel, tankActor, uiView.TankControlUiView,
+                                uiView.TankStatusUiView);
                         continue;
                     }
 
@@ -185,17 +178,14 @@ namespace dtank
 
             var tankActorContainer = new TankActorContainer(tankActorDictionary);
             tankActorContainer.ScopeTo(scope);
-            ServiceContainer.Set(tankActorContainer);
 
             var cameraController = Services.Get<BattleCameraController>();
             cameraController.Setup(playerTankModel, tankActorContainer);
+            cameraController.ScopeTo(scope);
             RegisterTask(cameraController, TaskOrder.Camera);
 
-            var playingUiView = Services.Get<BattlePlayingUiView>();
-            playingUiView.Setup();
-
             _presenter = new BattlePresenter(model, cameraController, playerTankPresenter, npcTankPresenters.ToArray(),
-                tankActors.ToArray());
+                tankActorContainer);
             _presenter.ScopeTo(scope);
         }
 
@@ -234,7 +224,8 @@ namespace dtank
                             _stateContainer.Change(state);
                             break;
                     }
-                });
+                })
+                .ScopeTo(scope);
         }
 
         private void RegisterTask(ITask task, TaskOrder order)

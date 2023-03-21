@@ -7,29 +7,20 @@ namespace dtank
     {
         public override BattleState Key => BattleState.Playing;
 
-        private readonly BattlePlayingPresenter _presenter;
-
-        public BattleStatePlaying()
-        {
-            var model = BattleModel.Get();
-            var uiView = Services.Get<BattleUiView>();
-
-            var playingUiView = Services.Get<BattlePlayingUiView>();
-            playingUiView.Setup();
-
-            var controller = new BattlePlayingController();
-
-            var statusUiView = Services.Get<BattleTankStatusUiView>();
-            var controlUiView = Services.Get<BattleTankControlUiView>();
-
-            _presenter = new BattlePlayingPresenter(model, controller, uiView, playingUiView, statusUiView,
-                controlUiView);
-        }
+        private BattlePlayingPresenter _presenter;
 
         public override void OnEnter(BattleState prevKey, IScope scope)
         {
             Debug.Log("BattleStatePlaying.OnEnter()");
 
+            var model = BattleModel.Get();
+            var uiView = Services.Get<BattleUiView>();
+
+            _presenter = new BattlePlayingPresenter(model, uiView, uiView.PlayingUiView,
+                uiView.TankStatusUiView,
+                uiView.TankControlUiView);
+            _presenter.ScopeTo(scope);
+            
             _presenter.Activate();
         }
 

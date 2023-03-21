@@ -8,7 +8,7 @@ namespace dtank
         private NpcTankStateResult _result = NpcTankStateResult.None;
         public override NpcTankStateResult Result => _result;
 
-        private readonly NpcBehaviourSelector _controller;
+        private readonly NpcBehaviourObserver _observer;
         private readonly BattleTankModel _owner;
         private readonly float _duration;
 
@@ -16,16 +16,16 @@ namespace dtank
         private float _stopBeginTime;
         private Vector3 _prePosition;
 
-        public NpcTankStateMove(NpcBehaviourSelector controller, BattleTankModel owner, float duration)
+        public NpcTankStateMove(NpcBehaviourObserver observer, BattleTankModel owner, float duration)
         {
-            _controller = controller;
+            _observer = observer;
             _owner = owner;
             _duration = duration;
         }
 
         public override void OnEnter()
         {
-            _controller.OnMoveValueChangedListener?.Invoke(1f);
+            _observer.OnMoveValueChangedObserver.OnNext(1f);
             _prePosition = Vector3.one * float.MaxValue;
             _elapsedTime = 0f;
             _stopBeginTime = float.MinValue;
@@ -52,7 +52,7 @@ namespace dtank
 
         public override void OnExit()
         {
-            _controller.OnMoveValueChangedListener?.Invoke(0f);
+            _observer.OnMoveValueChangedObserver.OnNext(0f);
         }
     }
 }

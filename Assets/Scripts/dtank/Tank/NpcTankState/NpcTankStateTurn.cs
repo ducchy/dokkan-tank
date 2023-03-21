@@ -8,17 +8,17 @@ namespace dtank
         private NpcTankStateResult _result = NpcTankStateResult.None;
         public override NpcTankStateResult Result => _result;
 
-        private readonly NpcBehaviourSelector _controller;
+        private readonly NpcBehaviourObserver _observer;
         private readonly BattleTankModel _target;
         private readonly BattleTankModel _owner;
         private readonly float _limitDuration;
 
         private float _elapsedTime;
 
-        public NpcTankStateTurn(NpcBehaviourSelector controller, BattleTankModel owner, BattleTankModel target,
+        public NpcTankStateTurn(NpcBehaviourObserver observer, BattleTankModel owner, BattleTankModel target,
             float limitDuration)
         {
-            _controller = controller;
+            _observer = observer;
             _target = target;
             _owner = owner;
             _limitDuration = limitDuration;
@@ -49,12 +49,12 @@ namespace dtank
 
             var sign = Mathf.Sign(angleToTarget);
             var value = sign * Mathf.Clamp(angleToTargetAbs, 0f, 5f) / 5f;
-            _controller.OnTurnValueChangedListener?.Invoke(value);
+            _observer.OnTurnValueChangedObserver.OnNext(value);
         }
 
         public override void OnExit()
         {
-            _controller.OnTurnValueChangedListener?.Invoke(0f);
+            _observer.OnTurnValueChangedObserver.OnNext(0f);
         }
 
         private float CalcAngleToTarget()

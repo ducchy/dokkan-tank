@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace dtank
 {
-    public class BattleReadyUiView : MonoBehaviour
+    public class BattleReadyUiView : MonoBehaviour, IDisposable
     {
         [SerializeField] private CanvasGroup _group;
         [SerializeField] private Button _skipButton;
@@ -15,14 +15,12 @@ namespace dtank
 
         private Sequence _seq;
 
-        public void Construct()
+        public void Setup()
         {
-            Debug.Log("BattleReadyUiView.Construct()");
-            
             SetActive(false);
         }
 
-        private void OnDestroy()
+        public void Dispose()
         {
             _seq?.Kill();
         }

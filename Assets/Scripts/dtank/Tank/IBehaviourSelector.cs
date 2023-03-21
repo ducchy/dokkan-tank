@@ -1,14 +1,15 @@
 using System;
+using UniRx;
 
 namespace dtank
 {
     public interface IBehaviourSelector : IDisposable
     {
-        Action<IAttacker> OnDamageListener { set; }
-        Action OnShotCurveListener { set; }
-        Action OnShotStraightListener { set; }
-        Action<float> OnTurnValueChangedListener { set; }
-        Action<float> OnMoveValueChangedListener { set; }
+        IObservable<IAttacker> OnDamageAsObservable { get; }
+        IObservable<Unit> OnShotCurveAsObservable { get; }
+        IObservable<Unit> OnShotStraightAsObservable { get; }
+        IObservable<float> OnTurnValueChangedAsObservable { get; }
+        IObservable<float> OnMoveValueChangedAsObservable { get; }
 
         void Reset();
         void SetActive(bool active);

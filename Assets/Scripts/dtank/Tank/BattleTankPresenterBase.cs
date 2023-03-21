@@ -1,4 +1,5 @@
 using System;
+using GameFramework.Core;
 using UniRx;
 using UnityEngine;
 
@@ -6,11 +7,11 @@ namespace dtank
 {
     public abstract class BattleTankPresenterBase : IDisposable
     {
-        protected readonly BattleTankController Controller;
-        protected readonly BattleTankModel Model;
-        protected readonly BattleTankActor Actor;
-        protected readonly IBehaviourSelector BehaviourSelector;
-        protected readonly CompositeDisposable Disposable = new CompositeDisposable();
+        protected readonly BattleTankController _controller;
+        protected readonly BattleTankModel _model;
+        protected readonly BattleTankActor _actor;
+        protected readonly IBehaviourSelector _behaviourSelector;
+        protected readonly DisposableScope _scope = new DisposableScope();
 
         protected BattleTankPresenterBase(
             BattleTankController controller,
@@ -18,119 +19,154 @@ namespace dtank
             BattleTankActor actor,
             IBehaviourSelector behaviourSelector)
         {
-            Controller = controller;
-            Model = model;
-            Actor = actor;
-            BehaviourSelector = behaviourSelector;
+            _controller = controller;
+            _model = model;
+            _actor = actor;
+            _behaviourSelector = behaviourSelector;
         }
 
         public virtual void Dispose()
         {
-            Disposable.Dispose();
+            _scope.Dispose();
         }
 
         protected void Bind()
         {
-            Model.BattleState
+            _model.BattleState
+                .TakeUntil(_scope)
                 .Subscribe(OnStateChanged)
-                .AddTo(Disposable);
+                .ScopeTo(_scope);
 
-            Model.Hp
-                .Subscribe(OnHpChanged)
-                .AddTo(Disposable);
+            _model.MoveAmount
+                .TakeUntil(_scope)
+                .Subscribe(_actor.SetMoveAmount)
+                .ScopeTo(_scope);
 
-            Model.MoveAmount
-                .Subscribe(Actor.SetMoveAmount)
-                .AddTo(Disposable);
+            _model.TurnAmount
+                .TakeUntil(_scope)
+                .Subscribe(_actor.SetTurnAmount)
+                .ScopeTo(_scope);
 
-            Model.TurnAmount
-                .Subscribe(Actor.SetTurnAmount)
-                .AddTo(Disposable);
+            _model.InvincibleFlag
+                .TakeUntil(_scope)
+                .Subscribe(_actor.SetInvincible)
+                .ScopeTo(_scope);
 
-            Model.InvincibleFlag
-                .Subscribe(Actor.SetInvincible)
-                .AddTo(Disposable);
+            BindInternal();
+        }
+
+        protected virtual void BindInternal()
+        {
         }
 
         protected void SetEvents()
         {
-            BehaviourSelector.OnDamageListener = Model.Damage;
-            BehaviourSelector.OnShotCurveListener = Model.ShotCurve;
-            BehaviourSelector.OnShotStraightListener = Model.ShotStraight;
-            BehaviourSelector.OnTurnValueChangedListener = Model.SetInputTurnAmount;
-            BehaviourSelector.OnMoveValueChangedListener = Model.SetInputMoveAmount;
+            _behaviourSelector.OnDamageAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_model.Damage)
+                .ScopeTo(_scope);
 
-            Actor.OnStateExitListener = OnAnimatorStateExit;
-            Actor.OnAnimationEventListener = OnAnimationEvent;
-            Actor.OnDamageReceivedListener = Model.Damage;
-            Actor.OnPositionChangedListener = Model.SetPosition;
-            Actor.OnForwardChangedListener = Model.SetForward;
+            _behaviourSelector.OnShotCurveAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_ => _model.ShotCurve())
+                .ScopeTo(_scope);
+
+            _behaviourSelector.OnShotStraightAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_ => _model.ShotStraight())
+                .ScopeTo(_scope);
+
+            _behaviourSelector.OnTurnValueChangedAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_model.SetInputTurnAmount)
+                .ScopeTo(_scope);
+            
+            _behaviourSelector.OnMoveValueChangedAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_model.SetInputMoveAmount)
+                .ScopeTo(_scope);
+
+            _actor.OnStateExitAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(OnAnimatorStateExit)
+                .ScopeTo(_scope);
+            
+            _actor.OnAnimationEventAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(OnAnimationEvent)
+                .ScopeTo(_scope);
+            
+            _actor.OnDamageReceivedAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_model.Damage)
+                .ScopeTo(_scope);
+            
+            _actor.OnPositionChangedAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_model.SetPosition)
+                .ScopeTo(_scope);
+            
+            _actor.OnForwardChangedAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_model.SetForward)
+                .ScopeTo(_scope);
         }
 
         protected virtual void OnStateChanged(BattleTankState state)
         {
-            Debug.LogFormat("OnStateChanged: state={0}", state);
-
             switch (state)
             {
                 case BattleTankState.Ready:
-                    Actor.Ready();
+                    _actor.Ready();
                     break;
                 case BattleTankState.Damage:
-                    Actor.Play(BattleTankAnimatorState.Damage);
+                    _actor.Play(BattleTankAnimatorState.Damage);
                     break;
                 case BattleTankState.ShotCurve:
-                    Actor.Play(BattleTankAnimatorState.ShotCurve);
+                    _actor.Play(BattleTankAnimatorState.ShotCurve);
                     break;
                 case BattleTankState.ShotStraight:
-                    Actor.Play(BattleTankAnimatorState.ShotStraight);
+                    _actor.Play(BattleTankAnimatorState.ShotStraight);
                     break;
                 case BattleTankState.Dead:
-                    OnDead();
+                    _actor.Dead();
                     break;
             }
         }
 
-        protected virtual void OnHpChanged(int hp)
-        {
-        }
-
-        protected virtual void OnAnimatorStateExit(BattleTankAnimatorState animState)
+        private void OnAnimatorStateExit(BattleTankAnimatorState animState)
         {
             Debug.LogFormat("OnAnimatorStateExit: animState={0}", animState);
 
             switch (animState)
             {
                 case BattleTankAnimatorState.Damage:
-                    Model.EndDamage();
+                    _model.EndDamage();
+                    _behaviourSelector.EndDamage();
                     break;
                 case BattleTankAnimatorState.ShotCurve:
-                    Model.EndShotCurve();
+                    _model.EndShotCurve();
                     break;
                 case BattleTankAnimatorState.ShotStraight:
-                    Model.EndShotStraight();
+                    _model.EndShotStraight();
+                    _behaviourSelector.EndShotStraight();
                     break;
             }
         }
 
-        protected virtual void OnAnimationEvent(string id)
+        protected void OnAnimationEvent(string id)
         {
             Debug.LogFormat("OnAnimationEvent: id={0}", id);
 
             switch (id)
             {
                 case "ShotCurve":
-                    Actor.ShotCurve();
+                    _actor.ShotCurve();
                     break;
                 case "ShotStraight":
-                    Actor.ShotStraight();
+                    _actor.ShotStraight();
                     break;
             }
-        }
-
-        protected virtual void OnDead()
-        {
-            Actor.Dead();
         }
 
         public virtual void OnChangedState(BattleState current)
@@ -138,15 +174,15 @@ namespace dtank
             switch (current)
             {
                 case BattleState.Ready:
-                    BehaviourSelector.Reset();
-                    Controller.SetStartPoint();
-                    Model.Ready();
+                    _behaviourSelector.Reset();
+                    _controller.SetStartPoint();
+                    _model.Ready();
                     break;
                 case BattleState.Playing:
-                    Model.Playing();
+                    _model.Playing();
                     break;
                 case BattleState.Result:
-                    Model.Result();
+                    _model.Result();
                     break;
             }
         }

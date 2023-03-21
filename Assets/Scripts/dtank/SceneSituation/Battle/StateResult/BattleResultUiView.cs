@@ -1,12 +1,13 @@
 using System;
 using DG.Tweening;
 using TMPro;
+using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace dtank
 {
-    public class BattleResultUiView : MonoBehaviour
+    public class BattleResultUiView : MonoBehaviour, IDisposable
     {
         [SerializeField] private CanvasGroup _group;
         [SerializeField] private TextMeshProUGUI _resultLabel;
@@ -15,27 +16,19 @@ namespace dtank
         [SerializeField] private RectTransform _retryButtonRect;
         [SerializeField] private RectTransform _quitButtonRect;
 
-        public Action OnRetryButtonClickedListener;
-        public Action OnQuitButtonClickedListener;
+        public IObservable<Unit> OnRetryButtonClickedAsObservable => _retryButton.OnClickAsObservable();
+        public IObservable<Unit> OnQuitButtonClickedAsObservable => _quitButton.OnClickAsObservable();
 
         private Sequence _resultSeq;
         
-        public void Construct()
+        public void Setup()
         {
-            Debug.Log("BattleResultUiView.Construct()");
-            
-            _retryButton.onClick.AddListener(OnRetryButtonClicked);
-            _quitButton.onClick.AddListener(OnQuitButtonClicked);
-
             SetActive(false);
         }
 
-        private void OnDestroy()
+        public void Dispose()
         {
             _resultSeq?.Kill();
-            
-            _retryButton.onClick.RemoveListener(OnRetryButtonClicked);
-            _quitButton.onClick.RemoveListener(OnQuitButtonClicked);
         }
 
         public void SetActive(bool flag)
@@ -72,16 +65,6 @@ namespace dtank
                 })
                 .SetLink(gameObject)
                 .Play();
-        }
-
-        private void OnRetryButtonClicked()
-        {
-            OnRetryButtonClickedListener?.Invoke();
-        }
-
-        private void OnQuitButtonClicked()
-        {
-            OnQuitButtonClickedListener?.Invoke();
         }
     }
 }

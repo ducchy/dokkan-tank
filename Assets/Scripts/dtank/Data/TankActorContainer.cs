@@ -15,7 +15,13 @@ namespace dtank
 
         public void Dispose()
         {
-            _actorDictionary?.Clear();
+            if (_actorDictionary == null)
+                return;
+            
+            foreach (var battleTankActor in _actorDictionary.Values)
+                battleTankActor.Dispose();
+            
+            _actorDictionary.Clear();
         }
     }
 }

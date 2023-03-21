@@ -1,5 +1,7 @@
 using System;
+using GameFramework.Core;
 using GameFramework.TaskSystems;
+using UniRx;
 using UnityEngine;
 
 namespace dtank
@@ -10,10 +12,12 @@ namespace dtank
 
         private BattleTankModel _playerTankModel;
         private TankActorContainer _tankActorContainer;
+        private readonly DisposableScope _scope = new DisposableScope();
 
         public bool IsActive => isActiveAndEnabled;
 
-        public Action OnEndReadyAction;
+        private readonly Subject<Unit> _onEndReadySubject = new Subject<Unit>();
+        public IObservable<Unit> OnEndReadyAsObservable => _onEndReadySubject;
 
         public void Setup(
             BattleTankModel playerTankModel,
@@ -27,7 +31,8 @@ namespace dtank
 
         public void Dispose()
         {
-            OnEndReadyAction = null;
+            _onEndReadySubject.Dispose();
+            _camera.Dispose();
         }
 
         void ITask.Update()
@@ -40,7 +45,10 @@ namespace dtank
 
         private void SetEvent()
         {
-            _camera.OnEndReadyAction = OnEndReady;
+            _camera.OnEndReadyAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_ => _onEndReadySubject.OnNext(Unit.Default))
+                .ScopeTo(_scope);
         }
         
         public void PlayReady()
@@ -53,11 +61,6 @@ namespace dtank
         public void SkipReady()
         {
             _camera.SkipReady();
-        }
-
-        private void OnEndReady()
-        {
-            OnEndReadyAction?.Invoke();
         }
 
         public void PlayResult(int winnerId)

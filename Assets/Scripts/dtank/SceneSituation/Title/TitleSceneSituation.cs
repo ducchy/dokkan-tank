@@ -21,13 +21,13 @@ namespace dtank
 
             yield return base.LoadRoutineInternal(handle, scope);
 
-            Debug.Log("End TitleSceneSituation.LoadRoutineInternal()");
-
             yield return LoadField();
 
             SetupAll(scope);
 
             _stateContainer.Change(TitleState.Idle);
+
+            Debug.Log("End TitleSceneSituation.LoadRoutineInternal()");
         }
 
         protected override void UpdateInternal()
@@ -70,9 +70,11 @@ namespace dtank
         private void SetupPresenter(IScope scope)
         {
             var uiView = Services.Get<TitleUiView>();
+            uiView.ScopeTo(scope);
 
             var camera = Services.Get<TitleCamera>();
             camera.Setup();
+            camera.ScopeTo(scope);
 
             var model = TitleModel.Get();
 

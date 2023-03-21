@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using UniRx;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -7,14 +8,24 @@ namespace dtank
 {
     public class NpcBehaviourSelector : IBehaviourSelector, IDisposable
     {
-        public Action<IAttacker> OnDamageListener { get; set; }
-        public Action OnShotCurveListener { get; set; }
-        public Action OnShotStraightListener { get; set; }
-        public Action<float> OnTurnValueChangedListener { get; set; }
-        public Action<float> OnMoveValueChangedListener { get; set; }
+        private readonly Subject<IAttacker> _onDamageSubject = new Subject<IAttacker>();
+        public IObservable<IAttacker> OnDamageAsObservable => _onDamageSubject;
+
+        private readonly Subject<Unit> _onShotCurveSubject = new Subject<Unit>();
+        public IObservable<Unit> OnShotCurveAsObservable => _onShotCurveSubject;
+
+        private readonly Subject<Unit> _onShotStraightSubject = new Subject<Unit>();
+        public IObservable<Unit> OnShotStraightAsObservable => _onShotStraightSubject;
+
+        private readonly Subject<float> _onTurnValueChangedSubject = new Subject<float>();
+        public IObservable<float> OnTurnValueChangedAsObservable => _onTurnValueChangedSubject;
+
+        private readonly Subject<float> _onMoveValueChangedSubject = new Subject<float>();
+        public IObservable<float> OnMoveValueChangedAsObservable => _onMoveValueChangedSubject;
 
         private readonly BattleTankModel _owner;
         private readonly BattleTankModel[] _others;
+        private readonly NpcBehaviourObserver _behaviourObserver;
 
         private BattleTankModel _target;
         private NpcTankStateBase _current;
@@ -25,6 +36,13 @@ namespace dtank
             _owner = owner;
             _others = others;
 
+            _behaviourObserver = new NpcBehaviourObserver(
+                _onDamageSubject,
+                _onShotCurveSubject,
+                _onShotStraightSubject,
+                _onTurnValueChangedSubject,
+                _onMoveValueChangedSubject);
+
             _failedCount = 0;
             _target = FindTarget();
 
@@ -33,6 +51,11 @@ namespace dtank
 
         public void Dispose()
         {
+            _onDamageSubject.Dispose();
+            _onShotCurveSubject.Dispose();
+            _onShotStraightSubject.Dispose();
+            _onTurnValueChangedSubject.Dispose();
+            _onMoveValueChangedSubject.Dispose();
         }
 
         public void Reset()
@@ -100,7 +123,7 @@ namespace dtank
                 {
                     _target = FindTarget();
                     _failedCount = 0;
-                    return new NpcTankStateTurn(this, _owner, _target, 2f);
+                    return new NpcTankStateTurn(_behaviourObserver, _owner, _target, 2f);
                 }
             }
             else
@@ -110,23 +133,23 @@ namespace dtank
             {
                 case NpcTankState.Turn:
                     if (result == NpcTankStateResult.Failed)
-                        return new NpcTankStateTurn(this, _owner, _target, 2f);
+                        return new NpcTankStateTurn(_behaviourObserver, _owner, _target, 2f);
 
                     var distance = Vector3.Distance(_owner.Position, _target.Position);
                     if (distance < 10f)
-                        return new NpcTankStateShotStraight(this);
+                        return new NpcTankStateShotStraight(_behaviourObserver);
 
-                    return new NpcTankStateMove(this, _owner, 2f);
+                    return new NpcTankStateMove(_behaviourObserver, _owner, 2f);
                 case NpcTankState.Move:
                     if (result == NpcTankStateResult.Failed)
                     {
                         _target = FindTarget();
-                        return new NpcTankStateTurn(this, _owner, _target, 2f);
+                        return new NpcTankStateTurn(_behaviourObserver, _owner, _target, 2f);
                     }
 
-                    return new NpcTankStateTurn(this, _owner, _target, 2f);
+                    return new NpcTankStateTurn(_behaviourObserver, _owner, _target, 2f);
                 default:
-                    return new NpcTankStateTurn(this, _owner, _target, 2f);
+                    return new NpcTankStateTurn(_behaviourObserver, _owner, _target, 2f);
             }
         }
 

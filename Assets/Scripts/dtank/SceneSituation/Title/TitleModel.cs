@@ -13,9 +13,15 @@ namespace dtank
         {
         }
 
+        protected override void OnDeletedInternal()
+        {
+            base.OnDeletedInternal();
+            
+            _currentState.Dispose();
+        }
+
         public void PushStart()
         {
-            _currentState.Value = TitleState.Start;
             SetState(TitleState.Start);
         }
 
@@ -32,7 +38,7 @@ namespace dtank
         public void OnChangedState(TitleState prev, TitleState current)
         {
             Debug.LogFormat("TitleModel.OnChangedState: current={0}", current);
-            
+
             SetState(current);
         }
     }

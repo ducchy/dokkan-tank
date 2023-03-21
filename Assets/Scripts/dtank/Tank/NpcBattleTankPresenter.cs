@@ -26,29 +26,10 @@ namespace dtank
                 case BattleTankState.Damage:
                     _behaviourSelector.BeginDamage();
                     break;
-            }
-        }
-
-        protected override void OnAnimatorStateExit(BattleTankAnimatorState animState)
-        {
-            switch (animState)
-            {
-                case BattleTankAnimatorState.Damage:
-                    _behaviourSelector.EndDamage();
-                    break;
-                case BattleTankAnimatorState.ShotStraight:
-                    _behaviourSelector.EndShotStraight();
+                case BattleTankState.Dead:
+                    _behaviourSelector.SetActive(false);
                     break;
             }
-            
-            base.OnAnimatorStateExit(animState);
-        }
-
-        protected override void OnDead()
-        {
-            base.OnDead();
-            
-            _behaviourSelector.SetActive(false);
         }
 
         public override void OnChangedState(BattleState state)

@@ -1,3 +1,6 @@
+using GameFramework.Core;
+using UniRx;
+
 namespace dtank
 {
     public class PlayerBattleTankPresenter : BattleTankPresenterBase
@@ -8,21 +11,22 @@ namespace dtank
             BattleTankController controller,
             BattleTankModel model,
             BattleTankActor actor,
-            BattleTankControlUiView controlUiView,
+            IBehaviourSelector behaviourSelector,
             BattleTankStatusUiView statusUiView)
-            : base(controller, model, actor, controlUiView)
+            : base(controller, model, actor, behaviourSelector)
         {
             _statusUiView = statusUiView;
             
             Bind();
             SetEvents();
         }
-        
-        protected override void OnHpChanged(int hp)
-        {
-            base.OnHpChanged(hp);
 
-            _statusUiView.SetHp(hp);
+        protected override void BindInternal()
+        {
+            _model.Hp
+                .TakeUntil(_scope)
+                .Subscribe(_statusUiView.SetHp)
+                .ScopeTo(_scope);
         }
     }
 }

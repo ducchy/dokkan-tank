@@ -36,9 +36,16 @@ namespace dtank
 
         private void SetEvent()
         {
-            _resultUiView.OnQuitButtonClickedListener = OnQuitButtonClicked;
-            _resultUiView.OnRetryButtonClickedListener = OnRetryButtonClicked;
-
+            _resultUiView.OnQuitButtonClickedAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_ => _model.ChangeState(BattleState.Quit))
+                .ScopeTo(_scope);
+            
+            _resultUiView.OnRetryButtonClickedAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_ =>  _model.ChangeState(BattleState.Retry))
+                .ScopeTo(_scope);
+            
             _uiView.OnBeginResultAsObservable
                 .TakeUntil(_scope)
                 .Subscribe(_ => _resultController.PlayResult())
@@ -55,16 +62,6 @@ namespace dtank
         {
             _cameraController.EndResult();
             _resultUiView.SetActive(false);
-        }
-
-        private void OnQuitButtonClicked()
-        {
-            _model.ChangeState(BattleState.Quit);
-        }
-
-        private void OnRetryButtonClicked()
-        {
-            _model.ChangeState(BattleState.Retry);
         }
     }
 }
