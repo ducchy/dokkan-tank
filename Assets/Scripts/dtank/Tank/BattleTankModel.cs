@@ -83,7 +83,7 @@ namespace dtank
 
         public void Ready()
         {
-            _hp.Value = 3;
+            _hp.SetValueAndForceNotify(3);
             SetState(BattleTankState.Ready);
         }
 

@@ -19,7 +19,7 @@ namespace dtank
             BattleUiView uiView,
             BattleCameraController cameraController,
             PlayerBattleTankPresenter playerTankPresenter,
-            NpcBattleTankPresenter[] npcTankPresenters, 
+            NpcBattleTankPresenter[] npcTankPresenters,
             TankActorContainer tankActorContainer)
         {
             _model = model;
@@ -52,6 +52,7 @@ namespace dtank
                     {
                         case BattleState.Ready:
                             _cameraController.PlayReady();
+                            _uiView.Reset();
                             break;
                     }
                 })
@@ -64,7 +65,7 @@ namespace dtank
                 .TakeUntil(_scope)
                 .Subscribe(_ => _model.ChangeState(BattleState.Playing))
                 .ScopeTo(_scope);
-            
+
             foreach (var tankActor in _tankActorContainer.ActorDictionary.Values)
                 tankActor.OnDealDamageAsObservable
                     .TakeUntil(_scope)

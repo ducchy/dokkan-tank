@@ -23,17 +23,19 @@ namespace dtank
 
         public IObservable<Unit> OnForceEndAsObservable => _forceEndButton.OnClickAsObservable();
 
-        public void Setup()
-        {
-            SetActive(false);
-        }
-
         public void Dispose()
         {
             _seq?.Kill();
             _finishSeq?.Kill();
 
             _onEndFinishSubject.Dispose();
+        }
+
+        public void Reset()
+        {
+            _forceEndButton.gameObject.SetActive(true);
+
+            SetActive(false);
         }
 
         private void SetActive(bool flag)
@@ -48,7 +50,7 @@ namespace dtank
         public void Start()
         {
             _seq?.Kill();
-            
+
             SetActive(true);
 
             _centerLabel.text = "START!";
@@ -68,6 +70,8 @@ namespace dtank
         public void Finish()
         {
             _seq?.Kill();
+
+            _forceEndButton.gameObject.SetActive(false);
 
             _centerLabel.text = "FINISH!";
             _centerLabel.color = new Color(0.2f, 0.2f, 0.2f, 0f);

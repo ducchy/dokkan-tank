@@ -20,9 +20,9 @@ namespace dtank
         public BattleReadyUiView ReadyUiView => _readyUiView;
         public BattlePlayingUiView PlayingUiView => _playingUiView;
         public BattleResultUiView ResultUiView => _resultUiView;
-        
+
         bool ITask.IsActive => isActiveAndEnabled;
-        
+
         private FadeController _fadeController;
         private Sequence _sequence;
         private readonly DisposableScope _fadeScope = new DisposableScope();
@@ -36,12 +36,8 @@ namespace dtank
         public void Setup(FadeController fadeController)
         {
             _fadeController = fadeController;
-            
+
             _tankControlUiView.Setup();
-            _tankStatusUiView.Setup();
-            _readyUiView.Setup();
-            _playingUiView.Setup();
-            _resultUiView.Setup();
         }
 
         public void Dispose()
@@ -51,10 +47,19 @@ namespace dtank
             _readyUiView.Dispose();
             _playingUiView.Dispose();
             _resultUiView.Dispose();
-            
+
             _sequence.Kill();
             _onEndPlayingSubject.Dispose();
             _onBeginResultSubject.Dispose();
+        }
+
+        public void Reset()
+        {
+            _tankControlUiView.Reset();
+            _tankStatusUiView.Reset();
+            _readyUiView.Reset();
+            _playingUiView.Reset();
+            _resultUiView.Reset();
         }
 
         void ITask.Update()

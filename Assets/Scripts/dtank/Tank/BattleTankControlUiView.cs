@@ -30,11 +30,13 @@ namespace dtank
 
             _damageButton.onClick.AddListener(OnDamageButtonClicked);
 
-            SetActive(false);
+            Reset();
         }
 
         public void Dispose()
         {
+            _damageButton.onClick.RemoveListener(OnDamageButtonClicked);
+            
             _onDamageSubject.Dispose();
         }
 
@@ -42,6 +44,8 @@ namespace dtank
         {
             _verticalSlider.value = 0f;
             _horizontalSlider.value = 0f;
+
+            SetActive(false);
         }
 
         public void SetActive(bool flag)

@@ -127,6 +127,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3cba7cf31d934d3c8c3d8e7545800856, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _hpEnableColor: {r: 1, g: 0.29803923, b: 0.29803923, a: 1}
+  _hpDisableColor: {r: 1, g: 0.29803923, b: 0.29803923, a: 0}
   _group: {fileID: 440703422870764830}
   _hpImages:
   - {fileID: 4166276832212828564}

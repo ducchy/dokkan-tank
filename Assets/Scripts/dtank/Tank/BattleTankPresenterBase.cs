@@ -42,9 +42,13 @@ namespace dtank
 
             _model.RuleModel.ResultType
                 .TakeUntil(_scope)
-                .Subscribe(result => _behaviourSelector.SetActive(result == BattleResultType.None))
+                .Subscribe(result =>
+                {
+                    if (result != BattleResultType.None)
+                        _behaviourSelector.SetActive(false);
+                })
                 .ScopeTo(_scope);
-            
+
             _tankModel.BattleState
                 .TakeUntil(_scope)
                 .Subscribe(OnStateChanged)
@@ -93,7 +97,7 @@ namespace dtank
                 .TakeUntil(_scope)
                 .Subscribe(_tankModel.SetInputTurnAmount)
                 .ScopeTo(_scope);
-            
+
             _behaviourSelector.OnMoveValueChangedAsObservable
                 .TakeUntil(_scope)
                 .Subscribe(_tankModel.SetInputMoveAmount)
@@ -103,22 +107,22 @@ namespace dtank
                 .TakeUntil(_scope)
                 .Subscribe(OnAnimatorStateExit)
                 .ScopeTo(_scope);
-            
+
             _actor.OnAnimationEventAsObservable
                 .TakeUntil(_scope)
                 .Subscribe(OnAnimationEvent)
                 .ScopeTo(_scope);
-            
+
             _actor.OnDamageReceivedAsObservable
                 .TakeUntil(_scope)
                 .Subscribe(_tankModel.Damage)
                 .ScopeTo(_scope);
-            
+
             _actor.OnPositionChangedAsObservable
                 .TakeUntil(_scope)
                 .Subscribe(_tankModel.SetPosition)
                 .ScopeTo(_scope);
-            
+
             _actor.OnForwardChangedAsObservable
                 .TakeUntil(_scope)
                 .Subscribe(_tankModel.SetForward)
@@ -187,7 +191,7 @@ namespace dtank
         private void OnChangedState(BattleState state)
         {
             _behaviourSelector.SetActive(state == BattleState.Playing);
-            
+
             switch (state)
             {
                 case BattleState.Ready:

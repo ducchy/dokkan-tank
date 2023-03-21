@@ -15,14 +15,14 @@ namespace dtank
 
         private Sequence _seq;
 
-        public void Setup()
-        {
-            SetActive(false);
-        }
-
         public void Dispose()
         {
             _seq?.Kill();
+        }
+
+        public void Reset()
+        {
+            SetActive(false);
         }
 
         private void SetActive(bool flag)

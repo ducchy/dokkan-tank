@@ -2,11 +2,15 @@ using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
+using Sequence = DG.Tweening.Sequence;
 
 namespace dtank
 {
     public class BattleTankStatusUiView : MonoBehaviour, IDisposable
     {
+        [SerializeField] private Color _hpEnableColor;
+        [SerializeField] private Color _hpDisableColor;
+        
         [SerializeField] private CanvasGroup _group;
         [SerializeField] private Image[] _hpImages;
 
@@ -16,16 +20,16 @@ namespace dtank
         private Sequence _sequence;
         private Sequence _changeHpSequence;
 
-        public void Setup()
-        {
-            _openFlag = false;
-            SetActive(false);
-        }
-
         public void Dispose()
         {
             _sequence?.Kill();
             _changeHpSequence?.Kill();
+        }
+
+        public void Reset()
+        {
+            _openFlag = false;
+            SetActive(false);
         }
 
         private void SetActive(bool flag)
@@ -41,7 +45,9 @@ namespace dtank
         {
             if (_hp == hp)
                 return;
-
+            
+            Debug.LogFormat("BattleTankStatusUiView.SetHp(): hp={0}", hp);
+            
             PlayChangeHp(_hp, hp);
 
             _hp = hp;
@@ -51,20 +57,22 @@ namespace dtank
         {
             if (_openFlag)
                 return;
+            
+            Debug.LogFormat("BattleTankStatusUiView.Open()");
 
             _openFlag = true;
             
             _sequence?.Kill();
             
             SetActive(false);
+            
+            foreach (var hpImage in _hpImages)
+                hpImage.color = _hpDisableColor;
 
             _sequence = DOTween.Sequence()
                 .Append(_group.DOFade(1f, 0.3f))
                 .OnComplete(() =>
                 {
-                    foreach (var hpImage in _hpImages)
-                        hpImage.enabled = true;
-
                     PlayChangeHp(0, _hp, () => SetActive(true));
                 })
                 .SetLink(gameObject)
@@ -89,6 +97,8 @@ namespace dtank
 
         private void PlayChangeHp(int from, int to, Action onComplete = null)
         {
+            Debug.LogFormat("BattleTankStatusUiView.PlayChangeHp(): openFlag={0}, from={1}, to={2}", _openFlag, from, to);
+
             if (!_openFlag || from == to)
                 return;
             
@@ -97,14 +107,14 @@ namespace dtank
                 .SetLink(gameObject);
             
             if (from < to) {
-                for (var i = to ; i < from; i ++)
+                for (var i = from ; i < to; i ++)
                 {
                     var hpImage = _hpImages[i];
-                    hpImage.color = new Color(1f, 1f, 1f, 0f);
+                    hpImage.color = _hpDisableColor;
                     hpImage.transform.localScale = Vector3.one * 0.5f;
 
                     _changeHpSequence
-                        .Append(hpImage.DOFade(1f, 0.3f))
+                        .Append(hpImage.DOColor(_hpEnableColor, 0.3f))
                         .Join(hpImage.transform.DOScale(1f, 0.3f));
                 }
             }
@@ -113,11 +123,11 @@ namespace dtank
                 for (var i = from - 1 ; i >= to ; i--)
                 {
                     var hpImage = _hpImages[i];
-                    hpImage.color = new Color(1f, 1f, 1f, 1f);
+                    hpImage.color = _hpEnableColor;
                     hpImage.transform.localScale = Vector3.one;
 
                     _changeHpSequence
-                        .Append(hpImage.DOFade(0f, 0.3f))
+                        .Append(hpImage.DOColor(_hpDisableColor, 0.3f))
                         .Join(hpImage.transform.DOScale(0.5f, 0.3f));
                 }
             }

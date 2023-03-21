@@ -20,15 +20,15 @@ namespace dtank
         public IObservable<Unit> OnQuitButtonClickedAsObservable => _quitButton.OnClickAsObservable();
 
         private Sequence _resultSeq;
-        
-        public void Setup()
-        {
-            SetActive(false);
-        }
 
         public void Dispose()
         {
             _resultSeq?.Kill();
+        }
+
+        public void Reset()
+        {
+            SetActive(false);
         }
 
         public void SetActive(bool flag)
