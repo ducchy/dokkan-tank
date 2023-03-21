@@ -66,6 +66,7 @@ namespace dtank
         {
             _fadeScope.Dispose();
             _fadeController.FadeOutAsync(Color.black, 0.5f)
+                .Delay(TimeSpan.FromSeconds(1f))
                 .Subscribe(
                     onNext: _ => { },
                     onCompleted: () => _onEndPlayingSubject.OnNext(Unit.Default)
