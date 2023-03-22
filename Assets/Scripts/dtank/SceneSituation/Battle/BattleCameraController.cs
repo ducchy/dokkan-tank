@@ -53,7 +53,7 @@ namespace dtank
         
         public void PlayReady()
         {
-            var player = _tankActorContainer.ActorDictionary[_playerTankModel.Data.OwnerId];
+            var player = _tankActorContainer.ActorDictionary[_playerTankModel.OwnerId];
             _camera.SetFollowTarget(player.transform);
             _camera.PlayReady();
         }

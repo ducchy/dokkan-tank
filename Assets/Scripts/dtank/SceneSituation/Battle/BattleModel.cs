@@ -1,5 +1,9 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using GameFramework.Core;
+using GameFramework.CoroutineSystems;
 using GameFramework.ModelSystems;
 using GameFramework.TaskSystems;
 using UniRx;
@@ -12,30 +16,70 @@ namespace dtank
         private readonly ReactiveProperty<BattleState> _currentState = new ReactiveProperty<BattleState>();
         public IReadOnlyReactiveProperty<BattleState> CurrentState => _currentState;
 
-        private Dictionary<int, BattleTankModel> _tankModelDictionary;
-        private Dictionary<int, IBehaviourSelector> _behaviourSelectorDictionary;
+        private Dictionary<int, BattleTankModel> _tankModelDictionary = new Dictionary<int, BattleTankModel>();
+        private Dictionary<int, IBehaviourSelector> _behaviourSelectorDictionary = new Dictionary<int, IBehaviourSelector>();
 
         public BattleRuleModel RuleModel { get; private set; }
         public IReadOnlyDictionary<int, BattleTankModel> TankModelDictionary => _tankModelDictionary;
         public IReadOnlyDictionary<int, IBehaviourSelector> BehaviourSelectorDictionary => _behaviourSelectorDictionary;
 
-        public bool IsActive { get; private set; }
+        public event Action<BattleModel> OnUpdated;
+        private readonly CoroutineRunner _coroutineRunner = new CoroutineRunner();
+
+        bool ITask.IsActive => true;
 
         private BattleModel(object empty) : base(empty)
         {
         }
 
-        public void Setup(
-            BattleRuleModel ruleModel,
-            Dictionary<int, BattleTankModel> tankModelDictionary,
-            Dictionary<int, IBehaviourSelector> behaviourSelectorDictionary
-        )
+        public IObservable<Unit> SetupAsync(BattleEntryData entryData, FieldViewData fieldViewData)
         {
-            RuleModel = ruleModel;
-            _tankModelDictionary = tankModelDictionary;
-            _behaviourSelectorDictionary = behaviourSelectorDictionary;
+            return Observable.Defer(() =>
+                {
+                    var scope = new DisposableScope();
+                    return _coroutineRunner.StartCoroutineAsync(SetupRoutine(entryData, fieldViewData, scope),
+                        () => { scope.Dispose(); });
+                })
+                .Do(_ => OnUpdated?.Invoke(this));
+        }
 
-            Bind();
+        public IEnumerator SetupRoutine(BattleEntryData entryData, FieldViewData fieldViewData, IScope scope)
+        {
+            var ruleData = default(BattleRuleData);
+            yield return new BattleRuleDataAssetRequest($"{entryData.RuleId:d3}")
+                .LoadAsync(scope)
+                .Do(x => ruleData = x)
+                .StartAsEnumerator(scope);
+            RuleModel = new BattleRuleModel(ruleData.duration);
+            
+            var tankModels = new List<BattleTankModel>();
+            _tankModelDictionary.Clear();
+            foreach (var user in entryData.Users)
+            {
+                var startPointData = fieldViewData.StartPointDataArray[user.PositionIndex];
+                
+                var parameterData = default(TankParameterData);
+                yield return new BattleTankParameterDataAssetRequest($"{user.ParameterId:d3}")
+                    .LoadAsync(scope)
+                    .Do(x => parameterData = x)
+                    .StartAsEnumerator(scope);
+
+                var tankModel = BattleTankModel.Create();
+                tankModel.Setup(user.Id, user.ModelId, user.CharacterType, startPointData, parameterData);
+                tankModels.Add(tankModel);
+                _tankModelDictionary.Add(user.Id, tankModel);
+            }
+
+            _behaviourSelectorDictionary.Clear();
+            foreach (var tankModel in tankModels)
+            {
+                if (tankModel.CharacterType == CharacterType.Player)
+                    continue;
+
+                var npcBehaviourSelector =
+                    new NpcBehaviourSelector(tankModel, tankModels.Where(m => m != tankModel).ToArray());
+                _behaviourSelectorDictionary.Add(tankModel.OwnerId, npcBehaviourSelector);
+            }
         }
 
         protected override void OnDeletedInternal()
@@ -60,15 +104,16 @@ namespace dtank
                     .Subscribe(state =>
                     {
                         if (state == BattleTankState.Dead)
-                            RuleModel.Dead(tankModel.Data.OwnerId);
+                            RuleModel.Dead(tankModel.OwnerId);
                     })
                     .ScopeTo(this);
             }
         }
 
-        public void Update()
+        void ITask.Update()
         {
-            RuleModel.Update();
+            _coroutineRunner.Update();
+            RuleModel?.Update();
             foreach (var tankModel in _tankModelDictionary.Values)
                 tankModel.Update();
             foreach (var behaviourSelector in _behaviourSelectorDictionary.Values)
@@ -94,8 +139,6 @@ namespace dtank
                     RuleModel.Start();
                     break;
             }
-
-            IsActive = IsActiveState(state);
         }
 
         private bool IsActiveState(BattleState state)

@@ -1,6 +1,7 @@
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using System.Collections;
+using GameFramework.AssetSystems;
 using GameFramework.TaskSystems;
 using UnityEngine;
 
@@ -11,9 +12,8 @@ namespace dtank
     /// </summary>
     public class MainSystem : GameFramework.Core.MainSystem
     {
-        [SerializeField]
-        private ServiceContainerInstaller _globalObject;
-        
+        [SerializeField] private ServiceContainerInstaller _globalObject;
+
         private TaskRunner _taskRunner;
         private SceneSituationContainer _sceneSituationContainer;
 
@@ -29,7 +29,7 @@ namespace dtank
         protected override IEnumerator StartRoutineInternal(object[] args)
         {
             Debug.Log("Begin StartRoutineInternal()");
-            
+
             // GlobalObjectを初期化
             DontDestroyOnLoad(_globalObject.gameObject);
             // RootのServiceにインスタンスを登録
@@ -38,15 +38,23 @@ namespace dtank
             // 各種システム初期化
             _taskRunner = new TaskRunner();
             Services.Instance.Set(_taskRunner);
+            var assetManager = new AssetManager();
+            assetManager.Initialize(
+                new AssetDatabaseAssetProvider(),
+                new ResourcesAssetProvider());
+            Services.Instance.Set(assetManager);
 
             // 各種GlobalObjectのタスク登録
             _taskRunner.Register(Services.Get<FadeController>(), TaskOrder.UI);
-            
+
             _sceneSituationContainer = new SceneSituationContainer();
             _taskRunner.Register(_sceneSituationContainer, TaskOrder.PreSystem);
 
             var fieldManager = new FieldManager(Services.Instance);
             Services.Instance.Set(fieldManager);
+
+            var battleEntryData = new BattleEntryData();
+            Services.Instance.Set(battleEntryData);
 
             SceneSituation startSituation = null;
             if (args.Length > 0)

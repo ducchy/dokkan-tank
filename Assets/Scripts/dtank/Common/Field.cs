@@ -36,6 +36,10 @@ namespace dtank
             
             foreach (var installer in installers)
                 installer.Install(container);
+
+            var fieldView = container.Get<FieldView>();
+            if (fieldView != null)
+                container.Set(fieldView.CreateData());
         }
 
         public void UnloadRoutine()

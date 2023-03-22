@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using GameFramework.Core;
+using GameFramework.CoroutineSystems;
 using GameFramework.SituationSystems;
 using GameFramework.StateSystems;
 using GameFramework.TaskSystems;
@@ -24,11 +25,21 @@ namespace dtank
 
             yield return base.LoadRoutineInternal(handle, scope);
 
-            yield return LoadAllRoutine(scope);
-
-            BattleModel.Get().ChangeState(BattleState.Ready);
+            var fieldManager = Services.Get<FieldManager>();
+            yield return fieldManager.LoadRoutine(1);
 
             Debug.Log("End BattleSceneSituation.LoadRoutineInternal()");
+        }
+
+        protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope)
+        {
+            yield return base.SetupRoutineInternal(handle, scope);
+
+            yield return SetupAllRoutine(scope);
+            
+            Bind(scope);
+
+            BattleModel.Get().ChangeState(BattleState.Ready);
         }
 
         protected override void UpdateInternal()
@@ -47,64 +58,37 @@ namespace dtank
 
         #region Load
 
-        private IEnumerator LoadAllRoutine(IScope scope)
+        private IEnumerator SetupAllRoutine(IScope scope)
         {
-            var fieldManager = Services.Get<FieldManager>();
-            yield return fieldManager.LoadRoutine(1);
-            
-            SetupModel(scope);
+            SetupBattleEntryData();
+            yield return SetupModelRoutine(scope);
             SetupPresenter(scope);
             SetupStateContainer(scope);
-
-            Bind(scope);
         }
 
-        private List<TankData> CreateTankDataList()
+        private void SetupBattleEntryData()
         {
-            return new List<TankData>()
+            // TODO: 選んだルールに応じて設定
+            var battleEntryData = Services.Get<BattleEntryData>();
+            battleEntryData.Set(1, new List<BattleEntryData.User>()
             {
-                new(1, 1, 0, CharacterType.Player, 2f),
-                new(2, 2, 1, CharacterType.NonPlayer, 2f),
-                new(3, 3, 2, CharacterType.NonPlayer, 2f),
-                new(4, 4, 3, CharacterType.NonPlayer, 2f),
-            };
+                new(1, 1, 0, CharacterType.Player, 1),
+                new(2, 2, 1, CharacterType.NonPlayer, 1),
+                new(3, 3, 2, CharacterType.NonPlayer, 1),
+                new(4, 4, 3, CharacterType.NonPlayer, 1),
+            });
         }
 
-        private void SetupModel(IScope scope)
+        private IEnumerator SetupModelRoutine(IScope scope)
         {
-            var tankDataList = CreateTankDataList();
-
+            var battleEntryData = Services.Get<BattleEntryData>();
             var fieldViewData = Services.Get<FieldViewData>();
-            var tankModels = new List<BattleTankModel>();
-            var tankModelDictionary = new Dictionary<int, BattleTankModel>();
-            foreach (var tankData in tankDataList)
-            {
-                var startPointData = fieldViewData.StartPointDataArray[tankData.PositionIndex];
-
-                var tankModel = new BattleTankModel(tankData, startPointData);
-                tankModels.Add(tankModel);
-                tankModelDictionary.Add(tankData.OwnerId, tankModel);
-            }
-
-            var behaviourSelectorDictionary = new Dictionary<int, IBehaviourSelector>();
-            foreach (var tankModel in tankModels)
-            {
-                if (tankModel.Data.CharacterType == CharacterType.Player)
-                    continue;
-
-                var npcBehaviourSelector =
-                    new NpcBehaviourSelector(tankModel, tankModels.Where(m => m != tankModel).ToArray());
-                behaviourSelectorDictionary.Add(tankModel.Data.OwnerId, npcBehaviourSelector);
-            }
-
-            var ruleModel = new BattleRuleModel(90f);
-            ruleModel.ScopeTo(scope);
-
+            
             var battleModel = BattleModel.Create();
-            battleModel.Setup(ruleModel, tankModelDictionary, behaviourSelectorDictionary);
-            battleModel.ScopeTo(scope);
-
             RegisterTask(battleModel, TaskOrder.Logic);
+            yield return battleModel.SetupAsync(battleEntryData, fieldViewData)
+                .StartAsEnumerator(scope);
+            battleModel.ScopeTo(scope);
         }
 
         private void SetupPresenter(IScope scope)
@@ -128,12 +112,12 @@ namespace dtank
             {
                 foreach (var tankModel in model.TankModelDictionary.Values)
                 {
-                    var tankActor = actorFactory.Create(tankModel.Data.ModelId, tankHolder);
-                    tankActor.Setup(tankModel.Data.OwnerId);
-                    tankActorDictionary.Add(tankModel.Data.OwnerId, tankActor);
+                    var tankActor = actorFactory.Create(tankModel.ModelId, tankHolder);
+                    tankActor.Setup(tankModel.OwnerId);
+                    tankActorDictionary.Add(tankModel.OwnerId, tankActor);
 
                     var tankController = new BattleTankController(tankModel, tankActor);
-                    if (tankModel.Data.CharacterType == CharacterType.Player)
+                    if (tankModel.CharacterType == CharacterType.Player)
                     {
                         if (playerTankModel != null)
                         {
@@ -149,7 +133,7 @@ namespace dtank
                         continue;
                     }
 
-                    if (!model.BehaviourSelectorDictionary.TryGetValue(tankModel.Data.OwnerId,
+                    if (!model.BehaviourSelectorDictionary.TryGetValue(tankModel.OwnerId,
                             out var npcTankBehaviourSelector))
                     {
                         Debug.LogError("CharacterType=NonPlayerのBehaviourSelectorが未生成");
@@ -171,7 +155,8 @@ namespace dtank
             cameraController.ScopeTo(scope);
             RegisterTask(cameraController, TaskOrder.Camera);
 
-            _presenter = new BattlePresenter(model, uiView, cameraController, playerTankPresenter, npcTankPresenters.ToArray(),
+            _presenter = new BattlePresenter(model, uiView, cameraController, playerTankPresenter,
+                npcTankPresenters.ToArray(),
                 tankActorContainer);
             _presenter.ScopeTo(scope);
         }

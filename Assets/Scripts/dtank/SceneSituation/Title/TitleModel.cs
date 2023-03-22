@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GameFramework.ModelSystems;
 using UniRx;
 using UnityEngine;
@@ -16,7 +17,7 @@ namespace dtank
         protected override void OnDeletedInternal()
         {
             base.OnDeletedInternal();
-            
+
             _currentState.Dispose();
         }
 

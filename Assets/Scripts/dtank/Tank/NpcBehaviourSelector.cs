@@ -175,7 +175,7 @@ namespace dtank
         {
             var targets = _others.Where(o => o != _target && !o.DeadFlag).ToArray();
             return targets.Length == 0
-                ? (!_target.DeadFlag ? _target : null)
+                ? (_target is { DeadFlag: false } ? _target : null)
                 : targets[Random.Range(0, targets.Length)];
         }
 

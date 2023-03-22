@@ -1,31 +1,35 @@
+using GameFramework.ModelSystems;
 using GameFramework.TaskSystems;
 using UniRx;
 using UnityEngine;
 
 namespace dtank
 {
-    public class BattleTankModel : TankModelBase
+    public class BattleTankModel : AutoIdModel<BattleTankModel>
     {
         private readonly ReactiveProperty<BattleTankState> _battleState =
             new ReactiveProperty<BattleTankState>(BattleTankState.Invalid);
 
         public IReadOnlyReactiveProperty<BattleTankState> BattleState => _battleState;
 
-        private readonly ReactiveProperty<int> _hp = new ReactiveProperty<int>(3);
+        private readonly ReactiveProperty<int> _hp = new ReactiveProperty<int>();
         public IReadOnlyReactiveProperty<int> Hp => _hp;
 
-        private readonly ReactiveProperty<float> _moveAmount = new ReactiveProperty<float>(0f);
+        private readonly ReactiveProperty<float> _moveAmount = new ReactiveProperty<float>();
         public IReactiveProperty<float> MoveAmount => _moveAmount;
 
-        private readonly ReactiveProperty<float> _turnAmount = new ReactiveProperty<float>(0f);
+        private readonly ReactiveProperty<float> _turnAmount = new ReactiveProperty<float>();
         public IReactiveProperty<float> TurnAmount => _turnAmount;
 
         private readonly ReactiveProperty<bool> _invincibleFlag = new ReactiveProperty<bool>(false);
         public IReactiveProperty<bool> InvincibleFlag => _invincibleFlag;
 
-        public readonly TankData Data;
-        public readonly TransformData StartPointData;
-        
+        public int OwnerId { get; private set; }
+        public int ModelId { get; private set; }
+        public CharacterType CharacterType { get; private set; }
+        public TransformData StartPointData { get; private set; }
+        public TankParameterData ParameterData { get; private set; }
+
         public Vector3 Position { get; private set; }
         public Vector3 Forward { get; private set; }
         public bool DeadFlag => _hp.Value <= 0;
@@ -36,14 +40,16 @@ namespace dtank
         private ITask _taskImplementation;
         private bool _isActive;
 
-        public BattleTankModel(TankData data, TransformData startPointData)
-        {
-            Data = data;
-            StartPointData = startPointData;
+        private BattleTankModel(int id) : base(id) {
         }
-
-        public override void Dispose()
+        
+        public void Setup(int ownerId, int modelId, CharacterType characterType, TransformData startPointData, TankParameterData parameterData)
         {
+            OwnerId = ownerId;
+            ModelId = modelId;
+            CharacterType = characterType;
+            StartPointData = startPointData;
+            ParameterData = parameterData;
         }
 
         public void Update()
@@ -83,7 +89,7 @@ namespace dtank
 
         public void Ready()
         {
-            _hp.SetValueAndForceNotify(3);
+            _hp.SetValueAndForceNotify(ParameterData.hp);
             SetState(BattleTankState.Ready);
         }
 
@@ -204,7 +210,7 @@ namespace dtank
             if (_invincibleFlag.Value)
                 return;
 
-            _invincibleRemainTime = Data.InvincibleDuration;
+            _invincibleRemainTime = ParameterData.invincibleDuration;
             _invincibleFlag.Value = true;
         }
 
