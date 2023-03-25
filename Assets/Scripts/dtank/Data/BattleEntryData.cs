@@ -4,33 +4,15 @@ namespace dtank
 {
     public class BattleEntryData
     {
-        public class User
-        {
-            public readonly int Id;
-            public readonly int ModelId;
-            public readonly int PositionIndex;
-            public CharacterType CharacterType;
-            public readonly int ParameterId;
-
-            public User(int id, int modelId, int positionIndex, CharacterType characterType, int parameterId)
-            {
-                Id = id;
-                ModelId = modelId;
-                PositionIndex = positionIndex;
-                CharacterType = characterType;
-                ParameterId = parameterId;
-            }
-        }
-        
         public int RuleId { get; private set; }
-        public IReadOnlyList<User> Users => _users;
+        public IReadOnlyList<BattlePlayerEntryData> Players => _players;
         
-        private List<User> _users;
+        private List<BattlePlayerEntryData> _players;
 
-        public void Set(int ruleId, List<User> users)
+        public void Set(int ruleId, List<BattlePlayerEntryData> players)
         {
             RuleId = ruleId;
-            _users = users;
+            _players = players;
         }
     }
 }

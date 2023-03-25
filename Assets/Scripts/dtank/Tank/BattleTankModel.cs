@@ -24,7 +24,7 @@ namespace dtank
         private readonly ReactiveProperty<bool> _invincibleFlag = new ReactiveProperty<bool>(false);
         public IReactiveProperty<bool> InvincibleFlag => _invincibleFlag;
 
-        public int OwnerId { get; private set; }
+        public string Name { get; private set; }
         public int ModelId { get; private set; }
         public CharacterType CharacterType { get; private set; }
         public TransformData StartPointData { get; private set; }
@@ -40,12 +40,14 @@ namespace dtank
         private ITask _taskImplementation;
         private bool _isActive;
 
-        private BattleTankModel(int id) : base(id) {
-        }
-        
-        public void Setup(int ownerId, int modelId, CharacterType characterType, TransformData startPointData, TankParameterData parameterData)
+        private BattleTankModel(int id) : base(id)
         {
-            OwnerId = ownerId;
+        }
+
+        public void Setup(string name, int modelId, CharacterType characterType, TransformData startPointData,
+            TankParameterData parameterData)
+        {
+            Name = name;
             ModelId = modelId;
             CharacterType = characterType;
             StartPointData = startPointData;

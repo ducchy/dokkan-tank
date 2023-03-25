@@ -70,12 +70,12 @@ namespace dtank
         {
             // TODO: 選んだルールに応じて設定
             var battleEntryData = Services.Get<BattleEntryData>();
-            battleEntryData.Set(1, new List<BattleEntryData.User>()
+            battleEntryData.Set(1, new List<BattlePlayerEntryData>()
             {
-                new(1, 1, 0, CharacterType.Player, 1),
-                new(2, 2, 1, CharacterType.NonPlayer, 1),
-                new(3, 3, 2, CharacterType.NonPlayer, 1),
-                new(4, 4, 3, CharacterType.NonPlayer, 1),
+                new("一郎", 1, 0, CharacterType.Player, 1),
+                new("二郎", 2, 1, CharacterType.NonPlayer, 1),
+                new("三郎", 3, 2, CharacterType.NonPlayer, 1),
+                new("四郎", 4, 3, CharacterType.NonPlayer, 1),
             });
         }
 
@@ -110,11 +110,11 @@ namespace dtank
             var tankActorDictionary = new Dictionary<int, BattleTankActor>();
             using (var actorFactory = new BattleTankActorFactory())
             {
-                foreach (var tankModel in model.TankModelDictionary.Values)
+                foreach (var tankModel in model.TankModels)
                 {
                     var tankActor = actorFactory.Create(tankModel.ModelId, tankHolder);
-                    tankActor.Setup(tankModel.OwnerId);
-                    tankActorDictionary.Add(tankModel.OwnerId, tankActor);
+                    tankActor.Setup(tankModel.Id);
+                    tankActorDictionary.Add(tankModel.Id, tankActor);
 
                     var tankController = new BattleTankController(tankModel, tankActor);
                     if (tankModel.CharacterType == CharacterType.Player)
@@ -133,7 +133,7 @@ namespace dtank
                         continue;
                     }
 
-                    if (!model.BehaviourSelectorDictionary.TryGetValue(tankModel.OwnerId,
+                    if (!model.BehaviourSelectorDictionary.TryGetValue(tankModel.Id,
                             out var npcTankBehaviourSelector))
                     {
                         Debug.LogError("CharacterType=NonPlayerのBehaviourSelectorが未生成");
