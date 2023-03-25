@@ -11,7 +11,7 @@ namespace dtank
         private readonly BattleCameraController _cameraController;
         private readonly PlayerBattleTankPresenter _playerTankPresenter;
         private readonly NpcBattleTankPresenter[] _npcTankPresenters;
-        private readonly TankActorContainer _tankActorContainer;
+        private readonly BattleTankActorContainer _battleTankActorContainer;
         private readonly DisposableScope _scope = new DisposableScope();
 
         public BattlePresenter(
@@ -20,14 +20,14 @@ namespace dtank
             BattleCameraController cameraController,
             PlayerBattleTankPresenter playerTankPresenter,
             NpcBattleTankPresenter[] npcTankPresenters,
-            TankActorContainer tankActorContainer)
+            BattleTankActorContainer battleTankActorContainer)
         {
             _model = model;
             _uiView = uiView;
             _cameraController = cameraController;
             _playerTankPresenter = playerTankPresenter;
             _npcTankPresenters = npcTankPresenters;
-            _tankActorContainer = tankActorContainer;
+            _battleTankActorContainer = battleTankActorContainer;
 
             Bind();
             SetEvent();
@@ -66,7 +66,7 @@ namespace dtank
                 .Subscribe(_ => _model.ChangeState(BattleState.Playing))
                 .ScopeTo(_scope);
 
-            foreach (var tankActor in _tankActorContainer.ActorDictionary.Values)
+            foreach (var tankActor in _battleTankActorContainer.ActorDictionary.Values)
                 tankActor.OnDealDamageAsObservable
                     .TakeUntil(_scope)
                     .Subscribe(_ => _model.RuleModel.IncrementScore(tankActor.OwnerId))

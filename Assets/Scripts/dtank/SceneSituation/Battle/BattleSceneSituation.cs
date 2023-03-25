@@ -147,7 +147,7 @@ namespace dtank
                 }
             }
 
-            var tankActorContainer = new TankActorContainer(tankActorDictionary);
+            var tankActorContainer = new BattleTankActorContainer(tankActorDictionary);
             tankActorContainer.ScopeTo(scope);
 
             var cameraController = Services.Get<BattleCameraController>();

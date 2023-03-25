@@ -11,7 +11,7 @@ namespace dtank
         [SerializeField] private BattleCamera _camera;
 
         private BattleTankModel _playerTankModel;
-        private TankActorContainer _tankActorContainer;
+        private BattleTankActorContainer _battleTankActorContainer;
         private readonly DisposableScope _scope = new DisposableScope();
 
         public bool IsActive => isActiveAndEnabled;
@@ -21,10 +21,10 @@ namespace dtank
 
         public void Setup(
             BattleTankModel playerTankModel,
-            TankActorContainer tankActorContainer)
+            BattleTankActorContainer battleTankActorContainer)
         {
             _playerTankModel = playerTankModel;
-            _tankActorContainer = tankActorContainer;
+            _battleTankActorContainer = battleTankActorContainer;
             
             SetEvent();
         }
@@ -53,7 +53,7 @@ namespace dtank
         
         public void PlayReady()
         {
-            var player = _tankActorContainer.ActorDictionary[_playerTankModel.Id];
+            var player = _battleTankActorContainer.ActorDictionary[_playerTankModel.Id];
             _camera.SetFollowTarget(player.transform);
             _camera.PlayReady();
         }
@@ -65,7 +65,7 @@ namespace dtank
 
         public void PlayResult(int winnerId)
         {
-            var winner = _tankActorContainer.ActorDictionary[winnerId];
+            var winner = _battleTankActorContainer.ActorDictionary[winnerId];
             _camera.SetFollowTarget(winner.transform);
             _camera.PlayResult();
         }

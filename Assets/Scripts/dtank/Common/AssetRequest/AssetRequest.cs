@@ -85,10 +85,18 @@ namespace dtank
         }
     }
 
-    public class BattleTankParameterDataAssetRequest : BattleDataAssetRequestBase<TankParameterData>
+    public class BattleTankParameterDataAssetRequest : BattleDataAssetRequestBase<BattleTankParameterData>
     {
         public BattleTankParameterDataAssetRequest(string assetKey)
             : base($"TankParameter/dat_tank_parameter_{assetKey}.asset")
+        {
+        }
+    }
+
+    public class BattleTankActorSetupDataAssetRequest : BattleDataAssetRequestBase<BattleTankActorSetupData>
+    {
+        public BattleTankActorSetupDataAssetRequest(string assetKey)
+            : base($"TankParameter/dat_tank_actor_setup_{assetKey}.asset")
         {
         }
     }

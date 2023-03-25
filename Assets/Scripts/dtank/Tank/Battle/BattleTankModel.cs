@@ -1,3 +1,4 @@
+using System;
 using GameFramework.ModelSystems;
 using GameFramework.TaskSystems;
 using UniRx;
@@ -6,7 +7,11 @@ using UnityEngine;
 namespace dtank
 {
     public class BattleTankModel : AutoIdModel<BattleTankModel>
-    {
+    {   
+        public BattleTankActorModel ActorModel { get; private set; }
+        
+        public event Action<BattleTankModel> OnUpdated;
+
         private readonly ReactiveProperty<BattleTankState> _battleState =
             new ReactiveProperty<BattleTankState>(BattleTankState.Invalid);
 
@@ -28,7 +33,7 @@ namespace dtank
         public int ModelId { get; private set; }
         public CharacterType CharacterType { get; private set; }
         public TransformData StartPointData { get; private set; }
-        public TankParameterData ParameterData { get; private set; }
+        public BattleTankParameterData ParameterData { get; private set; }
 
         public Vector3 Position { get; private set; }
         public Vector3 Forward { get; private set; }
@@ -42,16 +47,25 @@ namespace dtank
 
         private BattleTankModel(int id) : base(id)
         {
+            ActorModel = BattleTankActorModel.Create();
         }
 
-        public void Setup(string name, int modelId, CharacterType characterType, TransformData startPointData,
-            TankParameterData parameterData)
+        protected override void OnDeletedInternal()
+        {
+            BattleTankActorModel.Delete(ActorModel.Id);
+            ActorModel = null;
+        }
+
+        public void Update(string name, int modelId, CharacterType characterType, TransformData startPointData,
+            BattleTankParameterData parameterData)
         {
             Name = name;
             ModelId = modelId;
             CharacterType = characterType;
             StartPointData = startPointData;
             ParameterData = parameterData;
+
+            OnUpdated?.Invoke(this);
         }
 
         public void Update()

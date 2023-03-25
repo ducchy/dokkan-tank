@@ -16,7 +16,7 @@ namespace dtank
         private readonly ReactiveProperty<BattleState> _currentState = new ReactiveProperty<BattleState>();
         public IReadOnlyReactiveProperty<BattleState> CurrentState => _currentState;
 
-        private List<BattleTankModel> _tankModels;
+        private readonly List<BattleTankModel> _tankModels = new List<BattleTankModel>();
         public IReadOnlyList<BattleTankModel> TankModels => _tankModels;
         
         private readonly Dictionary<int, IBehaviourSelector> _behaviourSelectorDictionary = new Dictionary<int, IBehaviourSelector>();
@@ -59,19 +59,28 @@ namespace dtank
                 .StartAsEnumerator(scope);
             RuleModel = new BattleRuleModel(ruleData.duration);
             
-            _tankModels = new List<BattleTankModel>();
+            _tankModels.Clear();
             foreach (var player in entryData.Players)
             {
                 var startPointData = fieldViewData.StartPointDataArray[player.PositionIndex];
                 
-                var parameterData = default(TankParameterData);
+                var parameterData = default(BattleTankParameterData);
                 yield return new BattleTankParameterDataAssetRequest($"{player.ParameterId:d3}")
                     .LoadAsync(scope)
                     .Do(x => parameterData = x)
                     .StartAsEnumerator(scope);
 
                 var tankModel = BattleTankModel.Create();
-                tankModel.Setup(player.Name, player.ModelId, player.CharacterType, startPointData, parameterData);
+                tankModel.Update(player.Name, player.ModelId, player.CharacterType, startPointData, parameterData);
+                
+                var actorSetupData = default(BattleTankActorSetupData);
+                yield return new BattleTankActorSetupDataAssetRequest($"{player.ParameterId:d3}")
+                    .LoadAsync(scope)
+                    .Do(x => actorSetupData = x)
+                    .StartAsEnumerator(scope);
+                
+                tankModel.ActorModel.Update(actorSetupData);
+                
                 _tankModels.Add(tankModel);
             }
 
@@ -85,7 +94,7 @@ namespace dtank
                     new NpcBehaviourSelector(tankModel, _tankModels.Where(m => m != tankModel).ToArray());
                 _behaviourSelectorDictionary.Add(tankModel.Id, npcBehaviourSelector);
             }
-                
+            
             Bind();
         }
 
