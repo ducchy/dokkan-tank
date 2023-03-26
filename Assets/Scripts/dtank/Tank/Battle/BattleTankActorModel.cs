@@ -7,6 +7,7 @@ namespace dtank
     public class BattleTankActorModel : AutoIdModel<BattleTankActorModel>
     {
         public BattleTankActorSetupData Setup { get; private set; }
+        public TransformData StartPointData { get; private set; }
 
         public event Action<BattleTankActorModel> OnUpdated;
         
@@ -18,8 +19,10 @@ namespace dtank
                 h => OnUpdated -= h);
         }
 
-        public void Update(BattleTankActorSetupData setupData) {
+        public void Update(BattleTankActorSetupData setupData, TransformData startPointData) {
             Setup = setupData;
+            StartPointData = startPointData;
+            
             OnUpdated?.Invoke(this);
         }
     }

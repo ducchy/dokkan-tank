@@ -15,7 +15,7 @@ namespace dtank
 
         public void SetStartPoint()
         {
-            _actor.SetTransform(_model.StartPointData);
+           //  _actor.SetTransform(_model.StartPointData);
         }
     }
 }

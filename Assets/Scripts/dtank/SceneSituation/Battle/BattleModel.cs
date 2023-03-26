@@ -19,6 +19,8 @@ namespace dtank
         private readonly List<BattleTankModel> _tankModels = new List<BattleTankModel>();
         public IReadOnlyList<BattleTankModel> TankModels => _tankModels;
         
+        public BattleTankModel MainPlayerTankModel { get; private set; }
+        
         private readonly Dictionary<int, IBehaviourSelector> _behaviourSelectorDictionary = new Dictionary<int, IBehaviourSelector>();
 
         public BattleRuleModel RuleModel { get; private set; }
@@ -62,8 +64,6 @@ namespace dtank
             _tankModels.Clear();
             foreach (var player in entryData.Players)
             {
-                var startPointData = fieldViewData.StartPointDataArray[player.PositionIndex];
-                
                 var parameterData = default(BattleTankParameterData);
                 yield return new BattleTankParameterDataAssetRequest($"{player.ParameterId:d3}")
                     .LoadAsync(scope)
@@ -71,7 +71,7 @@ namespace dtank
                     .StartAsEnumerator(scope);
 
                 var tankModel = BattleTankModel.Create();
-                tankModel.Update(player.Name, player.ModelId, player.CharacterType, startPointData, parameterData);
+                tankModel.Update(player.Name, player.BodyId, player.CharacterType, parameterData);
                 
                 var actorSetupData = default(BattleTankActorSetupData);
                 yield return new BattleTankActorSetupDataAssetRequest($"{player.ParameterId:d3}")
@@ -79,9 +79,14 @@ namespace dtank
                     .Do(x => actorSetupData = x)
                     .StartAsEnumerator(scope);
                 
-                tankModel.ActorModel.Update(actorSetupData);
+                var startPointData = fieldViewData.StartPointDataArray[player.PositionIndex];
+                
+                tankModel.ActorModel.Update(actorSetupData, startPointData);
                 
                 _tankModels.Add(tankModel);
+
+                if (MainPlayerTankModel == null && tankModel.CharacterType == CharacterType.Player)
+                    MainPlayerTankModel = tankModel;
             }
 
             _behaviourSelectorDictionary.Clear();

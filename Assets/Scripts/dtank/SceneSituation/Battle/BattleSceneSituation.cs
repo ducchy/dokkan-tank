@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using GameFramework.BodySystems;
 using GameFramework.Core;
 using GameFramework.CoroutineSystems;
+using GameFramework.EntitySystems;
 using GameFramework.SituationSystems;
 using GameFramework.StateSystems;
 using GameFramework.TaskSystems;
@@ -13,30 +15,42 @@ namespace dtank
 {
     public class BattleSceneSituation : SceneSituation
     {
+        /// <summary>
+        /// Body生成クラス
+        /// </summary>
+        private class BodyBuilder : IBodyBuilder
+        {
+            /// <summary>
+            /// 構築処理
+            /// </summary>
+            public void Build(IBody body, GameObject gameObject)
+            {
+                // RequireComponent<StatusEventListener>(gameObject);
+            }
+
+            private void RequireComponent<T>(GameObject gameObject)
+                where T : Component
+            {
+                var component = gameObject.GetComponent<T>();
+                if (component == null)
+                {
+                    gameObject.AddComponent<T>();
+                }
+            }
+        }
+
         protected override string SceneAssetPath => "Battle";
 
         private StateContainer<BattleStateBase, BattleState> _stateContainer;
         private BattlePresenter _presenter;
         private readonly List<ITask> _tasks = new List<ITask>();
 
-        protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope)
-        {
-            Debug.Log("Begin BattleSceneSituation.LoadRoutineInternal()");
-
-            yield return base.LoadRoutineInternal(handle, scope);
-
-            var fieldManager = Services.Get<FieldManager>();
-            yield return fieldManager.LoadRoutine(1);
-
-            Debug.Log("End BattleSceneSituation.LoadRoutineInternal()");
-        }
-
         protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope)
         {
             yield return base.SetupRoutineInternal(handle, scope);
 
             yield return SetupAllRoutine(scope);
-            
+
             Bind(scope);
 
             BattleModel.Get().ChangeState(BattleState.Ready);
@@ -60,10 +74,21 @@ namespace dtank
 
         private IEnumerator SetupAllRoutine(IScope scope)
         {
+            yield return SetupManagerRoutine();
             SetupBattleEntryData();
             yield return SetupModelRoutine(scope);
-            SetupPresenter(scope);
+            yield return SetupPresenterRoutine(scope);
             SetupStateContainer(scope);
+        }
+
+        private IEnumerator SetupManagerRoutine()
+        {
+            var bodyManager = new BodyManager(new BodyBuilder());
+            ServiceContainer.Set(bodyManager);
+            RegisterTask(bodyManager, TaskOrder.Body);
+
+            var fieldManager = Services.Get<FieldManager>();
+            yield return fieldManager.LoadRoutine(1);
         }
 
         private void SetupBattleEntryData()
@@ -83,7 +108,7 @@ namespace dtank
         {
             var battleEntryData = Services.Get<BattleEntryData>();
             var fieldViewData = Services.Get<FieldViewData>();
-            
+
             var battleModel = BattleModel.Create();
             RegisterTask(battleModel, TaskOrder.Logic);
             yield return battleModel.SetupAsync(battleEntryData, fieldViewData)
@@ -91,7 +116,7 @@ namespace dtank
             battleModel.ScopeTo(scope);
         }
 
-        private void SetupPresenter(IScope scope)
+        private IEnumerator SetupPresenterRoutine(IScope scope)
         {
             var model = BattleModel.Get();
 
@@ -101,63 +126,31 @@ namespace dtank
             uiView.ScopeTo(scope);
             RegisterTask(uiView, TaskOrder.UI);
 
-            PlayerBattleTankPresenter playerTankPresenter = null;
-            var npcTankPresenters = new List<NpcBattleTankPresenter>();
-            BattleTankModel playerTankModel = null;
-
-            var tankHolder = new GameObject("Tanks").transform;
-
-            var tankActorDictionary = new Dictionary<int, BattleTankActor>();
-            using (var actorFactory = new BattleTankActorFactory())
+            var tankEntityContainer = new BattleTankEntityContainer();
+            tankEntityContainer.ScopeTo(scope);
+            foreach (var tankModel in model.TankModels)
+                yield return tankEntityContainer.AddRoutine(tankModel, scope);
+            foreach (var tankModel in model.TankModels)
             {
-                foreach (var tankModel in model.TankModels)
+                var entity = tankEntityContainer.Get(tankModel.Id);
+                var logic = entity.GetLogic<EntityLogic>() as BattleTankLogic;
+                if (logic == null)
                 {
-                    var tankActor = actorFactory.Create(tankModel.ModelId, tankHolder);
-                    tankActor.Setup(tankModel.Id);
-                    tankActorDictionary.Add(tankModel.Id, tankActor);
-
-                    var tankController = new BattleTankController(tankModel, tankActor);
-                    if (tankModel.CharacterType == CharacterType.Player)
-                    {
-                        if (playerTankModel != null)
-                        {
-                            Debug.LogError("CharacterType=Playerのタンクが複数存在");
-                            continue;
-                        }
-
-                        playerTankModel = tankModel;
-                        playerTankPresenter =
-                            new PlayerBattleTankPresenter(tankController, model, tankModel, tankActor,
-                                uiView.TankControlUiView,
-                                uiView.TankStatusUiView);
-                        continue;
-                    }
-
-                    if (!model.BehaviourSelectorDictionary.TryGetValue(tankModel.Id,
-                            out var npcTankBehaviourSelector))
-                    {
-                        Debug.LogError("CharacterType=NonPlayerのBehaviourSelectorが未生成");
-                        continue;
-                    }
-
-                    var npcTankPresenter =
-                        new NpcBattleTankPresenter(tankController, model, tankModel, tankActor,
-                            npcTankBehaviourSelector);
-                    npcTankPresenters.Add(npcTankPresenter);
+                    Debug.LogError($"logic取得失敗; id={tankModel.Id}");
+                    continue;
                 }
+                
+                if (tankModel.Id == model.MainPlayerTankModel.Id)
+                    logic.SetBehaviourSelector(uiView.TankControlUiView);
+                else 
+                    logic.SetBehaviourSelector(new NpcBehaviourSelector(tankModel, model.TankModels.Where(m => m != tankModel).ToArray()));
             }
 
-            var tankActorContainer = new BattleTankActorContainer(tankActorDictionary);
-            tankActorContainer.ScopeTo(scope);
-
             var cameraController = Services.Get<BattleCameraController>();
-            cameraController.Setup(playerTankModel, tankActorContainer);
+            cameraController.Setup(model, tankEntityContainer);
             cameraController.ScopeTo(scope);
-            RegisterTask(cameraController, TaskOrder.Camera);
 
-            _presenter = new BattlePresenter(model, uiView, cameraController, playerTankPresenter,
-                npcTankPresenters.ToArray(),
-                tankActorContainer);
+            _presenter = new BattlePresenter(model, uiView, tankEntityContainer, cameraController);
             _presenter.ScopeTo(scope);
         }
 

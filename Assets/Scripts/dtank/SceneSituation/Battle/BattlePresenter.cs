@@ -9,25 +9,19 @@ namespace dtank
         private readonly BattleModel _model;
         private readonly BattleUiView _uiView;
         private readonly BattleCameraController _cameraController;
-        private readonly PlayerBattleTankPresenter _playerTankPresenter;
-        private readonly NpcBattleTankPresenter[] _npcTankPresenters;
-        private readonly BattleTankActorContainer _battleTankActorContainer;
+        private readonly BattleTankEntityContainer _tankEntityContainer;
         private readonly DisposableScope _scope = new DisposableScope();
 
         public BattlePresenter(
             BattleModel model,
-            BattleUiView uiView,
-            BattleCameraController cameraController,
-            PlayerBattleTankPresenter playerTankPresenter,
-            NpcBattleTankPresenter[] npcTankPresenters,
-            BattleTankActorContainer battleTankActorContainer)
+            BattleUiView uiView, 
+            BattleTankEntityContainer tankEntityContainer, 
+            BattleCameraController cameraController)
         {
             _model = model;
             _uiView = uiView;
+            _tankEntityContainer = tankEntityContainer;
             _cameraController = cameraController;
-            _playerTankPresenter = playerTankPresenter;
-            _npcTankPresenters = npcTankPresenters;
-            _battleTankActorContainer = battleTankActorContainer;
 
             Bind();
             SetEvent();
@@ -35,10 +29,6 @@ namespace dtank
 
         public void Dispose()
         {
-            _playerTankPresenter.Dispose();
-            foreach (var npcTankPresenter in _npcTankPresenters)
-                npcTankPresenter.Dispose();
-
             _scope.Dispose();
         }
 
@@ -57,6 +47,11 @@ namespace dtank
                     }
                 })
                 .ScopeTo(_scope);
+            
+            _model.MainPlayerTankModel.Hp
+                .TakeUntil(_scope)
+                .Subscribe(_uiView.TankStatusUiView.SetHp)
+                .ScopeTo(_scope);
         }
 
         private void SetEvent()
@@ -66,11 +61,13 @@ namespace dtank
                 .Subscribe(_ => _model.ChangeState(BattleState.Playing))
                 .ScopeTo(_scope);
 
-            foreach (var tankActor in _battleTankActorContainer.ActorDictionary.Values)
+            /*
+            foreach (var tankActor in _tankActorContainer.ActorDictionary.Values)
                 tankActor.OnDealDamageAsObservable
                     .TakeUntil(_scope)
                     .Subscribe(_ => _model.RuleModel.IncrementScore(tankActor.OwnerId))
                     .ScopeTo(_scope);
+            */
 
             _uiView.PlayingUiView.OnForceEndAsObservable
                 .TakeUntil(_scope)

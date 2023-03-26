@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using GameFramework.AssetSystems;
 using GameFramework.Core;
 using UniRx;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace dtank
@@ -10,34 +11,49 @@ namespace dtank
     /// <summary>
     /// Sample用のAssetRequest基底
     /// </summary>
-    public abstract class AssetRequest<T> : GameFramework.AssetSystems.AssetRequest<T>
-        where T : Object {
+    public abstract class ResourceAssetRequest<T> : GameFramework.AssetSystems.AssetRequest<T>
+        where T : Object
+    {
+        public override string Address { get; }
+        public override int[] ProviderIndices => new[] { (int)AssetProviderType.Resources };
+
+        protected ResourceAssetRequest(string relativePath)
+        {
+            Address = GetPath(relativePath);
+        }
 
         /// <summary>
         /// アセットの読み込み
         /// </summary>
         /// <param name="unloadScope">解放スコープ</param>
-        public IObservable<T> LoadAsync(IScope unloadScope) {
-            return Observable.Create<T>(observer => {
+        public IObservable<T> LoadAsync(IScope unloadScope)
+        {
+            return Observable.Create<T>(observer =>
+            {
                 var handle = LoadAsync(Services.Get<AssetManager>(), unloadScope);
-                if (!handle.IsValid) {
+                if (!handle.IsValid)
+                {
                     observer.OnError(new KeyNotFoundException($"Load failed. {Address}"));
                     return Disposable.Empty;
                 }
 
-                if (handle.IsDone) {
+                if (handle.IsDone)
+                {
                     observer.OnNext(handle.Asset);
                     observer.OnCompleted();
                     return Disposable.Empty;
                 }
-                
+
                 // 読み込みを待つ
                 return Observable.EveryUpdate()
-                    .Subscribe(_ => {
-                        if (handle.Exception != null) {
+                    .Subscribe(_ =>
+                    {
+                        if (handle.Exception != null)
+                        {
                             observer.OnError(handle.Exception);
                         }
-                        else if (handle.IsDone) {
+                        else if (handle.IsDone)
+                        {
                             observer.OnNext(handle.Asset);
                             observer.OnCompleted();
                         }
@@ -45,33 +61,30 @@ namespace dtank
             });
         }
 
-        /// <summary>
-        /// Projectフォルダ相対パスを絶対パスにする
-        /// </summary>
-        protected string GetPath(string relativePath) {
-            return $"Assets/SampleGame/{relativePath}";
+        private string GetPath(string relativePath)
+        {
+            return $"Assets/SampleGame/Resources/{relativePath}";
         }
     }
-    
+
+    #region DataAsset
+
     /// <summary>
     /// DataのAssetRequest基底
     /// </summary>
-    public abstract class DataAssetRequestBase<T> : AssetRequest<T>
+    public abstract class DataAssetRequestBase<T> : ResourceAssetRequest<T>
         where T : Object
     {
-        public override string Address { get; }
-        public override int[] ProviderIndices => new[] { (int)AssetProviderType.Resources };
-
-        public DataAssetRequestBase(string relativePath)
+        protected DataAssetRequestBase(string relativePath)
+            : base($"Data/{relativePath}")
         {
-            Address = GetPath($"Resources/Data/{relativePath}");
         }
     }
 
     public abstract class BattleDataAssetRequestBase<T> : DataAssetRequestBase<T>
         where T : Object
     {
-        public BattleDataAssetRequestBase(string relativePath)
+        protected BattleDataAssetRequestBase(string relativePath)
             : base($"Battle/{relativePath}")
         {
         }
@@ -96,8 +109,34 @@ namespace dtank
     public class BattleTankActorSetupDataAssetRequest : BattleDataAssetRequestBase<BattleTankActorSetupData>
     {
         public BattleTankActorSetupDataAssetRequest(string assetKey)
-            : base($"TankParameter/dat_tank_actor_setup_{assetKey}.asset")
+            : base($"TankActorSetup/dat_tank_actor_setup_{assetKey}.asset")
         {
         }
     }
+
+    #endregion DataAsset
+
+    #region Body
+
+    /// <summary>
+    /// BodyPrefabのAssetRequest基底
+    /// </summary>
+    public abstract class BodyPrefabAssetRequestBase : ResourceAssetRequest<GameObject>
+    {
+        protected BodyPrefabAssetRequestBase(string relativePath)
+            : base($"BodyAssets/{relativePath}")
+        {
+        }
+    }
+
+    /// <summary>
+    /// TankPrefabのAssetRequest
+    /// </summary>
+    public class TankPrefabAssetRequest : BodyPrefabAssetRequestBase {
+        public TankPrefabAssetRequest(string assetKey)
+            : base($"Tank/prfb_tank_{assetKey}.prefab") {
+        }
+    }
+
+    #endregion Body
 }

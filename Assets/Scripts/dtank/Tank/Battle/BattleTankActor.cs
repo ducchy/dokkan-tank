@@ -1,28 +1,38 @@
 using System;
 using System.Linq;
 using DG.Tweening;
+using GameFramework.BodySystems;
+using GameFramework.Core;
+using GameFramework.CoroutineSystems;
+using GameFramework.EntitySystems;
+using GameFramework.PlayableSystems;
 using UniRx;
 using UnityEngine;
 
 namespace dtank
 {
-    public class BattleTankActor : TankActorBase, IDamageReceiver, IAttacker, IDisposable
+    public class BattleTankActor : Actor, IDamageReceiver, IAttacker
     {
-        [SerializeField] private Rigidbody _rigidbody;
-        [SerializeField] private AnimatorBody _animator;
-        [SerializeField] private ShellActor _shellForShotCurve;
-        [SerializeField] private ShellActor _shellForShotStraight;
-        [SerializeField] private MeshRenderer[] _renderers;
-        [SerializeField] private Collider _collider;
-        [SerializeField] private Transform _muzzle;
-        [SerializeField] private GameObject _deadEffectPrefab;
-        [SerializeField] private GameObject _fireEffectPrefab;
+        public IBattleTankActorSetupData Data { get; private set; }
+        public TransformData StartPointData { get; private set; }
 
-        [SerializeField] private float _moveSpeed = 12f;
-        [SerializeField] private float _turnSpeed = 180f;
+        // 行動キャンセル通知用
+        private DisposableScope _actionScope = new DisposableScope();
 
-        [SerializeField] private float _moveAmount;
-        [SerializeField] private float _turnAmount;
+        // コルーチン実行用
+        private readonly CoroutineRunner _coroutineRunner;
+
+        private ShellActor _shellForShotCurve;
+        private ShellActor _shellForShotStraight;
+        private MeshRenderer[] _renderers;
+        private Collider _collider;
+        private Transform _muzzle;
+        private GameObject _deadEffectPrefab;
+        private GameObject _fireEffectPrefab;
+
+        private MotionController _motionController;
+        private readonly MoveController _moveController;
+        private AnimatorControllerPlayableProvider _playableProvider;
 
         private readonly Subject<BattleTankAnimatorState> _onStateExitSubject = new Subject<BattleTankAnimatorState>();
         public IObservable<BattleTankAnimatorState> OnStateExitAsObservable => _onStateExitSubject;
@@ -43,26 +53,38 @@ namespace dtank
         public IObservable<Unit> OnDealDamageAsObservable => _onDealDamageSubject;
 
         private Sequence _invincibleSeq;
-        
-        public int OwnerId { get; private set; }
 
-        public void Setup(int ownerId)
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public BattleTankActor(Body body, IBattleTankActorSetupData setupData, TransformData startPointData)
+            : base(body)
         {
-            OwnerId = ownerId;
+            Data = setupData;
+            StartPointData = startPointData;
             
-            _animator.Construct();
+            // _statusEventListener = body.GetComponent<StatusEventListener>();
+            _motionController = body.GetController<MotionController>();
+            _coroutineRunner = new CoroutineRunner();
+            _moveController = new MoveController(body.GetComponent<Rigidbody>(), Data.MoveMaxSpeed, Data.TurnMaxSpeed,
+                pos => _onPositionChangedSubject.OnNext(pos),
+                fwd => _onForwardChangedSubject.OnNext(fwd));
 
-            _animator.OnStateEnterAction = OnStateEnter;
-            _animator.OnStateExitAction = OnStateExit;
-            _animator.OnAnimationEventAction = OnAnimationEvent;
+            _renderers = body.GetComponents<MeshRenderer>();
+            _collider = body.GetComponent<Collider>();
             
-            SetActive(false);
+            _moveController.SetTransform(startPointData);
         }
 
-        public void Dispose()
+        protected override void DisposeInternal()
         {
+            base.DisposeInternal();
+            
             _invincibleSeq.Kill();
             
+            _coroutineRunner.Dispose();
+            _moveController.Dispose();
+
             _onStateExitSubject.Dispose();
             _onAnimationEventSubject.Dispose();
             _onDamageReceivedSubject.Dispose();
@@ -71,19 +93,27 @@ namespace dtank
             _onDealDamageSubject.Dispose();
         }
 
+        protected override void ActivateInternal(IScope scope)
+        {
+            base.ActivateInternal(scope);
+            // 基本モーションの設定
+            _playableProvider = _motionController.Player.Change(Data.Controller, 0.0f, false);
+        }
+
+        protected override void UpdateInternal()
+        {
+            base.UpdateInternal();
+            
+            _moveController.Update(Time.deltaTime);
+        }
+
         public void SetTransform(TransformData data)
         {
-            transform.Set(data);
-            _rigidbody.position = data.Position;
-            _rigidbody.rotation = Quaternion.Euler(data.Angle);
-            
-            _onPositionChangedSubject.OnNext(_rigidbody.position);
-            _onForwardChangedSubject.OnNext(_rigidbody.rotation * Vector3.forward);
+            _moveController.SetTransform(data);
         }
 
         public void Play(BattleTankAnimatorState state)
         {
-            _animator.Play(state.ToStateName());
         }
 
         public void Ready()
@@ -104,31 +134,31 @@ namespace dtank
         private void ShotShell(ShellActor prefab)
         {
             var position = _muzzle.position;
-            var instance = Instantiate(prefab, position, _muzzle.rotation);
+            // var instance = Instantiate(prefab, position, _muzzle.rotation);
             var forward = _muzzle.forward;
-            instance.Shot(this, forward);
+            // instance.Shot(this, forward);
 
-            var fireEffect = Instantiate(_fireEffectPrefab);
-            fireEffect.transform.position = position + forward;
+            // var fireEffect = Instantiate(_fireEffectPrefab);
+            // fireEffect.transform.position = position + forward;
         }
 
         public void SetMoveAmount(float moveAmount)
         {
-            _moveAmount = moveAmount;
+            _moveController.SetMoveAmount(moveAmount);
         }
 
         public void SetTurnAmount(float turnAmount)
         {
-            _turnAmount = turnAmount;
+            _moveController.SetTurnAmount(turnAmount);
         }
 
         public void Dead()
         {
             _invincibleSeq?.Kill();
 
-            var deadEffect = Instantiate(_deadEffectPrefab);
-            deadEffect.transform.position = transform.position;
-            
+            // var deadEffect = Instantiate(_deadEffectPrefab);
+            // deadEffect.transform.position = transform.position;
+
             SetActive(false);
         }
 
@@ -136,29 +166,6 @@ namespace dtank
         {
             _collider.enabled = active;
             SetVisible(active);
-        }
-
-        private void FixedUpdate()
-        {
-            float deltaTime = Time.deltaTime;
-            Move(deltaTime);
-            Turn(deltaTime);
-        }
-
-        private void Move(float deltaTime)
-        {
-            var movement = transform.forward * (_moveAmount * _moveSpeed * deltaTime);
-            _rigidbody.velocity = movement;
-            
-            _onPositionChangedSubject.OnNext(_rigidbody.position);
-        }
-
-        private void Turn(float deltaTime)
-        {
-            var turn = _turnAmount * _turnSpeed * deltaTime;
-            _rigidbody.angularVelocity = new Vector3(0f, turn, 0f);
-            
-            _onForwardChangedSubject.OnNext(_rigidbody.rotation * Vector3.forward);
         }
 
         private void OnStateEnter(AnimatorStateInfo info)
@@ -194,18 +201,20 @@ namespace dtank
             _onDamageReceivedSubject.OnNext(attacker);
             return true;
         }
-        
+
         public void SetInvincible(bool flag)
         {
             _invincibleSeq?.Kill();
 
-            if (!flag) {
+            if (!flag)
+            {
                 SetVisible(true);
                 return;
             }
 
             SetVisible(false);
 
+            /*
             _invincibleSeq = DOTween.Sequence()
                 .AppendInterval(0.05f)
                 .AppendCallback(() => SetVisible(true))
@@ -214,6 +223,7 @@ namespace dtank
                 .SetLoops(-1, LoopType.Restart)
                 .SetLink(gameObject)
                 .Play();
+            */
         }
 
         private void SetVisible(bool flag)
@@ -224,7 +234,7 @@ namespace dtank
 
         public void DealDamage()
         {
-            _onDealDamageSubject.OnNext(Unit.Default); 
+            _onDealDamageSubject.OnNext(Unit.Default);
         }
     }
 }

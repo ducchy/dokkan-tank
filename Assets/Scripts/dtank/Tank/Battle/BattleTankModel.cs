@@ -30,10 +30,10 @@ namespace dtank
         public IReactiveProperty<bool> InvincibleFlag => _invincibleFlag;
 
         public string Name { get; private set; }
-        public int ModelId { get; private set; }
+        public int BodyId { get; private set; }
         public CharacterType CharacterType { get; private set; }
-        public TransformData StartPointData { get; private set; }
         public BattleTankParameterData ParameterData { get; private set; }
+        public string AssetKey => $"{BodyId:D3}";
 
         public Vector3 Position { get; private set; }
         public Vector3 Forward { get; private set; }
@@ -56,13 +56,11 @@ namespace dtank
             ActorModel = null;
         }
 
-        public void Update(string name, int modelId, CharacterType characterType, TransformData startPointData,
-            BattleTankParameterData parameterData)
+        public void Update(string name, int bodyId, CharacterType characterType, BattleTankParameterData parameterData)
         {
             Name = name;
-            ModelId = modelId;
+            BodyId = bodyId;
             CharacterType = characterType;
-            StartPointData = startPointData;
             ParameterData = parameterData;
 
             OnUpdated?.Invoke(this);

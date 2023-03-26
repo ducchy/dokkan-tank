@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveMaxSpeed: 12
   turnMaxSpeed: 180
+  controller: {fileID: 9100000, guid: 7223a35417cad4c3693897218484a565, type: 2}

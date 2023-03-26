@@ -1,78 +1,89 @@
 using System;
+using DG.Tweening;
 using GameFramework.Core;
-using GameFramework.TaskSystems;
+using GameFramework.EntitySystems;
+using GameFramework.Kinematics;
 using UniRx;
 using UnityEngine;
 
 namespace dtank
 {
-    public class BattleCameraController : MonoBehaviour, ILateUpdatableTask, IDisposable
+    public class BattleCameraController : MonoBehaviour, IDisposable
     {
-        [SerializeField] private BattleCamera _camera;
+        [SerializeField] private Camera _camera;
+        [SerializeField] private Transform _axis;
+        [SerializeField] private ParentAttachment _parentAttachment;
 
-        private BattleTankModel _playerTankModel;
-        private BattleTankActorContainer _battleTankActorContainer;
+        private BattleModel _model;
+        private BattleTankEntityContainer _tankEntityContainer;
+
+        private Sequence _readySeq;
+        private Sequence _resultSeq;
+
         private readonly DisposableScope _scope = new DisposableScope();
-
-        public bool IsActive => isActiveAndEnabled;
 
         private readonly Subject<Unit> _onEndReadySubject = new Subject<Unit>();
         public IObservable<Unit> OnEndReadyAsObservable => _onEndReadySubject;
 
-        public void Setup(
-            BattleTankModel playerTankModel,
-            BattleTankActorContainer battleTankActorContainer)
+        public void Setup(BattleModel model, BattleTankEntityContainer tankEntityContainer)
         {
-            _playerTankModel = playerTankModel;
-            _battleTankActorContainer = battleTankActorContainer;
-            
-            SetEvent();
+            _model = model;
+            _tankEntityContainer = tankEntityContainer;
         }
 
         public void Dispose()
         {
+            _readySeq?.Kill();
+            _resultSeq?.Kill();
+
             _onEndReadySubject.Dispose();
-            _camera.Dispose();
         }
 
-        void ITask.Update()
+        private void SetTarget(int id)
         {
+            var tankEntity = _tankEntityContainer.Get(id);
+            _parentAttachment.Sources = new AttachmentResolver.TargetSource[]
+                { new() { target = tankEntity.GetBody().Transform, weight = 1f } };
         }
 
-        void ILateUpdatableTask.LateUpdate()
-        {
-        }
-
-        private void SetEvent()
-        {
-            _camera.OnEndReadyAsObservable
-                .TakeUntil(_scope)
-                .Subscribe(_ => _onEndReadySubject.OnNext(Unit.Default))
-                .ScopeTo(_scope);
-        }
-        
         public void PlayReady()
         {
-            var player = _battleTankActorContainer.ActorDictionary[_playerTankModel.Id];
-            _camera.SetFollowTarget(player.transform);
-            _camera.PlayReady();
+            _readySeq?.Kill();
+
+            SetTarget(_model.MainPlayerTankModel.Id);
+
+            _readySeq = DOTween.Sequence()
+                .AppendInterval(1f)
+                .Append(_axis.DOLocalRotate(new Vector3(0, 360f, 0), 4f, RotateMode.FastBeyond360)
+                    .SetEase(Ease.Linear))
+                .AppendInterval(1f)
+                .OnComplete(() => _onEndReadySubject.OnNext(Unit.Default))
+                .SetLink(gameObject)
+                .Play();
         }
 
         public void SkipReady()
         {
-            _camera.SkipReady();
+            _readySeq?.Complete(true);
         }
 
         public void PlayResult(int winnerId)
         {
-            var winner = _battleTankActorContainer.ActorDictionary[winnerId];
-            _camera.SetFollowTarget(winner.transform);
-            _camera.PlayResult();
+            _resultSeq?.Kill();
+
+            SetTarget(winnerId);
+
+            _resultSeq = DOTween.Sequence()
+                .Append(_axis.DOLocalRotate(new Vector3(0, 360f, 0), 4f, RotateMode.FastBeyond360)
+                    .SetEase(Ease.Linear))
+                .SetLoops(-1, LoopType.Restart)
+                .SetLink(gameObject)
+                .Play();
         }
 
         public void EndResult()
         {
-            _camera.EndResult();
+            _resultSeq?.Kill();
         }
     }
 }
