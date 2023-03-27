@@ -9,9 +9,15 @@ namespace dtank
         public float moveMaxSpeed;
         public float turnMaxSpeed;
         public AnimatorController controller;
+        public float _shellSpeedOnShotCurve;
+        public float _shellSpeedOnShotStraight;
+        public ShellActor _shellPrefab;
 
         float IBattleTankActorSetupData.MoveMaxSpeed => moveMaxSpeed;
         float IBattleTankActorSetupData.TurnMaxSpeed => turnMaxSpeed;
         AnimatorController IBattleTankActorSetupData.Controller => controller;
+        float IBattleTankActorSetupData.ShellSpeedOnShotCurve => _shellSpeedOnShotCurve;
+        float IBattleTankActorSetupData.ShellSpeedOnShotStraight => _shellSpeedOnShotStraight;
+        ShellActor IBattleTankActorSetupData.ShellPrefab => _shellPrefab;
     }
 }

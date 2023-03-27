@@ -5,17 +5,16 @@ namespace dtank
     public class ShellActor : MonoBehaviour
     {
         [SerializeField] private Rigidbody _rigidbody;
-        [SerializeField] private Collider _collider;
-        [SerializeField] private float _velocity;
         [SerializeField] private GameObject _explosionEffectPrefab;
 
         private IAttacker _owner;
 
-        public void Shot(IAttacker owner, Vector3 forward)
+        public void Shot(IAttacker owner, Vector3 velocity, bool useGravity)
         {
             _owner = owner;
 
-            _rigidbody.velocity = forward * _velocity;
+            _rigidbody.useGravity = useGravity;
+            _rigidbody.velocity = velocity;
         }
 
         private void OnCollisionEnter(Collision other)

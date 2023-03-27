@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace dtank
 {
     public enum BattleTankAnimatorState
@@ -17,17 +15,13 @@ namespace dtank
         {
             switch (@this)
             {
-                case BattleTankAnimatorState.Idle: return "idle";
-                case BattleTankAnimatorState.Damage: return "damage";
-                case BattleTankAnimatorState.ShotCurve: return "shot_curve";
-                case BattleTankAnimatorState.ShotStraight: return "shot_straight";
+                case BattleTankAnimatorState.Idle:
+                case BattleTankAnimatorState.Damage:
+                case BattleTankAnimatorState.ShotCurve:
+                case BattleTankAnimatorState.ShotStraight:
+                    return @this.ToString();
                 default: return string.Empty;
             }
-        }
-
-        public static int ToStateHash(this BattleTankAnimatorState @this)
-        {
-            return Animator.StringToHash(@this.ToStateName());
         }
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using DG.Tweening;
 using GameFramework.BodySystems;
 using GameFramework.Core;
@@ -8,31 +7,33 @@ using GameFramework.EntitySystems;
 using GameFramework.PlayableSystems;
 using UniRx;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace dtank
 {
-    public class BattleTankActor : Actor, IDamageReceiver, IAttacker
+    public class BattleTankActor : Actor, IAttacker
     {
         public IBattleTankActorSetupData Data { get; private set; }
         public TransformData StartPointData { get; private set; }
 
-        // 行動キャンセル通知用
-        private DisposableScope _actionScope = new DisposableScope();
-
-        // コルーチン実行用
-        private readonly CoroutineRunner _coroutineRunner;
-
-        private ShellActor _shellForShotCurve;
-        private ShellActor _shellForShotStraight;
-        private MeshRenderer[] _renderers;
-        private Collider _collider;
-        private Transform _muzzle;
         private GameObject _deadEffectPrefab;
         private GameObject _fireEffectPrefab;
 
-        private MotionController _motionController;
+        private readonly MotionController _motionController;
+        private readonly LocatorParts _locatorParts;
+        private readonly StatusEventListener _statusEventListener;
+        private readonly DamageReceiveListener _damageReceiveListener;
+        private readonly MeshRenderer[] _renderers;
+        private readonly Collider _collider;
+
         private readonly MoveController _moveController;
+        private readonly CoroutineRunner _coroutineRunner;
+
         private AnimatorControllerPlayableProvider _playableProvider;
+
+        private DisposableScope _actionScope = new DisposableScope();
+
+        private BattleTankAnimatorState _currentState = BattleTankAnimatorState.Invalid;
 
         private readonly Subject<BattleTankAnimatorState> _onStateExitSubject = new Subject<BattleTankAnimatorState>();
         public IObservable<BattleTankAnimatorState> OnStateExitAsObservable => _onStateExitSubject;
@@ -62,26 +63,27 @@ namespace dtank
         {
             Data = setupData;
             StartPointData = startPointData;
-            
-            // _statusEventListener = body.GetComponent<StatusEventListener>();
+
             _motionController = body.GetController<MotionController>();
+            _locatorParts = body.GetComponent<LocatorParts>();
+            _statusEventListener = body.GetComponent<StatusEventListener>();
+            _damageReceiveListener = body.GetComponent<DamageReceiveListener>();
+            _renderers = body.GetComponents<MeshRenderer>();
+            _collider = body.GetComponent<Collider>();
+
             _coroutineRunner = new CoroutineRunner();
             _moveController = new MoveController(body.GetComponent<Rigidbody>(), Data.MoveMaxSpeed, Data.TurnMaxSpeed,
                 pos => _onPositionChangedSubject.OnNext(pos),
                 fwd => _onForwardChangedSubject.OnNext(fwd));
-
-            _renderers = body.GetComponents<MeshRenderer>();
-            _collider = body.GetComponent<Collider>();
             
+            _damageReceiveListener.SetCondition(attacker =>  attacker != this);
             _moveController.SetTransform(startPointData);
         }
 
         protected override void DisposeInternal()
         {
-            base.DisposeInternal();
-            
             _invincibleSeq.Kill();
-            
+
             _coroutineRunner.Dispose();
             _moveController.Dispose();
 
@@ -95,25 +97,35 @@ namespace dtank
 
         protected override void ActivateInternal(IScope scope)
         {
-            base.ActivateInternal(scope);
-            // 基本モーションの設定
             _playableProvider = _motionController.Player.Change(Data.Controller, 0.0f, false);
+
+            _statusEventListener.EnterSubject
+                .TakeUntil(scope)
+                .Subscribe(OnChangeState)
+                .ScopeTo(scope);
+
+            _damageReceiveListener.ReceiveDamageObservable
+                .TakeUntil(scope)
+                .Subscribe(ReceiveDamage)
+                .ScopeTo(scope);
         }
 
         protected override void UpdateInternal()
         {
-            base.UpdateInternal();
-            
             _moveController.Update(Time.deltaTime);
         }
 
-        public void SetTransform(TransformData data)
+        private void OnChangeState(string stateName)
         {
-            _moveController.SetTransform(data);
-        }
-
-        public void Play(BattleTankAnimatorState state)
-        {
+            foreach (BattleTankAnimatorState value in Enum.GetValues(typeof(BattleTankAnimatorState)))
+            {
+                if (value.ToStateName() != stateName)
+                    continue;
+                
+                _onStateExitSubject.OnNext(_currentState);
+                _currentState = value;
+                break;
+            }
         }
 
         public void Ready()
@@ -121,22 +133,39 @@ namespace dtank
             SetActive(true);
         }
 
+        public void Damage()
+        {
+            if (_currentState == BattleTankAnimatorState.Damage)
+                return;
+
+            _playableProvider.GetPlayable().SetTrigger("onShotCurve");
+        }
+
         public void ShotCurve()
         {
-            ShotShell(_shellForShotCurve);
+            if (_currentState != BattleTankAnimatorState.Idle)
+                return;
+
+            _playableProvider.GetPlayable().SetTrigger("onShotCurve");
+            ShotShell(Data.ShellSpeedOnShotCurve, true);
         }
 
         public void ShotStraight()
         {
-            ShotShell(_shellForShotStraight);
+            if (_currentState != BattleTankAnimatorState.Idle)
+                return;
+
+            _playableProvider.GetPlayable().SetTrigger("onShotStraight");
+            ShotShell(Data.ShellSpeedOnShotStraight, false);
         }
 
-        private void ShotShell(ShellActor prefab)
+        private void ShotShell(float speed, bool useGravity)
         {
-            var position = _muzzle.position;
-            // var instance = Instantiate(prefab, position, _muzzle.rotation);
-            var forward = _muzzle.forward;
-            // instance.Shot(this, forward);
+            var muzzle = _locatorParts["Muzzle"];
+            var position = muzzle.position;
+            var instance = Object.Instantiate(Data.ShellPrefab, position, muzzle.rotation);
+            var forward = muzzle.forward;
+            instance.Shot(this, forward * speed, useGravity);
 
             // var fireEffect = Instantiate(_fireEffectPrefab);
             // fireEffect.transform.position = position + forward;
@@ -168,38 +197,14 @@ namespace dtank
             SetVisible(active);
         }
 
-        private void OnStateEnter(AnimatorStateInfo info)
-        {
-        }
-
-        private void OnStateExit(AnimatorStateInfo info)
-        {
-            var state = GetStateFromInfo(info);
-            if (state == BattleTankAnimatorState.Invalid)
-                return;
-
-            _onStateExitSubject.OnNext(state);
-        }
-
         private void OnAnimationEvent(string id)
         {
             _onAnimationEventSubject.OnNext(id);
         }
 
-        private BattleTankAnimatorState GetStateFromInfo(AnimatorStateInfo info)
+        public void ReceiveDamage(IAttacker attacker)
         {
-            return Enum.GetValues(typeof(BattleTankAnimatorState))
-                .Cast<BattleTankAnimatorState>()
-                .FirstOrDefault(value => info.shortNameHash == value.ToStateHash());
-        }
-
-        public bool ReceiveDamage(IAttacker attacker)
-        {
-            if (attacker == (IAttacker)this)
-                return false;
-
             _onDamageReceivedSubject.OnNext(attacker);
-            return true;
         }
 
         public void SetInvincible(bool flag)

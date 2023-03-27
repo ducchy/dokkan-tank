@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd95c25711774ecbb6c2e8601011623b, type: 3}
   m_Name: dat_tank_actor_setup_001
   m_EditorClassIdentifier: 
-  moveMaxSpeed: 12
-  turnMaxSpeed: 180
+  moveMaxSpeed: 100
+  turnMaxSpeed: 45
   controller: {fileID: 9100000, guid: 7223a35417cad4c3693897218484a565, type: 2}
+  _shellSpeedOnShotCurve: 10
+  _shellSpeedOnShotStraight: 20
+  _shellPrefab: {fileID: 2795397142068659117, guid: 68916852f19f6436b97db40dcce6be82, type: 3}

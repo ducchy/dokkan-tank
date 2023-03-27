@@ -148,13 +148,13 @@ namespace dtank
                     break;
                 case BattleTankState.Damage:
                     _behaviourSelector.BeginDamage();
-                    _tankActor.Play(BattleTankAnimatorState.Damage);
+                    _tankActor.Damage();
                     break;
                 case BattleTankState.ShotCurve:
-                    _tankActor.Play(BattleTankAnimatorState.ShotCurve);
+                    _tankActor.ShotCurve();
                     break;
                 case BattleTankState.ShotStraight:
-                    _tankActor.Play(BattleTankAnimatorState.ShotStraight);
+                    _tankActor.ShotStraight();
                     break;
                 case BattleTankState.Dead:
                     _tankActor.Dead();

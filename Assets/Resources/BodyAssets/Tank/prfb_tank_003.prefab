@@ -417,6 +417,9 @@ GameObject:
   - component: {fileID: 9223366740262007014}
   - component: {fileID: 7502077843406149373}
   - component: {fileID: 441452711891543300}
+  - component: {fileID: 1525321848979617328}
+  - component: {fileID: -3645734597292731882}
+  - component: {fileID: -742909830735185601}
   m_Layer: 6
   m_Name: prfb_tank_003
   m_TagString: Untagged
@@ -502,3 +505,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _updateMode: 1
+--- !u!114 &1525321848979617328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7143250431412879937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7f347eac0274335b06d3a6007301e9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-3645734597292731882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7143250431412879937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48c0313b2ddff3c4b95eeef29c12dae9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _locatorInfos:
+  - key: Muzzle
+    transform: {fileID: 7143250431057222058}
+--- !u!114 &-742909830735185601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7143250431412879937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b53555e0b6f4458cb8a678fa98704be0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
