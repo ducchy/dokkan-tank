@@ -26,18 +26,19 @@ namespace dtank
             _tankActor = tankActor;
         }
 
+        protected override void UpdateInternal()
+        {
+            _behaviourSelector?.Update();
+        }
+
         protected override void DisposeInternal()
         {
-            base.DisposeInternal();
-            
             _scope.Dispose();
             _behaviourScope.Dispose();
         }
 
         protected override void ActivateInternal(IScope scope)
         {
-            base.ActivateInternal(scope);
-            
             Bind();
             SetEvents();
         }

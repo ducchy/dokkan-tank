@@ -64,7 +64,6 @@ namespace dtank
 
         void ITask.Update()
         {
-            _tankControlUiView.OnUpdate();
         }
 
         public void EndPlaying()

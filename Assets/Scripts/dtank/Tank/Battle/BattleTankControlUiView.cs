@@ -21,7 +21,7 @@ namespace dtank
         public IObservable<Unit> OnShotStraightAsObservable => _shotStraightButton.OnClickAsObservable();
         public IObservable<float> OnTurnValueChangedAsObservable => _horizontalSlider.OnValueChangedAsObservable();
         public IObservable<float> OnMoveValueChangedAsObservable => _verticalSlider.OnValueChangedAsObservable();
-        
+
         private Sequence _sequence;
 
         public void Setup()
@@ -36,7 +36,7 @@ namespace dtank
         public void Dispose()
         {
             _damageButton.onClick.RemoveListener(OnDamageButtonClicked);
-            
+
             _onDamageSubject.Dispose();
         }
 
@@ -69,7 +69,7 @@ namespace dtank
         {
         }
 
-        public void OnUpdate()
+        void IBehaviourSelector.Update()
         {
 #if UNITY_EDITOR
             var vertical = Input.GetAxis("Vertical");

@@ -16,5 +16,6 @@ namespace dtank
         void BeginDamage();
         void EndDamage();
         void EndShotStraight();
+        void Update();
     }
 }

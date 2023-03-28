@@ -20,11 +20,8 @@ namespace dtank
         public IReadOnlyList<BattleTankModel> TankModels => _tankModels;
         
         public BattleTankModel MainPlayerTankModel { get; private set; }
-        
-        private readonly Dictionary<int, IBehaviourSelector> _behaviourSelectorDictionary = new Dictionary<int, IBehaviourSelector>();
 
         public BattleRuleModel RuleModel { get; private set; }
-        public IReadOnlyDictionary<int, IBehaviourSelector> BehaviourSelectorDictionary => _behaviourSelectorDictionary;
 
         public event Action<BattleModel> OnUpdated;
         private readonly CoroutineRunner _coroutineRunner = new CoroutineRunner();
@@ -88,17 +85,6 @@ namespace dtank
                 if (MainPlayerTankModel == null && tankModel.CharacterType == CharacterType.Player)
                     MainPlayerTankModel = tankModel;
             }
-
-            _behaviourSelectorDictionary.Clear();
-            foreach (var tankModel in _tankModels)
-            {
-                if (tankModel.CharacterType == CharacterType.Player)
-                    continue;
-
-                var npcBehaviourSelector =
-                    new NpcBehaviourSelector(tankModel, _tankModels.Where(m => m != tankModel).ToArray());
-                _behaviourSelectorDictionary.Add(tankModel.Id, npcBehaviourSelector);
-            }
             
             Bind();
         }
@@ -110,11 +96,8 @@ namespace dtank
             RuleModel.Dispose();
             foreach (var tankModel in _tankModels)
                 BattleTankModel.Delete(tankModel.Id);
-            foreach (var pair in _behaviourSelectorDictionary)
-                pair.Value.Dispose();
 
             _tankModels.Clear();
-            _behaviourSelectorDictionary.Clear();
             _coroutineRunner.Dispose();
             _currentState.Dispose();
         }
@@ -139,9 +122,6 @@ namespace dtank
             RuleModel?.Update();
             foreach (var tankModel in _tankModels)
                 tankModel.Update();
-            foreach (var behaviourSelector in _behaviourSelectorDictionary.Values)
-                if (behaviourSelector is NpcBehaviourSelector npcBehaviourSelector)
-                    npcBehaviourSelector.Update();
         }
 
         public void ChangeState(BattleState state)
