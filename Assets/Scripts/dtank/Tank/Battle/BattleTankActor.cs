@@ -63,7 +63,7 @@ namespace dtank
             _locatorParts = body.GetComponent<LocatorParts>();
             _statusEventListener = body.GetComponent<StatusEventListener>();
             _damageReceiveListener = body.GetComponent<DamageReceiveListener>();
-            _renderers = body.GetComponents<MeshRenderer>();
+            _renderers = body.GetComponentsInChildren<MeshRenderer>();
             _collider = body.GetComponent<Collider>();
 
             _coroutineRunner = new CoroutineRunner();
@@ -133,7 +133,7 @@ namespace dtank
             if (_currentState == BattleTankAnimatorState.Damage)
                 return;
 
-            _playableProvider.GetPlayable().SetTrigger("onShotCurve");
+            _playableProvider.GetPlayable().SetTrigger("onDamage");
         }
 
         public void ShotCurve()
@@ -215,16 +215,13 @@ namespace dtank
 
             SetVisible(false);
 
-            /*
             _invincibleSeq = DOTween.Sequence()
                 .AppendInterval(0.05f)
                 .AppendCallback(() => SetVisible(true))
                 .AppendInterval(0.05f)
                 .AppendCallback(() => SetVisible(false))
                 .SetLoops(-1, LoopType.Restart)
-                .SetLink(gameObject)
                 .Play();
-            */
         }
 
         private void SetVisible(bool flag)
