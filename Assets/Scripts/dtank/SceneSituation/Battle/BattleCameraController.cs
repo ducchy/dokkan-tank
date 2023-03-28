@@ -42,6 +42,11 @@ namespace dtank
         private void SetTarget(int id)
         {
             var tankEntity = _tankEntityContainer.Get(id);
+            if (tankEntity == null)
+            {
+                Debug.LogError($"注視対象取得失敗: id={id}");
+                return;
+            }
             _parentAttachment.Sources = new AttachmentResolver.TargetSource[]
                 { new() { target = tankEntity.GetBody().Transform, weight = 1f } };
         }

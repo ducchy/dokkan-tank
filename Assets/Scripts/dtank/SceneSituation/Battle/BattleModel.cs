@@ -18,7 +18,7 @@ namespace dtank
 
         private readonly List<BattleTankModel> _tankModels = new List<BattleTankModel>();
         public IReadOnlyList<BattleTankModel> TankModels => _tankModels;
-        
+
         public BattleTankModel MainPlayerTankModel { get; private set; }
 
         public BattleRuleModel RuleModel { get; private set; }
@@ -31,8 +31,9 @@ namespace dtank
         private BattleModel(object empty) : base(empty)
         {
         }
-        
-        public IObservable<BattleModel> OnUpdatedAsObservable() {
+
+        public IObservable<BattleModel> OnUpdatedAsObservable()
+        {
             return Observable.FromEvent<BattleModel>(
                 h => OnUpdated += h,
                 h => OnUpdated -= h);
@@ -51,13 +52,6 @@ namespace dtank
 
         public IEnumerator SetupRoutine(BattleEntryData entryData, FieldViewData fieldViewData, IScope scope)
         {
-            var ruleData = default(BattleRuleData);
-            yield return new BattleRuleDataAssetRequest($"{entryData.RuleId:d3}")
-                .LoadAsync(scope)
-                .Do(x => ruleData = x)
-                .StartAsEnumerator(scope);
-            RuleModel = new BattleRuleModel(ruleData.duration);
-            
             _tankModels.Clear();
             foreach (var player in entryData.Players)
             {
@@ -69,23 +63,33 @@ namespace dtank
 
                 var tankModel = BattleTankModel.Create();
                 tankModel.Update(player.Name, player.BodyId, player.CharacterType, parameterData);
-                
+
                 var actorSetupData = default(BattleTankActorSetupData);
                 yield return new BattleTankActorSetupDataAssetRequest($"{player.ParameterId:d3}")
                     .LoadAsync(scope)
                     .Do(x => actorSetupData = x)
                     .StartAsEnumerator(scope);
-                
+
                 var startPointData = fieldViewData.StartPointDataArray[player.PositionIndex];
-                
+
                 tankModel.ActorModel.Update(actorSetupData, startPointData);
-                
+
                 _tankModels.Add(tankModel);
 
-                if (MainPlayerTankModel == null && tankModel.CharacterType == CharacterType.Player)
+                if (player.PlayerId == entryData.MainPlayer.PlayerId)
                     MainPlayerTankModel = tankModel;
             }
-            
+
+            var ruleData = default(BattleRuleData);
+            yield return new BattleRuleDataAssetRequest($"{entryData.RuleId:d3}")
+                .LoadAsync(scope)
+                .Do(x => ruleData = x)
+                .StartAsEnumerator(scope);
+
+            var mainPlayerId = MainPlayerTankModel?.Id ?? -1;
+            RuleModel = new BattleRuleModel(ruleData.duration, mainPlayerId,
+                _tankModels.Select(m => m.Id).ToArray());
+
             Bind();
         }
 
@@ -136,7 +140,7 @@ namespace dtank
             switch (state)
             {
                 case BattleState.Ready:
-                    RuleModel.Ready();
+                    RuleModel.Reset();
                     break;
                 case BattleState.Playing:
                     RuleModel.Start();

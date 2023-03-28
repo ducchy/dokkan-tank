@@ -94,13 +94,14 @@ namespace dtank
         private void SetupBattleEntryData()
         {
             // TODO: 選んだルールに応じて設定
+            var mainPlayerData = new BattlePlayerEntryData(1, "一郎", 1, 0, CharacterType.Player, 1);
             var battleEntryData = Services.Get<BattleEntryData>();
-            battleEntryData.Set(1, new List<BattlePlayerEntryData>()
+            battleEntryData.Set(1, mainPlayerData, new List<BattlePlayerEntryData>()
             {
-                new("一郎", 1, 0, CharacterType.Player, 1),
-                new("二郎", 2, 1, CharacterType.NonPlayer, 1),
-                new("三郎", 3, 2, CharacterType.NonPlayer, 1),
-                new("四郎", 4, 3, CharacterType.NonPlayer, 1),
+                mainPlayerData,
+                new(2, "二郎", 2, 1, CharacterType.NonPlayer, 1),
+                new(3, "三郎", 3, 2, CharacterType.NonPlayer, 1),
+                new(4, "四郎", 4, 3, CharacterType.NonPlayer, 1),
             });
         }
 

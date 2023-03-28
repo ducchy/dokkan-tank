@@ -27,13 +27,17 @@ namespace dtank
 
         private readonly Dictionary<int, int> _scoreDictionary = new Dictionary<int, int>();
         private readonly float _duration;
+        private readonly int _mainPlayerId;
+        private readonly int[] _playerIds;
         private bool _isActive;
 
         public int WinnerId { get; private set; }
 
-        public BattleRuleModel(float duration)
+        public BattleRuleModel(float duration, int mainPlayerId, int[] playerIds)
         {
             _duration = duration;
+            _mainPlayerId = mainPlayerId;
+            _playerIds = playerIds;
         }
 
         public void Dispose()
@@ -53,7 +57,7 @@ namespace dtank
                 TimeUp();
         }
 
-        public void Ready()
+        public void Reset()
         {
             _playingFlag = false;
 
@@ -63,10 +67,8 @@ namespace dtank
             _remainTimeInt.Value = Mathf.CeilToInt(_remainTime);
 
             _scoreDictionary.Clear();
-            _scoreDictionary.Add(1, 0);
-            _scoreDictionary.Add(2, 0);
-            _scoreDictionary.Add(3, 0);
-            _scoreDictionary.Add(4, 0);
+            foreach (var playerId in _playerIds)
+                _scoreDictionary.Add(playerId, 0);
         }
 
         public void Start()
@@ -83,7 +85,7 @@ namespace dtank
         {
             _playingFlag = false;
             WinnerId = GetTopPlayerId();
-            _resultType.Value = WinnerId == 1 ? BattleResultType.Win : BattleResultType.Lose;
+            _resultType.Value = WinnerId == _mainPlayerId ? BattleResultType.Win : BattleResultType.Lose;
         }
 
         public void IncrementScore(int playerId)
@@ -99,7 +101,7 @@ namespace dtank
         {
             _scoreDictionary.Remove(id);
             WinnerId = GetTopPlayerId();
-            if (id == 1)
+            if (id == _mainPlayerId)
                 _resultType.Value = BattleResultType.Lose;
             else if (_scoreDictionary.Count <= 1)
                 _resultType.Value = BattleResultType.Win;
@@ -107,8 +109,8 @@ namespace dtank
 
         private int GetTopPlayerId()
         {
-            int topPlayerId = 1;
-            int maxScore = int.MinValue;
+            var topPlayerId = _mainPlayerId;
+            var maxScore = int.MinValue;
             foreach (var pair in _scoreDictionary)
             {
                 if (maxScore >= pair.Value)
