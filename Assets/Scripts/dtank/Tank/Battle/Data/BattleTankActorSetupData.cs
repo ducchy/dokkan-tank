@@ -12,6 +12,8 @@ namespace dtank
         public float _shellSpeedOnShotCurve;
         public float _shellSpeedOnShotStraight;
         public ShellActor _shellPrefab;
+        public GameObject _deadEffectPrefab;
+        public GameObject _fireEffectPrefab;
 
         float IBattleTankActorSetupData.MoveMaxSpeed => moveMaxSpeed;
         float IBattleTankActorSetupData.TurnMaxSpeed => turnMaxSpeed;
@@ -19,5 +21,7 @@ namespace dtank
         float IBattleTankActorSetupData.ShellSpeedOnShotCurve => _shellSpeedOnShotCurve;
         float IBattleTankActorSetupData.ShellSpeedOnShotStraight => _shellSpeedOnShotStraight;
         ShellActor IBattleTankActorSetupData.ShellPrefab => _shellPrefab;
+        GameObject IBattleTankActorSetupData.DeadEffectPrefab => _deadEffectPrefab;
+        GameObject IBattleTankActorSetupData.FireEffectPrefab => _fireEffectPrefab;
     }
 }

@@ -16,9 +16,6 @@ namespace dtank
         public IBattleTankActorSetupData Data { get; private set; }
         public TransformData StartPointData { get; private set; }
 
-        private GameObject _deadEffectPrefab;
-        private GameObject _fireEffectPrefab;
-
         private readonly MotionController _motionController;
         private readonly LocatorParts _locatorParts;
         private readonly StatusEventListener _statusEventListener;
@@ -30,8 +27,6 @@ namespace dtank
         private readonly CoroutineRunner _coroutineRunner;
 
         private AnimatorControllerPlayableProvider _playableProvider;
-
-        private DisposableScope _actionScope = new DisposableScope();
 
         private BattleTankAnimatorState _currentState = BattleTankAnimatorState.Invalid;
 
@@ -167,8 +162,8 @@ namespace dtank
             var forward = muzzle.forward;
             instance.Shot(this, forward * speed, useGravity);
 
-            // var fireEffect = Instantiate(_fireEffectPrefab);
-            // fireEffect.transform.position = position + forward;
+            var fireEffect = Object.Instantiate(Data.FireEffectPrefab);
+            fireEffect.transform.position = position + forward;
         }
 
         public void SetMoveAmount(float moveAmount)
@@ -185,8 +180,9 @@ namespace dtank
         {
             _invincibleSeq?.Kill();
 
-            // var deadEffect = Instantiate(_deadEffectPrefab);
-            // deadEffect.transform.position = transform.position;
+            var center = _locatorParts["Center"];
+            var deadEffect = Object.Instantiate(Data.DeadEffectPrefab);
+            deadEffect.transform.position = center.position;
 
             SetActive(false);
         }
