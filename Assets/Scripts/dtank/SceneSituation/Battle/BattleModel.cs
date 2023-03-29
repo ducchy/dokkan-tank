@@ -132,9 +132,6 @@ namespace dtank
         {
             Debug.LogFormat("BattleModel.ChangeState(): state={0}", state);
 
-            if (state == BattleState.Retry)
-                state = BattleState.Ready;
-
             _currentState.Value = state;
 
             switch (state)

@@ -4,7 +4,7 @@ namespace dtank
 {
     public class CommonFadeTransitionEffect : FadeTransitionEffect
     {
-        public CommonFadeTransitionEffect() : base(Color.black, 0.5f)
+        public CommonFadeTransitionEffect(float enterDuration, float exitDuration) : base(Color.black, enterDuration, exitDuration)
         {
         }
     }

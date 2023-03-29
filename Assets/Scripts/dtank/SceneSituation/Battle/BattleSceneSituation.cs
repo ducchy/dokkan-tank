@@ -181,10 +181,10 @@ namespace dtank
                     switch (state)
                     {
                         case BattleState.Quit:
-                            ParentContainer.Transition(new TitleSceneSituation(), new CommonFadeTransitionEffect());
+                            ParentContainer.Transition(new TitleSceneSituation(), new CommonFadeTransitionEffect(0.5f, 0.5f));
                             break;
                         case BattleState.Retry:
-                            Debug.LogError("BattleState.Retryは未実装");
+                            ParentContainer.Transition(new BattleReadySceneSituation(), new CommonFadeTransitionEffect(0.5f, 0f));
                             break;
                         default:
                             _stateContainer.Change(state);

@@ -12,16 +12,18 @@ namespace dtank
     public class FadeTransitionEffect : ITransitionEffect
     {
         private Color _color;
-        private float _duration;
+        private float _enterDuration;
+        private float _exitDuration;
         private DisposableScope _scope;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public FadeTransitionEffect(Color color, float duration)
+        public FadeTransitionEffect(Color color, float enterDuration, float exitDuration)
         {
             _color = color;
-            _duration = duration;
+            _enterDuration = enterDuration;
+            _exitDuration = exitDuration;
         }
 
         /// <summary>
@@ -31,7 +33,7 @@ namespace dtank
         {
             _scope = new DisposableScope();
             yield return Services.Get<FadeController>()
-                .FadeOutAsync(_color, _duration)
+                .FadeOutAsync(_color, _enterDuration)
                 .StartAsEnumerator(_scope);
         }
 
@@ -48,7 +50,8 @@ namespace dtank
         IEnumerator ITransitionEffect.ExitRoutine()
         {
             _scope.Dispose();
-            yield return Services.Get<FadeController>().FadeInAsync(_duration)
+            yield return Services.Get<FadeController>()
+                .FadeInAsync(_exitDuration)
                 .StartAsEnumerator(_scope);
         }
     }

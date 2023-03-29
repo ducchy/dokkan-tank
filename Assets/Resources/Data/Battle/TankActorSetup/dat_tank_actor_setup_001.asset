@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd95c25711774ecbb6c2e8601011623b, type: 3}
   m_Name: dat_tank_actor_setup_001
   m_EditorClassIdentifier: 
-  moveMaxSpeed: 200
+  moveMaxSpeed: 300
   turnMaxSpeed: 180
   controller: {fileID: 9100000, guid: 7223a35417cad4c3693897218484a565, type: 2}
   _shellSpeedOnShotCurve: 10
