@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.daitokuamy.actionsequencer": {
+      "version": "https://github.com/DaitokuAmy/action-sequencer.git?path=/Packages/com.daitokuamy.actionsequencer",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "08d139cc8ebc8dc6d9027e3fe97966db267dc4c9"
+    },
     "com.daitokuamy.gameframework": {
       "version": "https://github.com/DaitokuAmy/game-framework.git?path=/Packages/com.daitokuamy.gameframework",
       "depth": 0,
