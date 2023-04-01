@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UniRx;
 using UnityEngine;
@@ -6,7 +7,7 @@ using Random = UnityEngine.Random;
 
 namespace dtank
 {
-    public class NpcBehaviourSelector : IBehaviourSelector, IDisposable
+    public class NpcBehaviourSelector : IBehaviourSelector
     {
         private readonly Subject<IAttacker> _onDamageSubject = new();
         public IObservable<IAttacker> OnDamageAsObservable => _onDamageSubject;
@@ -24,7 +25,7 @@ namespace dtank
         public IObservable<float> OnMoveValueChangedAsObservable => _onMoveValueChangedSubject;
 
         private readonly BattleTankModel _owner;
-        private readonly BattleTankModel[] _others;
+        private readonly IReadOnlyList<BattleTankModel> _tankModels;
         private readonly NpcBehaviourObserver _behaviourObserver;
 
         private BattleTankModel _target;
@@ -32,10 +33,10 @@ namespace dtank
         private int _failedCount;
         private bool _activeFlag;
 
-        public NpcBehaviourSelector(BattleTankModel owner, BattleTankModel[] others)
+        public NpcBehaviourSelector(BattleTankModel owner, IReadOnlyList<BattleTankModel> tankModels)
         {
             _owner = owner;
-            _others = others;
+            _tankModels = tankModels;
 
             _behaviourObserver = new NpcBehaviourObserver(
                 _onDamageSubject,
@@ -173,7 +174,7 @@ namespace dtank
 
         private BattleTankModel FindTarget()
         {
-            var targets = _others.Where(o => o != _target && !o.DeadFlag).ToArray();
+            var targets = _tankModels.Where(o => o != _owner && o != _target && !o.DeadFlag).ToArray();
             return targets.Length == 0
                 ? (_target is { DeadFlag: false } ? _target : null)
                 : targets[Random.Range(0, targets.Length)];

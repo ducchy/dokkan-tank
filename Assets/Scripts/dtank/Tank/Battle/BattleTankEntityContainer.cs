@@ -13,8 +13,15 @@ namespace dtank
 {
     public class BattleTankEntityContainer : IDisposable
     {
-        private readonly Dictionary<int, Entity> _dictionary = new Dictionary<int, Entity>();
+        private readonly Dictionary<int, Entity> _dictionary = new();
         public IReadOnlyDictionary<int, Entity> Dictionary => _dictionary;
+
+        private readonly BattleTankControlUiView _controlUiView;
+
+        public BattleTankEntityContainer(BattleTankControlUiView controlUiView)
+        {
+            _controlUiView = controlUiView;
+        }
 
         public void Dispose()
         {
@@ -27,7 +34,15 @@ namespace dtank
             _dictionary.Clear();
         }
 
-        public IEnumerator AddRoutine(BattleTankModel model, IScope scope)
+        public IEnumerator SetupRoutine(IReadOnlyList<BattleTankModel> tankModels, IScope scope)
+        {
+            Dispose();
+
+            foreach (var tankModel in tankModels)
+                yield return AddRoutine(tankModel, tankModels, scope);
+        }
+
+        private IEnumerator AddRoutine(BattleTankModel model, IReadOnlyList<BattleTankModel> tankModels, IScope scope)
         {
             if (_dictionary.ContainsKey(model.Id))
             {
@@ -38,7 +53,7 @@ namespace dtank
             var entity = new Entity();
             _dictionary.Add(model.Id, entity);
 
-            yield return SetupBattleTankAsync(entity, model, scope)
+            yield return SetupBattleTankAsync(entity, model, tankModels, scope)
                 .StartAsEnumerator(scope);
         }
 
@@ -50,7 +65,8 @@ namespace dtank
         /// <summary>
         /// BattleTankEntityの初期化処理
         /// </summary>
-        private IObservable<Entity> SetupBattleTankAsync(Entity source, BattleTankModel model, IScope scope)
+        private IObservable<Entity> SetupBattleTankAsync(Entity source, BattleTankModel model,
+            IReadOnlyList<BattleTankModel> tankModels, IScope scope)
         {
             return source.SetupAsync(() =>
             {
@@ -65,7 +81,11 @@ namespace dtank
                 var actor = new BattleTankActor(body, model.ActorModel.Setup,
                     model.ActorModel.StartPointData);
                 taskRunner.Register(actor, TaskOrder.Actor);
-                var logic = new BattleTankLogic(BattleModel.Get(), model, actor);
+                var controlUiView = model.CharacterType == CharacterType.Player ? _controlUiView : null;
+                var npcBehaviourSelector =
+                    new NpcBehaviourSelector(model, tankModels);
+                var logic = new BattleTankLogic(BattleModel.Get(), model, actor, controlUiView,
+                    npcBehaviourSelector);
                 taskRunner.Register(logic, TaskOrder.Logic);
                 entity.AddActor(actor)
                     .AddLogic(logic);

@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using GameFramework.BodySystems;
 using GameFramework.Core;
 using GameFramework.CoroutineSystems;
-using GameFramework.EntitySystems;
 using GameFramework.SituationSystems;
 using GameFramework.StateSystems;
 using GameFramework.TaskSystems;
@@ -133,25 +131,9 @@ namespace dtank
             uiView.ScopeTo(scope);
             RegisterTask(uiView, TaskOrder.UI);
 
-            var tankEntityContainer = new BattleTankEntityContainer();
+            var tankEntityContainer = new BattleTankEntityContainer(uiView.TankControlUiView);
             tankEntityContainer.ScopeTo(scope);
-            foreach (var tankModel in model.TankModels)
-                yield return tankEntityContainer.AddRoutine(tankModel, scope);
-            foreach (var tankModel in model.TankModels)
-            {
-                var entity = tankEntityContainer.Get(tankModel.Id);
-                var logic = entity.GetLogic<EntityLogic>() as BattleTankLogic;
-                if (logic == null)
-                {
-                    Debug.LogError($"logic取得失敗; id={tankModel.Id}");
-                    continue;
-                }
-                
-                if (tankModel.Id == model.MainPlayerTankModel.Id)
-                    logic.SetBehaviourSelector(uiView.TankControlUiView);
-                else 
-                    logic.SetBehaviourSelector(new NpcBehaviourSelector(tankModel, model.TankModels.Where(m => m != tankModel).ToArray()));
-            }
+            yield return tankEntityContainer.SetupRoutine(model.TankModels, scope);
 
             var cameraController = Services.Get<BattleCameraController>();
             cameraController.Setup(model, tankEntityContainer);

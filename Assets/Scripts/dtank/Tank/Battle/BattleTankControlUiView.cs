@@ -14,19 +14,24 @@ namespace dtank
         [SerializeField] private Button _shotStraightButton;
         [SerializeField] private Slider _verticalSlider;
         [SerializeField] private Slider _horizontalSlider;
+        [SerializeField] private Toggle _autoToggle;
 
-        private readonly Subject<IAttacker> _onDamageSubject = new Subject<IAttacker>();
+        private readonly Subject<IAttacker> _onDamageSubject = new();
+        private readonly Subject<bool> _onAutoToggleValueChanged = new();
+
         public IObservable<IAttacker> OnDamageAsObservable => _onDamageSubject;
         public IObservable<Unit> OnShotCurveAsObservable => _shotCurveButton.OnClickAsObservable();
         public IObservable<Unit> OnShotStraightAsObservable => _shotStraightButton.OnClickAsObservable();
         public IObservable<float> OnTurnValueChangedAsObservable => _horizontalSlider.OnValueChangedAsObservable();
         public IObservable<float> OnMoveValueChangedAsObservable => _verticalSlider.OnValueChangedAsObservable();
+        public IObservable<bool> OnAutoToggleValueChangedAsObservable => _onAutoToggleValueChanged;
 
         private Sequence _sequence;
 
         public void Setup()
         {
             _damageButton.onClick.AddListener(OnDamageButtonClicked);
+            _autoToggle.onValueChanged.AddListener(OnAutoToggleValueChanged);
 
             Reset();
         }
@@ -34,6 +39,7 @@ namespace dtank
         public void Dispose()
         {
             _damageButton.onClick.RemoveListener(OnDamageButtonClicked);
+            _autoToggle.onValueChanged.RemoveListener(OnAutoToggleValueChanged);
 
             _onDamageSubject.Dispose();
         }
@@ -53,6 +59,15 @@ namespace dtank
 
             _group.alpha = flag ? 1f : 0f;
             _group.blocksRaycasts = flag;
+        }
+
+        private void SetInteractive(bool interactable)
+        {
+            _damageButton.interactable = interactable;
+            _shotCurveButton.interactable = interactable;
+            _shotStraightButton.interactable = interactable;
+            _horizontalSlider.interactable = interactable;
+            _verticalSlider.interactable = interactable;
         }
 
         public void BeginDamage()
@@ -108,6 +123,13 @@ namespace dtank
         private void OnDamageButtonClicked()
         {
             _onDamageSubject.OnNext(null);
+        }
+
+        private void OnAutoToggleValueChanged(bool isOn)
+        {
+            _onAutoToggleValueChanged.OnNext(isOn);
+            
+            SetInteractive(!isOn);
         }
     }
 }
