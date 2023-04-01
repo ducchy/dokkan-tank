@@ -1,5 +1,6 @@
 using System;
 using GameFramework.Core;
+using GameFramework.EntitySystems;
 using UniRx;
 
 namespace dtank
@@ -61,13 +62,14 @@ namespace dtank
                 .Subscribe(_ => _model.ChangeState(BattleState.Playing))
                 .ScopeTo(_scope);
 
-            /*
-            foreach (var tankActor in _tankActorContainer.ActorDictionary.Values)
+            foreach (var pair in _tankEntityContainer.Dictionary)
+            {
+                var tankActor = pair.Value.GetActor<BattleTankActor>();
                 tankActor.OnDealDamageAsObservable
                     .TakeUntil(_scope)
-                    .Subscribe(_ => _model.RuleModel.IncrementScore(tankActor.OwnerId))
+                    .Subscribe(_ => _model.RuleModel.IncrementScore(pair.Key))
                     .ScopeTo(_scope);
-            */
+            }
 
             _uiView.PlayingUiView.OnForceEndAsObservable
                 .TakeUntil(_scope)

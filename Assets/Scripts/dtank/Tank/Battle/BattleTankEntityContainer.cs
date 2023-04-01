@@ -11,6 +11,7 @@ namespace dtank
     public class BattleTankEntityContainer : IDisposable
     {
         private readonly Dictionary<int, Entity> _dictionary = new Dictionary<int, Entity>();
+        public IReadOnlyDictionary<int, Entity> Dictionary => _dictionary;
 
         public void Dispose()
         {

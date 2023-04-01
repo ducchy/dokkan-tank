@@ -73,11 +73,6 @@ namespace dtank
                 .Subscribe(OnAnimatorStateExit)
                 .ScopeTo(_scope);
 
-            _tankActor.OnAnimationEventAsObservable
-                .TakeUntil(_scope)
-                .Subscribe(OnAnimationEvent)
-                .ScopeTo(_scope);
-
             _tankActor.OnDamageReceivedAsObservable
                 .TakeUntil(_scope)
                 .Subscribe(_tankModel.Damage)

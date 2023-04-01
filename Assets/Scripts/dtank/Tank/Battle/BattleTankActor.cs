@@ -37,9 +37,6 @@ namespace dtank
         private readonly Subject<BattleTankAnimatorState> _onStateExitSubject = new Subject<BattleTankAnimatorState>();
         public IObservable<BattleTankAnimatorState> OnStateExitAsObservable => _onStateExitSubject;
 
-        private readonly Subject<string> _onAnimationEventSubject = new Subject<string>();
-        public IObservable<string> OnAnimationEventAsObservable => _onAnimationEventSubject;
-
         private readonly Subject<IAttacker> _onDamageReceivedSubject = new Subject<IAttacker>();
         public IObservable<IAttacker> OnDamageReceivedAsObservable => _onDamageReceivedSubject;
 
@@ -94,7 +91,6 @@ namespace dtank
             _sequenceController.Dispose();
 
             _onStateExitSubject.Dispose();
-            _onAnimationEventSubject.Dispose();
             _onDamageReceivedSubject.Dispose();
             _onPositionChangedSubject.Dispose();
             _onForwardChangedSubject.Dispose();
@@ -207,12 +203,7 @@ namespace dtank
             SetVisible(active);
         }
 
-        private void OnAnimationEvent(string id)
-        {
-            _onAnimationEventSubject.OnNext(id);
-        }
-
-        public void ReceiveDamage(IAttacker attacker)
+        private void ReceiveDamage(IAttacker attacker)
         {
             _onDamageReceivedSubject.OnNext(attacker);
         }
