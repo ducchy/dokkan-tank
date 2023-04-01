@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2795397142068659116}
   - component: {fileID: 5791119046279512548}
   m_Layer: 7
-  m_Name: Shell
+  m_Name: Bullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -48,9 +48,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rigidbody: {fileID: 2795397142068659116}
-  _collider: {fileID: 5791119046279512548}
-  _velocity: 10
-  _explosionEffectPrefab: {fileID: 7802691996131585273, guid: 348779e656aab469fa7b4a3f2f49a16e, type: 3}
 --- !u!54 &2795397142068659116
 Rigidbody:
   m_ObjectHideFlags: 0

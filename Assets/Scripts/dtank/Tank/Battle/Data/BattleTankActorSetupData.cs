@@ -1,5 +1,6 @@
 using UnityEditor.Animations;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace dtank
 {
@@ -9,19 +10,13 @@ namespace dtank
         public float moveMaxSpeed;
         public float turnMaxSpeed;
         public AnimatorController controller;
-        public float _shellSpeedOnShotCurve;
-        public float _shellSpeedOnShotStraight;
-        public ShellActor _shellPrefab;
         public GameObject _deadEffectPrefab;
-        public GameObject _fireEffectPrefab;
+        public ActionInfo[] _actionInfos;
 
         float IBattleTankActorSetupData.MoveMaxSpeed => moveMaxSpeed;
         float IBattleTankActorSetupData.TurnMaxSpeed => turnMaxSpeed;
         AnimatorController IBattleTankActorSetupData.Controller => controller;
-        float IBattleTankActorSetupData.ShellSpeedOnShotCurve => _shellSpeedOnShotCurve;
-        float IBattleTankActorSetupData.ShellSpeedOnShotStraight => _shellSpeedOnShotStraight;
-        ShellActor IBattleTankActorSetupData.ShellPrefab => _shellPrefab;
         GameObject IBattleTankActorSetupData.DeadEffectPrefab => _deadEffectPrefab;
-        GameObject IBattleTankActorSetupData.FireEffectPrefab => _fireEffectPrefab;
+        ActionInfo[] IBattleTankActorSetupData.ActionInfos => _actionInfos;
     }
 }

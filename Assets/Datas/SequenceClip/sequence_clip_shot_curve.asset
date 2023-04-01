@@ -1,0 +1,120 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-1091747445344768440
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f3dc1b502acd48ad9608fc38cadbbcb, type: 3}
+  m_Name: SequenceTrack
+  m_EditorClassIdentifier: 
+  label: Track
+  sequenceEvents:
+  - {fileID: 4698888080264410100}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ec08f2e03b1d49a8aa03fbf2f4ddcce, type: 3}
+  m_Name: sequence_clip_shot_curve
+  m_EditorClassIdentifier: 
+  tracks:
+  - {fileID: -1091747445344768440}
+  frameRate: 30
+--- !u!114 &1898833538239689783
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 692c4006fef34bbd9f61e8550a214d70, type: 3}
+  m_Name: PlayEffectSignalSequenceEvent
+  m_EditorClassIdentifier: 
+  label: ShotEffect
+  active: 1
+  time: 0.06666667
+  prefab: {fileID: 0}
+  offsetPosition: {x: 0, y: 0, z: 0}
+  offsetAngles: {x: 0, y: 0, z: 0}
+--- !u!114 &2735139722137563059
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9ffec5423ae415a8cb2e7fb0b7acdc5, type: 3}
+  m_Name: InvokeActionSignalSequenceEvent
+  m_EditorClassIdentifier: 
+  label: ShotStraightAction
+  active: 1
+  time: 0.5
+--- !u!114 &3975045508114971536
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9ffec5423ae415a8cb2e7fb0b7acdc5, type: 3}
+  m_Name: InvokeActionSignalSequenceEvent
+  m_EditorClassIdentifier: 
+  label: ShotStraightAction
+  active: 1
+  time: 0.5
+--- !u!114 &4698888080264410100
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1356dc0814f143f395023db9435e90c1, type: 3}
+  m_Name: CreateBulletSignalSequenceEvent
+  m_EditorClassIdentifier: 
+  label: CreateBulletSignalSequenceEvent
+  active: 1
+  time: 0.5
+  prefab: {fileID: 2795397142068659117, guid: 68916852f19f6436b97db40dcce6be82, type: 3}
+  offsetPosition: {x: 0, y: 0, z: 0}
+  offsetAngles: {x: 0, y: 0, z: 0}
+  speed: 10
+  useGravity: 1
+  fireEffect: {fileID: 3277316613537239819, guid: 88166ed19b8f24d8aa595656ba46ab27, type: 3}
+  explosionEffect: {fileID: 7966239371800527581, guid: 348779e656aab469fa7b4a3f2f49a16e, type: 3}
+--- !u!114 &8639119309632623803
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 692c4006fef34bbd9f61e8550a214d70, type: 3}
+  m_Name: PlayEffectSignalSequenceEvent
+  m_EditorClassIdentifier: 
+  label: PlayEffectSignalSequenceEvent
+  active: 1
+  time: 0.5
+  prefab: {fileID: 3277316613537239817, guid: 88166ed19b8f24d8aa595656ba46ab27, type: 3}
+  offsetPosition: {x: 0, y: 0, z: 0}
+  offsetAngles: {x: 0, y: 0, z: 0}

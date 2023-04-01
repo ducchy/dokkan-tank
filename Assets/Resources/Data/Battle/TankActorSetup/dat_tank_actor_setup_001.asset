@@ -15,8 +15,9 @@ MonoBehaviour:
   moveMaxSpeed: 300
   turnMaxSpeed: 180
   controller: {fileID: 9100000, guid: 7223a35417cad4c3693897218484a565, type: 2}
-  _shellSpeedOnShotCurve: 10
-  _shellSpeedOnShotStraight: 20
-  _shellPrefab: {fileID: 2795397142068659117, guid: 68916852f19f6436b97db40dcce6be82, type: 3}
   _deadEffectPrefab: {fileID: 1892078723244562, guid: 43f1aa89c597e41d3993c7f32502fbff, type: 3}
-  _fireEffectPrefab: {fileID: 3277316613537239817, guid: 88166ed19b8f24d8aa595656ba46ab27, type: 3}
+  _actionInfos:
+  - triggerName: onShotStraight
+    sequenceClip: {fileID: 11400000, guid: d111da424ef5548e2a8e20891870492e, type: 2}
+  - triggerName: onShotCurve
+    sequenceClip: {fileID: 11400000, guid: cfa5016f7d9fe4d9b88bf300e3e5135f, type: 2}
