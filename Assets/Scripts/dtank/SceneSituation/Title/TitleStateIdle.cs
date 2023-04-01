@@ -1,5 +1,4 @@
 using GameFramework.Core;
-using UnityEngine;
 
 namespace dtank
 {
@@ -9,7 +8,6 @@ namespace dtank
 
         public override void OnEnter(TitleState prevKey, IScope scope)
         {
-            Debug.Log("TitleStateIdle.OnEnter()");
         }
 
         public override void OnUpdate(float deltaTime)
@@ -18,7 +16,6 @@ namespace dtank
 
         public override void OnExit(TitleState nextKey)
         {
-            Debug.Log("TitleStateIdle.OnExit()");
         }
     }
 }

@@ -11,8 +11,6 @@ namespace dtank
 
         public override void OnEnter(BattleState prevKey, IScope scope)
         {
-            Debug.Log("BattleStatePlaying.OnEnter()");
-
             var model = BattleModel.Get();
             var uiView = Services.Get<BattleUiView>();
 
@@ -30,8 +28,6 @@ namespace dtank
 
         public override void OnExit(BattleState nextKey)
         {
-            Debug.Log("BattleStatePlaying.OnExit()");
-
             _presenter.Deactivate();
         }
     }

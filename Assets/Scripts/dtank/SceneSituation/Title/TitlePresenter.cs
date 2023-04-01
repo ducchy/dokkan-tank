@@ -1,7 +1,6 @@
 using System;
 using GameFramework.Core;
 using UniRx;
-using UnityEngine;
 
 namespace dtank
 {
@@ -10,12 +9,10 @@ namespace dtank
         private readonly TitleUiView _uiView;
         private readonly TitleCamera _camera;
         private readonly TitleModel _model;
-        private readonly DisposableScope _scope = new DisposableScope();
+        private readonly DisposableScope _scope = new();
 
         public TitlePresenter(TitleUiView uiView, TitleCamera camera, TitleModel model)
         {
-            Debug.Log("TitlePresenter.TitlePresenter()");
-
             _uiView = uiView;
             _camera = camera;
             _model = model;
@@ -41,7 +38,7 @@ namespace dtank
                             _camera.Play();
                             break;
                         case TitleState.Start:
-                            _model.EndScene();
+                            _model.ChangeState(TitleState.End);
                             break;
                     }
                 })
@@ -52,7 +49,7 @@ namespace dtank
         {
             _uiView.OnStartButtonClickAsObservable
                 .TakeUntil(_scope)
-                .Subscribe(_ => _model.PushStart())
+                .Subscribe(_ => _model.ChangeState(TitleState.Start))
                 .ScopeTo(_scope);
         }
     }

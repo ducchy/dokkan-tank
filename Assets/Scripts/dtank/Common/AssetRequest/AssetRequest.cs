@@ -11,7 +11,7 @@ namespace dtank
     /// <summary>
     /// Sample用のAssetRequest基底
     /// </summary>
-    public abstract class ResourceAssetRequest<T> : GameFramework.AssetSystems.AssetRequest<T>
+    public abstract class ResourceAssetRequest<T> : AssetRequest<T>
         where T : Object
     {
         public override string Address { get; }

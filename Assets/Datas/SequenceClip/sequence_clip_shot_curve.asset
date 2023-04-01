@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1356dc0814f143f395023db9435e90c1, type: 3}
   m_Name: CreateBulletSignalSequenceEvent
   m_EditorClassIdentifier: 
-  label: CreateBulletSignalSequenceEvent
+  label: CreateBullet
   active: 1
   time: 0.5
   prefab: {fileID: 2795397142068659117, guid: 68916852f19f6436b97db40dcce6be82, type: 3}

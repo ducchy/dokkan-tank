@@ -20,9 +20,7 @@ namespace dtank
         private Sequence _readySeq;
         private Sequence _resultSeq;
 
-        private readonly DisposableScope _scope = new DisposableScope();
-
-        private readonly Subject<Unit> _onEndReadySubject = new Subject<Unit>();
+        private readonly Subject<Unit> _onEndReadySubject = new();
         public IObservable<Unit> OnEndReadyAsObservable => _onEndReadySubject;
 
         public void Setup(BattleModel model, BattleTankEntityContainer tankEntityContainer)
@@ -44,7 +42,7 @@ namespace dtank
             var tankEntity = _tankEntityContainer.Get(id);
             if (tankEntity == null)
             {
-                Debug.LogError($"注視対象取得失敗: id={id}");
+                Debug.LogError($"[BattleCameraController] SetTarget: 対象取得失敗(id={id})");
                 return;
             }
             _parentAttachment.Sources = new AttachmentResolver.TargetSource[]

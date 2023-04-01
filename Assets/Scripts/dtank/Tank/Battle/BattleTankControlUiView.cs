@@ -26,8 +26,6 @@ namespace dtank
 
         public void Setup()
         {
-            Debug.Log("PlayerBattleTankControlUiView.Setup()");
-
             _damageButton.onClick.AddListener(OnDamageButtonClicked);
 
             Reset();

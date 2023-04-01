@@ -1,4 +1,3 @@
-using System;
 using GameFramework.ModelSystems;
 using GameFramework.TaskSystems;
 using UniRx;
@@ -7,26 +6,25 @@ using UnityEngine;
 namespace dtank
 {
     public class BattleTankModel : AutoIdModel<BattleTankModel>
-    {   
-        public BattleTankActorModel ActorModel { get; private set; }
+    {
+        #region Variable
         
-        public event Action<BattleTankModel> OnUpdated;
+        public BattleTankActorModel ActorModel { get; private set; }
 
-        private readonly ReactiveProperty<BattleTankState> _battleState =
-            new ReactiveProperty<BattleTankState>(BattleTankState.Invalid);
+        private readonly ReactiveProperty<BattleTankState> _currentState = new(BattleTankState.Invalid);
 
-        public IReadOnlyReactiveProperty<BattleTankState> BattleState => _battleState;
+        public IReadOnlyReactiveProperty<BattleTankState> CurrentState => _currentState;
 
-        private readonly ReactiveProperty<int> _hp = new ReactiveProperty<int>();
+        private readonly ReactiveProperty<int> _hp = new();
         public IReadOnlyReactiveProperty<int> Hp => _hp;
 
-        private readonly ReactiveProperty<float> _moveAmount = new ReactiveProperty<float>();
+        private readonly ReactiveProperty<float> _moveAmount = new();
         public IReactiveProperty<float> MoveAmount => _moveAmount;
 
-        private readonly ReactiveProperty<float> _turnAmount = new ReactiveProperty<float>();
+        private readonly ReactiveProperty<float> _turnAmount = new();
         public IReactiveProperty<float> TurnAmount => _turnAmount;
 
-        private readonly ReactiveProperty<bool> _invincibleFlag = new ReactiveProperty<bool>(false);
+        private readonly ReactiveProperty<bool> _invincibleFlag = new(false);
         public IReactiveProperty<bool> InvincibleFlag => _invincibleFlag;
 
         public string Name { get; private set; }
@@ -38,12 +36,15 @@ namespace dtank
         public Vector3 Position { get; private set; }
         public Vector3 Forward { get; private set; }
         public bool DeadFlag => _hp.Value <= 0;
+        public bool IsMovable => _currentState.Value == BattleTankState.FreeMove;
 
         private float _inputMoveAmount;
         private float _inputTurnAmount;
         private float _invincibleRemainTime;
         private ITask _taskImplementation;
         private bool _isActive;
+        
+        #endregion Variable
 
         private BattleTankModel(int id) : base(id)
         {
@@ -56,20 +57,46 @@ namespace dtank
             ActorModel = null;
         }
 
-        public void Update(string name, int bodyId, CharacterType characterType, BattleTankParameterData parameterData)
+        public void Setup(string name, int bodyId, CharacterType characterType, BattleTankParameterData parameterData)
         {
             Name = name;
             BodyId = bodyId;
             CharacterType = characterType;
             ParameterData = parameterData;
 
-            OnUpdated?.Invoke(this);
+            _hp.Value = parameterData.hp;
         }
 
         public void Update()
         {
             UpdateOnInvincible(Time.deltaTime);
         }
+
+        public void Damage(IAttacker attacker)
+        {
+            if (_invincibleFlag.Value)
+                return;
+
+            if (_currentState.Value == BattleTankState.Damage)
+                return;
+
+            if (_hp.Value <= 0)
+                return;
+
+            _hp.Value--;
+            attacker?.DealDamage();
+
+            if (_hp.Value == 0)
+            {
+                SetState(BattleTankState.Dead);
+                return;
+            }
+
+            BeginInvincible();
+            SetState(BattleTankState.Damage);
+        }
+        
+        #region Setter
 
         public void SetPosition(Vector3 position)
         {
@@ -84,140 +111,67 @@ namespace dtank
         public void SetInputMoveAmount(float inputMoveAmount)
         {
             _inputMoveAmount = inputMoveAmount;
-
-            if (!IsMovableState(_battleState.Value))
-                return;
-
-            _moveAmount.Value = inputMoveAmount;
+            SetMoveAmount();
         }
 
         public void SetInputTurnAmount(float inputTurnAmount)
         {
             _inputTurnAmount = inputTurnAmount;
+            SetMoveAmount();
+        }
+        private void SetMoveAmount()
+        {
+            _moveAmount.Value = IsMovable ? _inputMoveAmount : 0f;
+            _turnAmount.Value = IsMovable ? _inputTurnAmount : 0f;
+        }
+        
+        #endregion Setter
 
-            if (!IsMovableState(_battleState.Value))
+        #region State
+
+        public void SetState(BattleTankState state)
+        {
+            if (!CheckTransitionState(state))
                 return;
-
-            _turnAmount.Value = inputTurnAmount;
+            
+            _currentState.Value = state;
+            SetMoveAmount();
         }
 
-        public void Ready()
+        private bool CheckTransitionState(BattleTankState next)
         {
-            _hp.SetValueAndForceNotify(ParameterData.hp);
-            SetState(BattleTankState.Ready);
-        }
+            var current = _currentState.Value;
+            if (next == current)
+                return false;
 
-        public void Playing()
-        {
-            SetState(BattleTankState.FreeMove);
-        }
+            bool IsLastState(BattleTankState state) => state is BattleTankState.Dead or BattleTankState.Result;
 
-        public void ShotCurve()
-        {
-            if (_battleState.Value != BattleTankState.FreeMove)
-                return;
+            if (IsLastState(current))
+                return false;
 
-            SetState(BattleTankState.ShotCurve);
-        }
+            if (IsLastState(next))
+                return true;
 
-        public void EndShotCurve()
-        {
-            if (_battleState.Value != BattleTankState.ShotCurve)
-                return;
-
-            SetState(BattleTankState.FreeMove);
-        }
-
-        public void ShotStraight()
-        {
-            if (_battleState.Value != BattleTankState.FreeMove)
-                return;
-
-            SetState(BattleTankState.ShotStraight);
-        }
-
-        public void EndShotStraight()
-        {
-            if (_battleState.Value != BattleTankState.ShotStraight)
-                return;
-
-            SetState(BattleTankState.FreeMove);
-        }
-
-        public void Damage(IAttacker attacker)
-        {
-            if (_invincibleFlag.Value)
-                return;
-
-            if (_battleState.Value == BattleTankState.Damage)
-                return;
-
-            if (_hp.Value <= 0)
-                return;
-
-            BeginInvincible();
-            SetState(BattleTankState.Damage);
-            _hp.Value--;
-            attacker?.DealDamage();
-        }
-
-        public void EndDamage()
-        {
-            if (_battleState.Value != BattleTankState.Damage)
-                return;
-
-            if (DeadFlag)
+            switch (current)
             {
-                Dead();
-                return;
+                case BattleTankState.Damage:
+                case BattleTankState.Ready:
+                    if (next != BattleTankState.FreeMove)
+                        return false;
+                    break;
+                case BattleTankState.ShotCurve:
+                case BattleTankState.ShotStraight:
+                    if (next != BattleTankState.FreeMove && next != BattleTankState.Damage)
+                        return false;
+                    break;
             }
 
-            SetState(BattleTankState.FreeMove);
+            return true;
         }
-
-        private void Dead()
-        {
-            EndInvincible();
-            SetState(BattleTankState.Dead);
-        }
-
-        public void Result()
-        {
-            SetState(BattleTankState.Result);
-        }
-
-        private bool IsMovableState(BattleTankState state)
-        {
-            switch (state)
-            {
-                case BattleTankState.FreeMove:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        private void SetMovable(bool flag)
-        {
-            _moveAmount.Value = flag ? _inputMoveAmount : 0f;
-            _turnAmount.Value = flag ? _inputTurnAmount : 0f;
-        }
-
-        private void SetState(BattleTankState state)
-        {
-            _battleState.Value = state;
-            SetMovable(IsMovableState(state));
-        }
-
-        private void UpdateOnInvincible(float deltaTime)
-        {
-            if (!_invincibleFlag.Value)
-                return;
-
-            _invincibleRemainTime -= deltaTime;
-            if (_invincibleRemainTime <= 0f)
-                EndInvincible();
-        }
+        
+        #endregion State
+        
+        #region Invincible
 
         private void BeginInvincible()
         {
@@ -232,5 +186,17 @@ namespace dtank
         {
             _invincibleFlag.Value = false;
         }
+
+        private void UpdateOnInvincible(float deltaTime)
+        {
+            if (!_invincibleFlag.Value)
+                return;
+
+            _invincibleRemainTime -= deltaTime;
+            if (_invincibleRemainTime <= 0f)
+                EndInvincible();
+        }
+        
+        #endregion Invincible
     }
 }

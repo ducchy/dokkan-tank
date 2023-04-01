@@ -46,7 +46,7 @@ namespace dtank
             if (_hp == hp)
                 return;
             
-            Debug.LogFormat("BattleTankStatusUiView.SetHp(): hp={0}", hp);
+            Debug.Log($"[BattleTankStatusUiView] SetHp: hp={hp}");
             
             PlayChangeHp(_hp, hp);
 
@@ -58,7 +58,7 @@ namespace dtank
             if (_openFlag)
                 return;
             
-            Debug.LogFormat("BattleTankStatusUiView.Open()");
+            Debug.Log("[BattleTankStatusUiView] Open");
 
             _openFlag = true;
             
@@ -97,7 +97,7 @@ namespace dtank
 
         private void PlayChangeHp(int from, int to, Action onComplete = null)
         {
-            Debug.LogFormat("BattleTankStatusUiView.PlayChangeHp(): openFlag={0}, from={1}, to={2}", _openFlag, from, to);
+            Debug.Log($"[BattleTankStatusUiView] PlayChangeHp: {from} -> {to}");
 
             if (!_openFlag || from == to)
                 return;

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace dtank
 {
     /// <summary>
-    /// エフェクト再生用イベント
+    /// 弾生成用イベント
     /// </summary>
     public class CreateBulletSignalSequenceEvent : SignalSequenceEvent
     {
@@ -16,9 +16,9 @@ namespace dtank
         public ParticleSystem fireEffect;
         public ParticleSystem explosionEffect;
     }
-    
+
     /// <summary>
-    /// エフェクト再生用イベントのハンドラ
+    /// 弾生成用イベントのハンドラ
     /// </summary>
     public class CreateBulletSignalSequenceEventHandler : SignalSequenceEventHandler<CreateBulletSignalSequenceEvent>
     {
@@ -42,25 +42,21 @@ namespace dtank
         protected override void OnInvoke(CreateBulletSignalSequenceEvent sequenceEvent)
         {
             if (_muzzle == null)
-            {
                 return;
-            }
 
             if (sequenceEvent.prefab == null)
-            {
                 return;
-            }
 
             var instance = Object.Instantiate(sequenceEvent.prefab);
             var fireEffectPrefab = sequenceEvent.fireEffect;
             var explosionEffectPrefab = sequenceEvent.explosionEffect;
             var useGravity = sequenceEvent.useGravity;
             instance.Setup(_owner, fireEffectPrefab, explosionEffectPrefab, useGravity);
-            
+
             var position = _muzzle.TransformPoint(sequenceEvent.offsetPosition);
             var rotation = Quaternion.Euler(sequenceEvent.offsetAngles) * _muzzle.rotation;
             var velocity = _muzzle.forward * sequenceEvent.speed;
-            instance.Shot(position,rotation, velocity);
+            instance.Shot(position, rotation, velocity);
         }
     }
 }

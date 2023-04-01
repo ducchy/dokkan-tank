@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using GameFramework.ModelSystems;
 using UniRx;
 using UnityEngine;
@@ -7,7 +6,7 @@ namespace dtank
 {
     public class TitleModel : SingleModel<TitleModel>
     {
-        private readonly ReactiveProperty<TitleState> _currentState = new ReactiveProperty<TitleState>();
+        private readonly ReactiveProperty<TitleState> _currentState = new();
         public IReadOnlyReactiveProperty<TitleState> CurrentState => _currentState;
 
         private TitleModel(object empty) : base(empty)
@@ -21,26 +20,15 @@ namespace dtank
             _currentState.Dispose();
         }
 
-        public void PushStart()
+        public void ChangeState(TitleState next)
         {
-            SetState(TitleState.Start);
-        }
+            var current = _currentState.Value;
+            if (current == next)
+                return;
+            
+            Debug.Log($"[TitleModel] ChangeState(): {current} -> {next}");
 
-        public void EndScene()
-        {
-            SetState(TitleState.End);
-        }
-
-        private void SetState(TitleState state)
-        {
-            _currentState.Value = state;
-        }
-
-        public void OnChangedState(TitleState prev, TitleState current)
-        {
-            Debug.LogFormat("TitleModel.OnChangedState: current={0}", current);
-
-            SetState(current);
+            _currentState.Value = next;
         }
     }
 }

@@ -14,18 +14,17 @@ namespace dtank
 
     public class BattleRuleModel : IDisposable
     {
-        private readonly ReactiveProperty<BattleResultType> _resultType =
-            new ReactiveProperty<BattleResultType>(BattleResultType.None);
+        private readonly ReactiveProperty<BattleResultType> _resultType = new(BattleResultType.None);
 
         public IReadOnlyReactiveProperty<BattleResultType> ResultType => _resultType;
 
-        private readonly ReactiveProperty<int> _remainTimeInt = new ReactiveProperty<int>();
+        private readonly ReactiveProperty<int> _remainTimeInt = new();
         public IReadOnlyReactiveProperty<int> RemainTime => _remainTimeInt;
 
         private float _remainTime;
         private bool _playingFlag;
 
-        private readonly Dictionary<int, int> _scoreDictionary = new Dictionary<int, int>();
+        private readonly Dictionary<int, int> _scoreDictionary = new();
         private readonly float _duration;
         private readonly int _mainPlayerId;
         private readonly int[] _playerIds;

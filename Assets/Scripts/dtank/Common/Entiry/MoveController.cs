@@ -18,13 +18,13 @@ namespace dtank
 
         private Action<Vector3> _updatePosition;
         private Action<Vector3> _updateForward;
-        
+
         private Vector3 Forward => _rigidbody.rotation * Vector3.forward;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public MoveController(Rigidbody rigidbody, float moveMaxSpeed, float turnMaxSpeed, 
+        public MoveController(Rigidbody rigidbody, float moveMaxSpeed, float turnMaxSpeed,
             Action<Vector3> updatePosition, Action<Vector3> updateForward)
         {
             _rigidbody = rigidbody;

@@ -15,62 +15,68 @@ namespace dtank
 {
     public class BattleSceneSituation : SceneSituation
     {
-        /// <summary>
-        /// Body生成クラス
-        /// </summary>
-        private class BodyBuilder : IBodyBuilder
-        {
-            /// <summary>
-            /// 構築処理
-            /// </summary>
-            public void Build(IBody body, GameObject gameObject)
-            {
-                // RequireComponent<StatusEventListener>(gameObject);
-            }
-
-            private void RequireComponent<T>(GameObject gameObject)
-                where T : Component
-            {
-                var component = gameObject.GetComponent<T>();
-                if (component == null)
-                {
-                    gameObject.AddComponent<T>();
-                }
-            }
-        }
-
         protected override string SceneAssetPath => "Battle";
 
+        private readonly List<ITask> _tasks = new();
+        
         private StateContainer<BattleStateBase, BattleState> _stateContainer;
-        private BattlePresenter _presenter;
-        private readonly List<ITask> _tasks = new List<ITask>();
 
         protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope)
         {
-            yield return base.SetupRoutineInternal(handle, scope);
-
+            Debug.Log("[BattleSceneSituation] Begin SetupRoutineInternal");
+            
             yield return SetupAllRoutine(scope);
 
             Bind(scope);
 
             BattleModel.Get().ChangeState(BattleState.Ready);
+
+            Debug.Log("[BattleSceneSituation] End SetupRoutineInternal");
         }
 
         protected override void UpdateInternal()
         {
-            base.UpdateInternal();
-
             _stateContainer.Update(Time.deltaTime);
         }
 
         protected override void UnloadInternal(TransitionHandle handle)
         {
-            base.UnloadInternal(handle);
-
+            Debug.Log("[BattleSceneSituation] UnloadInternal");
+            
             UnloadAll();
         }
 
-        #region Load
+        private void Bind(IScope scope)
+        {
+            var model = BattleModel.Get();
+            model.CurrentState
+                .TakeUntil(scope)
+                .Subscribe(state =>
+                {
+                    switch (state)
+                    {
+                        case BattleState.Quit:
+                            ParentContainer.Transition(new TitleSceneSituation(), new CommonFadeTransitionEffect(0.5f, 0.5f));
+                            break;
+                        case BattleState.Retry:
+                            ParentContainer.Transition(new BattleReadySceneSituation(), new CommonFadeTransitionEffect(0.5f, 0f));
+                            break;
+                        default:
+                            _stateContainer.Change(state);
+                            break;
+                    }
+                })
+                .ScopeTo(scope);
+        }
+
+        private void RegisterTask(ITask task, TaskOrder order)
+        {
+            var taskRunner = Services.Get<TaskRunner>();
+            taskRunner.Register(task, order);
+            _tasks.Add(task);
+        }
+
+        #region Setup
 
         private IEnumerator SetupAllRoutine(IScope scope)
         {
@@ -151,14 +157,12 @@ namespace dtank
             cameraController.Setup(model, tankEntityContainer);
             cameraController.ScopeTo(scope);
 
-            _presenter = new BattlePresenter(model, uiView, tankEntityContainer, cameraController);
-            _presenter.ScopeTo(scope);
+            var presenter = new BattlePresenter(model, uiView, tankEntityContainer, cameraController);
+            presenter.ScopeTo(scope);
         }
 
         private void SetupStateContainer(IScope scope)
         {
-            Debug.Log("BattleSceneSituation.SetupStateContainer");
-
             _stateContainer = new StateContainer<BattleStateBase, BattleState>();
             _stateContainer.ScopeTo(scope);
 
@@ -169,36 +173,6 @@ namespace dtank
                 new BattleStateResult(),
             };
             _stateContainer.Setup(BattleState.Invalid, states.ToArray());
-        }
-
-        private void Bind(IScope scope)
-        {
-            var battleModel = BattleModel.Get();
-            battleModel.CurrentState
-                .TakeUntil(scope)
-                .Subscribe(state =>
-                {
-                    switch (state)
-                    {
-                        case BattleState.Quit:
-                            ParentContainer.Transition(new TitleSceneSituation(), new CommonFadeTransitionEffect(0.5f, 0.5f));
-                            break;
-                        case BattleState.Retry:
-                            ParentContainer.Transition(new BattleReadySceneSituation(), new CommonFadeTransitionEffect(0.5f, 0f));
-                            break;
-                        default:
-                            _stateContainer.Change(state);
-                            break;
-                    }
-                })
-                .ScopeTo(scope);
-        }
-
-        private void RegisterTask(ITask task, TaskOrder order)
-        {
-            var taskRunner = Services.Get<TaskRunner>();
-            taskRunner.Register(task, order);
-            _tasks.Add(task);
         }
 
         #endregion Load

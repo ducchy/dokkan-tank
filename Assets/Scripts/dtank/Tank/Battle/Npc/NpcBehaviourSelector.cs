@@ -8,19 +8,19 @@ namespace dtank
 {
     public class NpcBehaviourSelector : IBehaviourSelector, IDisposable
     {
-        private readonly Subject<IAttacker> _onDamageSubject = new Subject<IAttacker>();
+        private readonly Subject<IAttacker> _onDamageSubject = new();
         public IObservable<IAttacker> OnDamageAsObservable => _onDamageSubject;
 
-        private readonly Subject<Unit> _onShotCurveSubject = new Subject<Unit>();
+        private readonly Subject<Unit> _onShotCurveSubject = new();
         public IObservable<Unit> OnShotCurveAsObservable => _onShotCurveSubject;
 
-        private readonly Subject<Unit> _onShotStraightSubject = new Subject<Unit>();
+        private readonly Subject<Unit> _onShotStraightSubject = new();
         public IObservable<Unit> OnShotStraightAsObservable => _onShotStraightSubject;
 
-        private readonly Subject<float> _onTurnValueChangedSubject = new Subject<float>();
+        private readonly Subject<float> _onTurnValueChangedSubject = new();
         public IObservable<float> OnTurnValueChangedAsObservable => _onTurnValueChangedSubject;
 
-        private readonly Subject<float> _onMoveValueChangedSubject = new Subject<float>();
+        private readonly Subject<float> _onMoveValueChangedSubject = new();
         public IObservable<float> OnMoveValueChangedAsObservable => _onMoveValueChangedSubject;
 
         private readonly BattleTankModel _owner;
@@ -98,7 +98,7 @@ namespace dtank
 
         public void SetActive(bool active)
         {
-            Debug.LogFormat("NpcBehaviourSelector.SetActive(): active={0}", active);
+            Debug.Log($"[NpcBehaviourSelector] SetActive(): ownerId={_owner.Id} active={active}");
 
             if (_activeFlag == active)
                 return;

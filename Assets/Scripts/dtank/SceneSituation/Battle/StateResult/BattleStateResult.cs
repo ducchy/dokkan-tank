@@ -1,5 +1,4 @@
 using GameFramework.Core;
-using UnityEngine;
 
 namespace dtank
 {
@@ -11,8 +10,6 @@ namespace dtank
 
         public override void OnEnter(BattleState prevKey, IScope scope)
         {
-            Debug.Log("BattleStateResult.OnEnter()");
-            
             var model = BattleModel.Get();
             var uiView = Services.Get<BattleUiView>();
             var resultController = new BattleResultController(model.RuleModel, uiView.ResultUiView);
@@ -31,10 +28,7 @@ namespace dtank
 
         public override void OnExit(BattleState nextKey)
         {
-            Debug.Log("BattleStateResult.OnExit()");
-            
             _presenter.Deactivate();
-            _presenter = null;
         }
     }
 }

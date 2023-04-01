@@ -4,23 +4,9 @@ namespace dtank
 {
     public class TransformData
     {
-        public Vector3 Position { get; set; }
-        public Vector3 Angle { get; set; }
-        public Vector3 LocalScale { get; set; }
-
-        public TransformData()
-        {
-            Position = Vector3.zero;
-            Angle = Vector3.zero;
-            LocalScale = Vector3.one;
-        }
-
-        public TransformData(TransformData td)
-        {
-            Position = td.Position;
-            Angle = td.Angle;
-            LocalScale = td.LocalScale;
-        }
+        public readonly Vector3 Position;
+        public readonly Vector3 Angle;
+        public readonly Vector3 LocalScale;
 
         public TransformData(Transform t)
         {

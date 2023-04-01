@@ -1,7 +1,6 @@
 using GameFramework.Core;
 using GameFramework.EntitySystems;
 using UniRx;
-using UnityEngine;
 
 namespace dtank
 {
@@ -13,8 +12,8 @@ namespace dtank
         
         private IBehaviourSelector _behaviourSelector;
         
-        private readonly DisposableScope _scope = new DisposableScope();
-        private readonly DisposableScope _behaviourScope = new DisposableScope();
+        private readonly DisposableScope _scope = new();
+        private readonly DisposableScope _behaviourScope = new();
 
         public BattleTankLogic(
             BattleModel model,
@@ -45,7 +44,7 @@ namespace dtank
 
         private void Bind()
         {
-            _tankModel.BattleState
+            _tankModel.CurrentState
                 .TakeUntil(_scope)
                 .Subscribe(OnStateChanged)
                 .ScopeTo(_scope);
@@ -116,12 +115,12 @@ namespace dtank
 
             _behaviourSelector.OnShotCurveAsObservable
                 .TakeUntil(_behaviourScope)
-                .Subscribe(_ => _tankModel.ShotCurve())
+                .Subscribe(_ => _tankModel.SetState(BattleTankState.ShotCurve))
                 .ScopeTo(_behaviourScope);
 
             _behaviourSelector.OnShotStraightAsObservable
                 .TakeUntil(_behaviourScope)
-                .Subscribe(_ => _tankModel.ShotStraight())
+                .Subscribe(_ => _tankModel.SetState(BattleTankState.ShotStraight))
                 .ScopeTo(_behaviourScope);
 
             _behaviourSelector.OnTurnValueChangedAsObservable
@@ -139,9 +138,6 @@ namespace dtank
         {
             switch (state)
             {
-                case BattleTankState.Ready:
-                    _tankActor.Ready();
-                    break;
                 case BattleTankState.Damage:
                     _behaviourSelector.BeginDamage();
                     _tankActor.Damage();
@@ -161,19 +157,17 @@ namespace dtank
 
         private void OnAnimatorStateExit(BattleTankAnimatorState animState)
         {
-            Debug.LogFormat("OnAnimatorStateExit: animState={0}", animState);
-
             switch (animState)
             {
                 case BattleTankAnimatorState.Damage:
-                    _tankModel.EndDamage();
+                    _tankModel.SetState(BattleTankState.FreeMove);
                     _behaviourSelector.EndDamage();
                     break;
                 case BattleTankAnimatorState.ShotCurve:
-                    _tankModel.EndShotCurve();
+                    _tankModel.SetState(BattleTankState.FreeMove);
                     break;
                 case BattleTankAnimatorState.ShotStraight:
-                    _tankModel.EndShotStraight();
+                    _tankModel.SetState(BattleTankState.FreeMove);
                     _behaviourSelector.EndShotStraight();
                     break;
             }
@@ -181,8 +175,6 @@ namespace dtank
 
         private void OnAnimationEvent(string id)
         {
-            Debug.LogFormat("OnAnimationEvent: id={0}", id);
-
             switch (id)
             {
                 case "ShotCurve":
@@ -202,13 +194,13 @@ namespace dtank
             {
                 case BattleState.Ready:
                     _behaviourSelector.Reset();
-                    _tankModel.Ready();
+                    _tankModel.SetState(BattleTankState.Ready);
                     break;
                 case BattleState.Playing:
-                    _tankModel.Playing();
+                    _tankModel.SetState(BattleTankState.FreeMove);
                     break;
                 case BattleState.Result:
-                    _tankModel.Result();
+                    _tankModel.SetState(BattleTankState.Result);
                     break;
             }
         }

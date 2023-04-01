@@ -8,7 +8,7 @@ namespace dtank
     {
         private readonly BattleCameraController _cameraController;
         private readonly BattleReadyUiView _readyUiView;
-        private readonly DisposableScope _scope = new DisposableScope();
+        private readonly DisposableScope _scope = new();
         
         public BattleReadyPresenter(
             BattleCameraController cameraController, 

@@ -21,3 +21,5 @@ MonoBehaviour:
     sequenceClip: {fileID: 11400000, guid: d111da424ef5548e2a8e20891870492e, type: 2}
   - triggerName: onShotCurve
     sequenceClip: {fileID: 11400000, guid: cfa5016f7d9fe4d9b88bf300e3e5135f, type: 2}
+  - triggerName: onDead
+    sequenceClip: {fileID: 11400000, guid: 0d4afc677c453453da865c2ead26f526, type: 2}

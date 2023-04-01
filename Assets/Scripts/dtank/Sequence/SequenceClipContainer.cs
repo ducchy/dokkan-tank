@@ -9,13 +9,13 @@ namespace dtank
         {
             if (infos == null)
                 return null;
-            
+
             var dictionary = new Dictionary<string, SequenceClip>();
             foreach (var info in infos)
             {
                 if (info == null || dictionary.ContainsKey(info.triggerName))
                     continue;
-                
+
                 dictionary.Add(info.triggerName, info.sequenceClip);
             }
 

@@ -1,9 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using GameFramework.BodySystems;
 using GameFramework.Core;
 using GameFramework.CoroutineSystems;
 using GameFramework.EntitySystems;
+using GameFramework.TaskSystems;
+using UniRx;
 using UnityEngine;
 
 namespace dtank
@@ -35,13 +38,39 @@ namespace dtank
             var entity = new Entity();
             _dictionary.Add(model.Id, entity);
 
-            yield return entity.SetupBattleTankAsync(model, scope)
+            yield return SetupBattleTankAsync(entity, model, scope)
                 .StartAsEnumerator(scope);
         }
 
         public Entity Get(int id)
         {
             return _dictionary.TryGetValue(id, out var value) ? value : null;
+        }
+
+        /// <summary>
+        /// BattleTankEntityの初期化処理
+        /// </summary>
+        private IObservable<Entity> SetupBattleTankAsync(Entity source, BattleTankModel model, IScope scope)
+        {
+            return source.SetupAsync(() =>
+            {
+                return new TankPrefabAssetRequest(model.AssetKey)
+                    .LoadAsync(scope)
+                    .Select(prefab => Services.Get<BodyManager>().CreateFromPrefab(prefab));
+            }, entity =>
+            {
+                var taskRunner = Services.Get<TaskRunner>();
+                var body = entity.GetBody();
+                body.UserId = model.Id;
+                var actor = new BattleTankActor(body, model.ActorModel.Setup,
+                    model.ActorModel.StartPointData);
+                taskRunner.Register(actor, TaskOrder.Actor);
+                var logic = new BattleTankLogic(BattleModel.Get(), model, actor);
+                taskRunner.Register(logic, TaskOrder.Logic);
+                entity.AddActor(actor)
+                    .AddLogic(logic);
+                return Observable.ReturnUnit();
+            });
         }
     }
 }

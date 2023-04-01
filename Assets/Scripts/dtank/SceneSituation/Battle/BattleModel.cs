@@ -13,30 +13,22 @@ namespace dtank
 {
     public class BattleModel : SingleModel<BattleModel>, ITask
     {
-        private readonly ReactiveProperty<BattleState> _currentState = new ReactiveProperty<BattleState>();
+        private readonly ReactiveProperty<BattleState> _currentState = new();
         public IReadOnlyReactiveProperty<BattleState> CurrentState => _currentState;
 
-        private readonly List<BattleTankModel> _tankModels = new List<BattleTankModel>();
+        private readonly List<BattleTankModel> _tankModels = new();
         public IReadOnlyList<BattleTankModel> TankModels => _tankModels;
 
         public BattleTankModel MainPlayerTankModel { get; private set; }
 
         public BattleRuleModel RuleModel { get; private set; }
 
-        public event Action<BattleModel> OnUpdated;
-        private readonly CoroutineRunner _coroutineRunner = new CoroutineRunner();
+        private readonly CoroutineRunner _coroutineRunner = new();
 
         bool ITask.IsActive => true;
 
         private BattleModel(object empty) : base(empty)
         {
-        }
-
-        public IObservable<BattleModel> OnUpdatedAsObservable()
-        {
-            return Observable.FromEvent<BattleModel>(
-                h => OnUpdated += h,
-                h => OnUpdated -= h);
         }
 
         public IObservable<Unit> SetupAsync(BattleEntryData entryData, FieldViewData fieldViewData)
@@ -46,11 +38,10 @@ namespace dtank
                     var scope = new DisposableScope();
                     return _coroutineRunner.StartCoroutineAsync(SetupRoutine(entryData, fieldViewData, scope),
                         () => { scope.Dispose(); });
-                })
-                .Do(_ => OnUpdated?.Invoke(this));
+                });
         }
 
-        public IEnumerator SetupRoutine(BattleEntryData entryData, FieldViewData fieldViewData, IScope scope)
+        private IEnumerator SetupRoutine(BattleEntryData entryData, FieldViewData fieldViewData, IScope scope)
         {
             _tankModels.Clear();
             foreach (var player in entryData.Players)
@@ -62,16 +53,14 @@ namespace dtank
                     .StartAsEnumerator(scope);
 
                 var tankModel = BattleTankModel.Create();
-                tankModel.Update(player.Name, player.BodyId, player.CharacterType, parameterData);
+                tankModel.Setup(player.Name, player.BodyId, player.CharacterType, parameterData);
 
                 var actorSetupData = default(BattleTankActorSetupData);
-                yield return new BattleTankActorSetupDataAssetRequest($"{player.ParameterId:d3}")
+                yield return new BattleTankActorSetupDataAssetRequest($"{parameterData.actorSetupDataId:d3}")
                     .LoadAsync(scope)
                     .Do(x => actorSetupData = x)
                     .StartAsEnumerator(scope);
-
                 var startPointData = fieldViewData.StartPointDataArray[player.PositionIndex];
-
                 tankModel.ActorModel.Update(actorSetupData, startPointData);
 
                 _tankModels.Add(tankModel);
@@ -110,7 +99,7 @@ namespace dtank
         {
             foreach (var tankModel in _tankModels)
             {
-                tankModel.BattleState
+                tankModel.CurrentState
                     .Subscribe(state =>
                     {
                         if (state == BattleTankState.Dead)
@@ -128,13 +117,17 @@ namespace dtank
                 tankModel.Update();
         }
 
-        public void ChangeState(BattleState state)
+        public void ChangeState(BattleState next)
         {
-            Debug.LogFormat("BattleModel.ChangeState(): state={0}", state);
+            var current = _currentState.Value;
+            if (current == next)
+                return;
+            
+            Debug.Log($"[BattleModel] ChangeState: {current} -> {next}");
 
-            _currentState.Value = state;
+            _currentState.Value = next;
 
-            switch (state)
+            switch (next)
             {
                 case BattleState.Ready:
                     RuleModel.Reset();
@@ -142,19 +135,6 @@ namespace dtank
                 case BattleState.Playing:
                     RuleModel.Start();
                     break;
-            }
-        }
-
-        private bool IsActiveState(BattleState state)
-        {
-            switch (state)
-            {
-                case BattleState.Invalid:
-                case BattleState.Retry:
-                case BattleState.Quit:
-                    return false;
-                default:
-                    return true;
             }
         }
     }

@@ -8,8 +8,10 @@ namespace dtank
     {
         private Func<IAttacker, bool> _conditionFunc;
         
-        private readonly Subject<IAttacker> _receiveDamageSubject = new Subject<IAttacker>();
+        private readonly Subject<IAttacker> _receiveDamageSubject = new();
         public IObservable<IAttacker> ReceiveDamageObservable => _receiveDamageSubject.AsObservable();
+
+        string IDamageReceiver.Name => name;
 
         private void OnDestroy()
         {

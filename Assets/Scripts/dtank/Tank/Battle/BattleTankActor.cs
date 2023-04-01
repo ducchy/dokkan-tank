@@ -8,48 +8,51 @@ using GameFramework.EntitySystems;
 using GameFramework.PlayableSystems;
 using UniRx;
 using UnityEngine;
-using Object = UnityEngine.Object;
+using UnityEngine.Playables;
 
 namespace dtank
 {
     public class BattleTankActor : Actor, IAttacker
     {
+        #region Variable
+
         private readonly IBattleTankActorSetupData _setupData;
         private readonly TransformData _startPointData;
 
         private readonly MotionController _motionController;
-        private readonly LocatorParts _locatorParts;
         private readonly StatusEventListener _statusEventListener;
         private readonly DamageReceiveListener _damageReceiveListener;
         private readonly MeshRenderer[] _renderers;
-        private readonly Collider _collider;
 
         private readonly MoveController _moveController;
         private readonly CoroutineRunner _coroutineRunner;
         private readonly SequenceClipContainer _sequenceClipContainer;
         private readonly SequenceController _sequenceController;
-        
+
         private SequenceHandle _actionSequenceHandle;
         private AnimatorControllerPlayableProvider _playableProvider;
+        private Sequence _invincibleSeq;
 
         private BattleTankAnimatorState _currentState = BattleTankAnimatorState.Invalid;
 
-        private readonly Subject<BattleTankAnimatorState> _onStateExitSubject = new Subject<BattleTankAnimatorState>();
+        private readonly Subject<BattleTankAnimatorState> _onStateExitSubject = new();
         public IObservable<BattleTankAnimatorState> OnStateExitAsObservable => _onStateExitSubject;
 
-        private readonly Subject<IAttacker> _onDamageReceivedSubject = new Subject<IAttacker>();
+        private readonly Subject<IAttacker> _onDamageReceivedSubject = new();
         public IObservable<IAttacker> OnDamageReceivedAsObservable => _onDamageReceivedSubject;
 
-        private readonly Subject<Vector3> _onPositionChangedSubject = new Subject<Vector3>();
+        private readonly Subject<Vector3> _onPositionChangedSubject = new();
         public IObservable<Vector3> OnPositionChangedAsObservable => _onPositionChangedSubject;
 
-        private readonly Subject<Vector3> _onForwardChangedSubject = new Subject<Vector3>();
+        private readonly Subject<Vector3> _onForwardChangedSubject = new();
         public IObservable<Vector3> OnForwardChangedAsObservable => _onForwardChangedSubject;
 
-        private readonly Subject<Unit> _onDealDamageSubject = new Subject<Unit>();
+        private readonly Subject<Unit> _onDealDamageSubject = new();
         public IObservable<Unit> OnDealDamageAsObservable => _onDealDamageSubject;
 
-        private Sequence _invincibleSeq;
+        int IAttacker.Id => (int)Body.UserId;
+
+        #endregion Variable
 
         /// <summary>
         /// コンストラクタ
@@ -61,22 +64,29 @@ namespace dtank
             _startPointData = startPointData;
 
             _motionController = body.GetController<MotionController>();
-            _locatorParts = body.GetComponent<LocatorParts>();
             _statusEventListener = body.GetComponent<StatusEventListener>();
             _damageReceiveListener = body.GetComponent<DamageReceiveListener>();
             _renderers = body.GetComponentsInChildren<MeshRenderer>();
-            _collider = body.GetComponent<Collider>();
+            var locatorParts = body.GetComponent<LocatorParts>();
 
             _coroutineRunner = new CoroutineRunner();
-            _moveController = new MoveController(body.GetComponent<Rigidbody>(), _setupData.MoveMaxSpeed, _setupData.TurnMaxSpeed,
+            _moveController = new MoveController(body.GetComponent<Rigidbody>(), _setupData.MoveMaxSpeed,
+                _setupData.TurnMaxSpeed,
                 pos => _onPositionChangedSubject.OnNext(pos),
                 fwd => _onForwardChangedSubject.OnNext(fwd));
             _sequenceClipContainer = SequenceClipContainer.Create(setupSetupData.ActionInfos);
             _sequenceController = new SequenceController();
-            
-            _damageReceiveListener.SetCondition(attacker =>  attacker != this);
-            _sequenceController.BindSignalEventHandler<CreateBulletSignalSequenceEvent, CreateBulletSignalSequenceEventHandler>(
-                handler => { handler.Setup(this, _locatorParts["Muzzle"]); });
+
+            _damageReceiveListener.SetCondition(attacker => attacker != this);
+            _sequenceController
+                .BindSignalEventHandler<CreateBulletSignalSequenceEvent, CreateBulletSignalSequenceEventHandler>(
+                    handler => { handler.Setup(this, locatorParts["Muzzle"]); });
+            _sequenceController
+                .BindSignalEventHandler<PlayEffectSignalSequenceEvent, PlayEffectSignalSequenceEventHandler>(
+                    handler => { handler.Setup(locatorParts["Center"]); });
+            _sequenceController
+                .BindSignalEventHandler<EndSignalSequenceEvent, EndSignalSequenceEventHandler>(
+                    handler => { handler.Setup(() => SetActive(false)); });
 
             SetStartPoint();
         }
@@ -119,93 +129,19 @@ namespace dtank
             _sequenceController.Update(deltaTime);
         }
 
-        private void SetStartPoint()
-        {
-            _moveController.SetTransform(_startPointData);
-        }
-
-        private void SetTrigger(string triggerName) {
-            _sequenceController.Stop(_actionSequenceHandle);
-
-            var sequence = _sequenceClipContainer[triggerName];
-            if (sequence != null)
-                _actionSequenceHandle = _sequenceController.Play(sequence);
-            
-            _playableProvider.GetPlayable().SetTrigger(triggerName);
-        }
-
-        private void OnChangeState(string stateName)
-        {
-            foreach (BattleTankAnimatorState value in Enum.GetValues(typeof(BattleTankAnimatorState)))
-            {
-                if (value.ToStateName() != stateName)
-                    continue;
-                
-                _onStateExitSubject.OnNext(_currentState);
-                _currentState = value;
-                break;
-            }
-        }
-
-        public void Ready()
-        {
-            SetActive(true);
-        }
-
-        public void Damage()
-        {
-            if (_currentState == BattleTankAnimatorState.Damage)
-                return;
-
-            SetTrigger("onDamage");
-        }
-
-        public void ShotCurve()
-        {
-            if (_currentState != BattleTankAnimatorState.Idle)
-                return;
-
-            SetTrigger("onShotCurve");
-        }
-
-        public void ShotStraight()
-        {
-            if (_currentState != BattleTankAnimatorState.Idle)
-                return;
-
-            SetTrigger("onShotStraight");
-        }
-
-        public void SetMoveAmount(float moveAmount)
-        {
-            _moveController.SetMoveAmount(moveAmount);
-        }
-
-        public void SetTurnAmount(float turnAmount)
-        {
-            _moveController.SetTurnAmount(turnAmount);
-        }
-
-        public void Dead()
-        {
-            _invincibleSeq?.Kill();
-
-            var center = _locatorParts["Center"];
-            var deadEffect = Object.Instantiate(_setupData.DeadEffectPrefab);
-            deadEffect.transform.position = center.position;
-
-            SetActive(false);
-        }
-
         private void SetActive(bool active)
         {
-            _collider.enabled = active;
             SetVisible(active);
+            if (active)
+                _playableProvider.GetPlayable().Play();
+            else
+                _playableProvider.GetPlayable().Pause();
         }
 
-        private void ReceiveDamage(IAttacker attacker)
+        private void SetVisible(bool flag)
         {
-            _onDamageReceivedSubject.OnNext(attacker);
+            foreach (var rend in _renderers)
+                rend.enabled = flag;
         }
 
         public void SetInvincible(bool flag)
@@ -229,15 +165,97 @@ namespace dtank
                 .Play();
         }
 
-        private void SetVisible(bool flag)
+        #region AnimatorState
+
+        private void SetTrigger(string triggerName)
         {
-            foreach (var rend in _renderers)
-                rend.enabled = flag;
+            _sequenceController.Stop(_actionSequenceHandle);
+
+            var sequence = _sequenceClipContainer[triggerName];
+            if (sequence != null)
+                _actionSequenceHandle = _sequenceController.Play(sequence);
+
+            _playableProvider.GetPlayable().SetTrigger(triggerName);
         }
 
-        public void DealDamage()
+        public void Damage()
+        {
+            if (_currentState != BattleTankAnimatorState.Idle)
+                return;
+
+            SetTrigger("onDamage");
+        }
+
+        public void ShotCurve()
+        {
+            if (_currentState != BattleTankAnimatorState.Idle)
+                return;
+
+            SetTrigger("onShotCurve");
+        }
+
+        public void ShotStraight()
+        {
+            if (_currentState != BattleTankAnimatorState.Idle)
+                return;
+
+            SetTrigger("onShotStraight");
+        }
+
+        public void Dead()
+        {
+            if (_currentState != BattleTankAnimatorState.Idle)
+                return;
+
+            SetTrigger("onDead");
+        }
+
+        private void OnChangeState(string stateName)
+        {
+            foreach (BattleTankAnimatorState value in Enum.GetValues(typeof(BattleTankAnimatorState)))
+            {
+                if (value.ToStateName() != stateName)
+                    continue;
+
+                _onStateExitSubject.OnNext(_currentState);
+                _currentState = value;
+                break;
+            }
+        }
+
+        #endregion AnimatorState
+
+        #region MoveController
+
+        private void SetStartPoint()
+        {
+            _moveController.SetTransform(_startPointData);
+        }
+
+        public void SetMoveAmount(float moveAmount)
+        {
+            _moveController.SetMoveAmount(moveAmount);
+        }
+
+        public void SetTurnAmount(float turnAmount)
+        {
+            _moveController.SetTurnAmount(turnAmount);
+        }
+
+        #endregion MoveController
+
+        #region Damage
+
+        void IAttacker.DealDamage()
         {
             _onDealDamageSubject.OnNext(Unit.Default);
         }
+
+        private void ReceiveDamage(IAttacker attacker)
+        {
+            _onDamageReceivedSubject.OnNext(attacker);
+        }
+
+        #endregion Damage
     }
 }

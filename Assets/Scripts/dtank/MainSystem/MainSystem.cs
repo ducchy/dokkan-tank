@@ -19,16 +19,12 @@ namespace dtank
 
         protected override IEnumerator RebootRoutineInternal(object[] args)
         {
-            Debug.Log("Begin RebootRoutineInternal()");
-
-            Debug.Log("End RebootRoutineInternal()");
-
             yield break;
         }
 
         protected override IEnumerator StartRoutineInternal(object[] args)
         {
-            Debug.Log("Begin StartRoutineInternal()");
+            Debug.Log("[MainSystem] Begin StartRoutineInternal()");
 
             // GlobalObjectを初期化
             DontDestroyOnLoad(_globalObject.gameObject);
@@ -60,14 +56,13 @@ namespace dtank
             if (args.Length > 0)
                 startSituation = args[0] as SceneSituation;
 
-            if (startSituation == null)
-                startSituation = new TitleSceneSituation();
+            startSituation ??= new TitleSceneSituation();
 
             var handle = _sceneSituationContainer.Transition(startSituation, new CommonFadeTransitionEffect(0f, 0.5f));
 
             yield return handle;
 
-            Debug.Log("End StartRoutineInternal()");
+            Debug.Log("[MainSystem] End StartRoutineInternal()");
         }
 
         protected override void UpdateInternal()
@@ -82,7 +77,7 @@ namespace dtank
 
         protected override void OnDestroyInternal()
         {
-            Debug.Log("OnDestroyInternal()");
+            Debug.Log("[MainSystem] OnDestroyInternal()");
 
             _sceneSituationContainer.Dispose();
             _sceneSituationContainer = null;

@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace dtank
 {
@@ -15,36 +14,54 @@ namespace dtank
 
         private StateContainer<TitleStateBase, TitleState> _stateContainer;
 
-        protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope)
+        protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope)
         {
-            Debug.Log("Begin TitleSceneSituation.LoadRoutineInternal()");
+            Debug.Log("[TitleSceneSituation] Begin SetupRoutineInternal");
 
-            yield return base.LoadRoutineInternal(handle, scope);
+            yield return SetupAllRoutine(scope);
 
-            yield return LoadAllRoutine(scope);
+            Bind(scope);
 
-            _stateContainer.Change(TitleState.Idle);
+            TitleModel.Get().ChangeState(TitleState.Idle);
 
-            Debug.Log("End TitleSceneSituation.LoadRoutineInternal()");
+            Debug.Log("[TitleSceneSituation] End SetupRoutineInternal");
         }
 
         protected override void UpdateInternal()
         {
-            base.UpdateInternal();
-
             _stateContainer.Update(Time.deltaTime);
         }
 
         protected override void UnloadInternal(TransitionHandle handle)
         {
-            base.UnloadInternal(handle);
-
+            Debug.Log("[TitleSceneSituation] UnloadInternal");
+            
             UnloadAll();
         }
 
-        #region Load
+        private void Bind(IScope scope)
+        {
+            var model = TitleModel.Get();
+            model.CurrentState
+                .TakeUntil(scope)
+                .Subscribe(state =>
+                {
+                    switch (state)
+                    {
+                        case TitleState.End:
+                            ParentContainer.Transition(new BattleReadySceneSituation(), new CommonFadeTransitionEffect(0.5f, 0f));
+                            break;
+                        default:
+                            _stateContainer.Change(state);
+                            break;
+                    }
+                })
+                .ScopeTo(scope);
+        }
 
-        private IEnumerator LoadAllRoutine(IScope scope)
+        #region Setup
+
+        private IEnumerator SetupAllRoutine(IScope scope)
         {
             var fieldManager = Services.Get<FieldManager>();
             yield return fieldManager.LoadRoutine(1);
@@ -52,8 +69,6 @@ namespace dtank
             SetupModel(scope);
             SetupPresenter(scope);
             SetupStateContainer(scope);
-
-            Bind(scope);
         }
 
         private void SetupModel(IScope scope)
@@ -88,32 +103,9 @@ namespace dtank
                 new TitleStateStart()
             };
             _stateContainer.Setup(TitleState.Invalid, states.ToArray());
-
-            var model = TitleModel.Get();
-            _stateContainer.OnChangedState += model.OnChangedState;
         }
 
-        private void Bind(IScope scope)
-        {
-            var model = TitleModel.Get();
-            model.CurrentState
-                .TakeUntil(scope)
-                .Subscribe(state =>
-                {
-                    switch (state)
-                    {
-                        case TitleState.End:
-                            ParentContainer.Transition(new BattleReadySceneSituation(), new CommonFadeTransitionEffect(0.5f, 0f));
-                            break;
-                        default:
-                            _stateContainer.Change(state);
-                            break;
-                    }
-                })
-                .ScopeTo(scope);
-        }
-
-        #endregion Load
+        #endregion Setup
 
         #region Unload
 

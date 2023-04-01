@@ -11,7 +11,7 @@ namespace dtank
         private readonly BattlePlayingUiView _playingUiView;
         private readonly BattleTankStatusUiView _statusUiView;
         private readonly BattleTankControlUiView _controlUiView;
-        private readonly DisposableScope _scope = new DisposableScope();
+        private readonly DisposableScope _scope = new();
 
         public BattlePlayingPresenter(
             BattleModel model,
