@@ -127,13 +127,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3cba7cf31d934d3c8c3d8e7545800856, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _hpEnableColor: {r: 1, g: 0.29803923, b: 0.29803923, a: 1}
-  _hpDisableColor: {r: 1, g: 0.29803923, b: 0.29803923, a: 0}
   _group: {fileID: 440703422870764830}
-  _hpImages:
-  - {fileID: 4166276832212828564}
-  - {fileID: 9161339747824478604}
-  - {fileID: 7775281044751893988}
+  _hpGauge: {fileID: 3426032330941825502}
 --- !u!1 &2702235483279769382
 GameObject:
   m_ObjectHideFlags: 0
@@ -221,8 +216,9 @@ GameObject:
   - component: {fileID: 2829962944456420696}
   - component: {fileID: 4639826195267097449}
   - component: {fileID: 2172639221805458596}
+  - component: {fileID: 3426032330941825502}
   m_Layer: 5
-  m_Name: Hp
+  m_Name: HpGaugeView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -289,6 +285,24 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3426032330941825502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4352768238862294721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 963a44c2263a541a09441a1e2ca80d46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _hpEnableColor: {r: 1, g: 0.29803923, b: 0.29803923, a: 1}
+  _hpDisableColor: {r: 1, g: 0.29803923, b: 0.29803923, a: 0}
+  _hpImages:
+  - {fileID: 4166276832212828564}
+  - {fileID: 9161339747824478604}
+  - {fileID: 7775281044751893988}
 --- !u!1 &5535029198199818123
 GameObject:
   m_ObjectHideFlags: 0

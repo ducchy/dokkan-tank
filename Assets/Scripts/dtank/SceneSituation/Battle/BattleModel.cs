@@ -112,6 +112,7 @@ namespace dtank
         void ITask.Update()
         {
             _coroutineRunner.Update();
+            
             RuleModel?.Update();
             foreach (var tankModel in _tankModels)
                 tankModel.Update();
@@ -131,6 +132,8 @@ namespace dtank
             {
                 case BattleState.Ready:
                     RuleModel.Reset();
+                    foreach (var tankModel in _tankModels)
+                        tankModel.Reset();
                     break;
                 case BattleState.Playing:
                     RuleModel.Start();

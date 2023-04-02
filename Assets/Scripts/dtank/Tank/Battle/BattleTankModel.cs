@@ -63,8 +63,11 @@ namespace dtank
             BodyId = bodyId;
             CharacterType = characterType;
             ParameterData = parameterData;
+        }
 
-            _hp.Value = parameterData.hp;
+        public void Reset()
+        {
+            _hp.Value = ParameterData.hp;
         }
 
         public void Update()
