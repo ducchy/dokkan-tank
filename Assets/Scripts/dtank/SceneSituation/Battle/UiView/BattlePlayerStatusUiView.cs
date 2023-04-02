@@ -5,7 +5,7 @@ using Sequence = DG.Tweening.Sequence;
 
 namespace dtank
 {
-    public class BattleTankStatusUiView : MonoBehaviour, IDisposable
+    public class BattlePlayerStatusUiView : MonoBehaviour, IDisposable
     {
         [SerializeField] private CanvasGroup _group;
         [SerializeField] private HpGaugeView _hpGauge;
@@ -49,7 +49,7 @@ namespace dtank
             if (_openFlag)
                 return;
             
-            Debug.Log("[BattleTankStatusUiView] Open");
+            Debug.Log("[BattlePlayerStatusUiView] Open");
 
             _openFlag = true;
             
@@ -72,7 +72,7 @@ namespace dtank
             if (!_openFlag)
                 return;
             
-            Debug.Log("[BattleTankStatusUiView] Close");
+            Debug.Log("[BattlePlayerStatusUiView] Close");
 
             _openFlag = false;
             

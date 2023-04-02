@@ -9,7 +9,7 @@ namespace dtank
         private readonly BattleModel _model;
         private readonly BattleUiView _uiView;
         private readonly BattlePlayingUiView _playingUiView;
-        private readonly BattleTankStatusUiView _statusUiView;
+        private readonly BattlePlayerStatusUiView _statusUiView;
         private readonly BattleTankControlUiView _controlUiView;
         private readonly DisposableScope _scope = new();
 
@@ -17,7 +17,7 @@ namespace dtank
             BattleModel model,
             BattleUiView uiView,
             BattlePlayingUiView playingUiView, 
-            BattleTankStatusUiView statusUiView,
+            BattlePlayerStatusUiView statusUiView,
             BattleTankControlUiView controlUiView)
         {
             _model = model;

@@ -51,7 +51,7 @@ namespace dtank
             
             _model.MainPlayerTankModel.Hp
                 .TakeUntil(_scope)
-                .Subscribe(_uiView.TankStatusUiView.SetHp)
+                .Subscribe(_uiView.PlayerStatusUiView.SetHp)
                 .ScopeTo(_scope);
         }
 

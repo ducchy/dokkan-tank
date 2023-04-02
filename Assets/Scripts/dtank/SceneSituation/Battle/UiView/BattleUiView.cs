@@ -10,13 +10,13 @@ namespace dtank
     public class BattleUiView : MonoBehaviour, IDisposable, ITask
     {
         [SerializeField] private BattleTankControlUiView _tankControlUiView;
-        [SerializeField] private BattleTankStatusUiView _tankStatusUiView;
+        [SerializeField] private BattlePlayerStatusUiView _playerStatusUiView;
         [SerializeField] private BattleReadyUiView _readyUiView;
         [SerializeField] private BattlePlayingUiView _playingUiView;
         [SerializeField] private BattleResultUiView _resultUiView;
 
         public BattleTankControlUiView TankControlUiView => _tankControlUiView;
-        public BattleTankStatusUiView TankStatusUiView => _tankStatusUiView;
+        public BattlePlayerStatusUiView PlayerStatusUiView => _playerStatusUiView;
         public BattleReadyUiView ReadyUiView => _readyUiView;
         public BattlePlayingUiView PlayingUiView => _playingUiView;
         public BattleResultUiView ResultUiView => _resultUiView;
@@ -43,7 +43,7 @@ namespace dtank
         public void Dispose()
         {
             _tankControlUiView.Dispose();
-            _tankStatusUiView.Dispose();
+            _playerStatusUiView.Dispose();
             _readyUiView.Dispose();
             _playingUiView.Dispose();
             _resultUiView.Dispose();
@@ -56,7 +56,7 @@ namespace dtank
         public void Reset()
         {
             _tankControlUiView.Reset();
-            _tankStatusUiView.Reset();
+            _playerStatusUiView.Reset();
             _readyUiView.Reset();
             _playingUiView.Reset();
             _resultUiView.Reset();

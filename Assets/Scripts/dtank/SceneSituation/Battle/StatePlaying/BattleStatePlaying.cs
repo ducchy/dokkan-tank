@@ -15,7 +15,7 @@ namespace dtank
             var uiView = Services.Get<BattleUiView>();
 
             _presenter = new BattlePlayingPresenter(model, uiView, uiView.PlayingUiView,
-                uiView.TankStatusUiView,
+                uiView.PlayerStatusUiView,
                 uiView.TankControlUiView);
             _presenter.ScopeTo(scope);
             
