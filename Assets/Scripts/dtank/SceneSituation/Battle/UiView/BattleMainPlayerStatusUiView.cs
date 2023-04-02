@@ -21,6 +21,8 @@ namespace dtank
         public void Setup(BattleTankModel model)
         {
             _playerName.text = model.Name;
+            
+            _hpGauge.Setup(model.ParameterData.hp);
         }
 
         public void Dispose()

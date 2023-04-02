@@ -1,22 +1,27 @@
 using System;
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.UI;
 using Sequence = DG.Tweening.Sequence;
 
 namespace dtank
 {
     public class HpGaugeView : MonoBehaviour, IDisposable
     {
-        [SerializeField] private Color _hpEnableColor;
-        [SerializeField] private Color _hpDisableColor;
-
-        [SerializeField] private Image[] _hpImages;
+        [SerializeField] private HpGaugeNodeView _nodePrefab;
+        [SerializeField] private Transform _nodeParent;
 
         public int DisplayHp { get; private set; }
         public int CurrentHp { get; private set; }
-
+        
+        private HpGaugeNodeView[] _nodes;
         private Sequence _sequence;
+
+        public void Setup(int maxHp)
+        {
+            _nodes = new HpGaugeNodeView[maxHp];
+            for (var i = 0; i < maxHp; i++)
+                _nodes[i] = Instantiate(_nodePrefab, _nodeParent);
+        }
 
         public void Dispose()
         {
@@ -35,8 +40,8 @@ namespace dtank
 
         public void SetHpImmediate(int hp)
         {
-            for (var i = 0; i < _hpImages.Length; i++)
-                _hpImages[i].color = i < hp ? _hpEnableColor : _hpDisableColor;
+            for (var i = 0; i < _nodes.Length; i++)
+                _nodes[i].SetEnable(i < hp);
 
             CurrentHp = DisplayHp = hp;
         }
@@ -66,26 +71,18 @@ namespace dtank
             {
                 for (var i = from; i < to; i++)
                 {
-                    var hpImage = _hpImages[i];
-                    hpImage.color = _hpDisableColor;
-                    hpImage.transform.localScale = Vector3.one * 0.5f;
-
-                    _sequence
-                        .Append(hpImage.DOColor(_hpEnableColor, 0.3f))
-                        .Join(hpImage.transform.DOScale(1f, 0.3f));
+                    var node = _nodes[i];
+                    node.SetEnable(false);
+                    _sequence.Append(node.EnableSequence());
                 }
             }
             else
             {
                 for (var i = from - 1; i >= to; i--)
                 {
-                    var hpImage = _hpImages[i];
-                    hpImage.color = _hpEnableColor;
-                    hpImage.transform.localScale = Vector3.one;
-
-                    _sequence
-                        .Append(hpImage.DOColor(_hpDisableColor, 0.3f))
-                        .Join(hpImage.transform.DOScale(0.5f, 0.3f));
+                    var node = _nodes[i];
+                    node.SetEnable(true);
+                    _sequence.Append(node.DisableSequence());
                 }
             }
 
