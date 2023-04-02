@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace dtank
@@ -6,18 +7,24 @@ namespace dtank
     public class BattlePlayerStatusUiView : MonoBehaviour, IDisposable
     {
         [SerializeField] private BattleMainPlayerStatusUiView _mainPlayerStatus;
+        [SerializeField] private BattleOtherPlayerStatusUiView _otherPlayerStatusPrefab;
+        [SerializeField] private Transform _otherPlayerStatusParent;
 
-        public BattleMainPlayerStatusUiView MainPlayerStatus => _mainPlayerStatus;
+        private readonly Dictionary<int, BattlePlayerStatusUiViewBase> _statusUiDictionary = new();
 
         public void Setup(BattleModel model)
         {
+            _statusUiDictionary.Clear();
             foreach (var tankModel in model.TankModels)
             {
-                if (tankModel.CharacterType == CharacterType.Player)
-                    _mainPlayerStatus.Setup(tankModel);
+                BattlePlayerStatusUiViewBase statusUi = tankModel.CharacterType == CharacterType.Player
+                    ? _mainPlayerStatus
+                    : Instantiate(_otherPlayerStatusPrefab, _otherPlayerStatusParent);
+                statusUi.Setup(tankModel.Name, tankModel.ParameterData.hp);
+                _statusUiDictionary.Add(tankModel.Id, statusUi);
             }
         }
-        
+
         public void Dispose()
         {
             _mainPlayerStatus.Dispose();
@@ -25,17 +32,25 @@ namespace dtank
 
         public void Reset()
         {
-            _mainPlayerStatus.Reset();
+            foreach (var statusUi in _statusUiDictionary.Values)
+                statusUi.Reset();
         }
 
         public void Open()
         {
-            _mainPlayerStatus.Open();
+            foreach (var statusUi in _statusUiDictionary.Values)
+                statusUi.Open();
         }
 
         public void Close()
         {
-            _mainPlayerStatus.Close();
+            foreach (var statusUi in _statusUiDictionary.Values)
+                statusUi.Close();
+        }
+
+        public BattlePlayerStatusUiViewBase GetStatusUi(int id)
+        {
+            return _statusUiDictionary.TryGetValue(id, out var value) ? value : null;
         }
     }
 }

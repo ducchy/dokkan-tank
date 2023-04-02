@@ -86,7 +86,7 @@ namespace dtank
                 var controlUiView = model.CharacterType == CharacterType.Player ? _controlUiView : null;
                 var npcBehaviourSelector =
                     new NpcBehaviourSelector(model, tankModels);
-                var statusUiView = model.CharacterType == CharacterType.Player ? _statusUiView.MainPlayerStatus : null;
+                var statusUiView = _statusUiView.GetStatusUi(model.Id);
                 var logic = new BattleTankLogic(BattleModel.Get(), model, actor, controlUiView,
                     npcBehaviourSelector, statusUiView);
                 taskRunner.Register(logic, TaskOrder.Logic);
