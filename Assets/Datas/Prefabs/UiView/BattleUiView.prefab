@@ -52,7 +52,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _tankControlUiView: {fileID: 374493363758773663}
-  _tankStatusUiView: {fileID: 1173846543886141109}
+  _playerStatusUiView: {fileID: 1173846543886141109}
   _readyUiView: {fileID: 3218997454525898151}
   _playingUiView: {fileID: 5914356608114226352}
   _resultUiView: {fileID: 1560639831620994330}
@@ -152,18 +152,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3809332434328674076}
     m_Modifications:
-    - target: {fileID: 1279981553933313255, guid: 8e739435ea9de47eda23b82c78c2b5ca, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1279981553933313255, guid: 8e739435ea9de47eda23b82c78c2b5ca, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1279981553933313255, guid: 8e739435ea9de47eda23b82c78c2b5ca, type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 1914422832397122935, guid: 8e739435ea9de47eda23b82c78c2b5ca, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -254,35 +242,7 @@ PrefabInstance:
       objectReference: {fileID: 3809332435340828600}
     - target: {fileID: 1914422832397122939, guid: 8e739435ea9de47eda23b82c78c2b5ca, type: 3}
       propertyPath: m_Name
-      value: TankStatusUiView
-      objectReference: {fileID: 0}
-    - target: {fileID: 2109580525798667211, guid: 8e739435ea9de47eda23b82c78c2b5ca, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2109580525798667211, guid: 8e739435ea9de47eda23b82c78c2b5ca, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4125923530154668650, guid: 8e739435ea9de47eda23b82c78c2b5ca, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4125923530154668650, guid: 8e739435ea9de47eda23b82c78c2b5ca, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4657603221135527532, guid: 8e739435ea9de47eda23b82c78c2b5ca, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4657603221135527532, guid: 8e739435ea9de47eda23b82c78c2b5ca, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4657603221135527532, guid: 8e739435ea9de47eda23b82c78c2b5ca, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
+      value: BattlePlayerStatusUiView
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8e739435ea9de47eda23b82c78c2b5ca, type: 3}
@@ -419,7 +379,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2258229991868191917, guid: cdefea03b821447a99401d886ea89da0, type: 3}
       propertyPath: m_Name
-      value: TankControllerUiView
+      value: BattleTankControlUiView
       objectReference: {fileID: 0}
     - target: {fileID: 2258229991868191917, guid: cdefea03b821447a99401d886ea89da0, type: 3}
       propertyPath: m_IsActive

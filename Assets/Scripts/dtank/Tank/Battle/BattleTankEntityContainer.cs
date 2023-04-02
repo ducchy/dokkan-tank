@@ -17,10 +17,12 @@ namespace dtank
         public IReadOnlyDictionary<int, Entity> Dictionary => _dictionary;
 
         private readonly BattleTankControlUiView _controlUiView;
+        private readonly BattlePlayerStatusUiView _statusUiView;
 
-        public BattleTankEntityContainer(BattleTankControlUiView controlUiView)
+        public BattleTankEntityContainer(BattleTankControlUiView controlUiView, BattlePlayerStatusUiView statusUiView)
         {
             _controlUiView = controlUiView;
+            _statusUiView = statusUiView;
         }
 
         public void Dispose()
@@ -84,8 +86,9 @@ namespace dtank
                 var controlUiView = model.CharacterType == CharacterType.Player ? _controlUiView : null;
                 var npcBehaviourSelector =
                     new NpcBehaviourSelector(model, tankModels);
+                var statusUiView = model.CharacterType == CharacterType.Player ? _statusUiView.MainPlayerStatus : null;
                 var logic = new BattleTankLogic(BattleModel.Get(), model, actor, controlUiView,
-                    npcBehaviourSelector);
+                    npcBehaviourSelector, statusUiView);
                 taskRunner.Register(logic, TaskOrder.Logic);
                 entity.AddActor(actor)
                     .AddLogic(logic);

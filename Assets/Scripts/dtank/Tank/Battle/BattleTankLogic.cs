@@ -11,9 +11,10 @@ namespace dtank
         private readonly BattleTankActor _tankActor;
         private readonly BattleTankControlUiView _controlUiView;
         private readonly IBehaviourSelector _npcBehaviourSelector;
-        
+        private readonly IBattlePlayerStatusUiView _playerStatusUiView;
+
         private IBehaviourSelector _currentBehaviourSelector;
-        
+
         private readonly DisposableScope _scope = new();
         private readonly DisposableScope _behaviourScope = new();
 
@@ -22,14 +23,16 @@ namespace dtank
             BattleTankModel tankModel,
             BattleTankActor tankActor,
             BattleTankControlUiView controlUiView,
-            IBehaviourSelector npcBehaviourSelector)
+            IBehaviourSelector npcBehaviourSelector,
+            IBattlePlayerStatusUiView playerStatusUiView)
         {
             _model = model;
             _tankModel = tankModel;
             _tankActor = tankActor;
             _controlUiView = controlUiView;
             _npcBehaviourSelector = npcBehaviourSelector;
-            
+            _playerStatusUiView = playerStatusUiView;
+
             SetBehaviourSelector(tankModel.CharacterType);
         }
 
@@ -72,11 +75,25 @@ namespace dtank
                 .Subscribe(_tankActor.SetInvincible)
                 .ScopeTo(_scope);
 
+            if (_playerStatusUiView != null)
+            {
+                _tankModel.Hp
+                    .TakeUntil(_scope)
+                    .Subscribe(_playerStatusUiView.SetHp)
+                    .ScopeTo(_scope);
+
+                _tankModel.Score
+                    .TakeUntil(_scope)
+                    .Subscribe(_playerStatusUiView.SetScore)
+                    .ScopeTo(_scope);
+            }
+
             if (_controlUiView != null)
             {
                 _controlUiView.OnAutoToggleValueChangedAsObservable
                     .TakeUntil(_scope)
-                    .Subscribe(autoFlag => SetBehaviourSelector(autoFlag ? CharacterType.NonPlayer : CharacterType.Player))
+                    .Subscribe(autoFlag =>
+                        SetBehaviourSelector(autoFlag ? CharacterType.NonPlayer : CharacterType.Player))
                     .ScopeTo(_scope);
             }
         }
@@ -102,24 +119,30 @@ namespace dtank
                 .TakeUntil(_scope)
                 .Subscribe(_tankModel.SetForward)
                 .ScopeTo(_scope);
+
+            _tankActor.OnDealDamageAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_ => _tankModel.IncrementScore())
+                .ScopeTo(_scope);
         }
 
-        public void SetBehaviourSelector(CharacterType characterType)
+        private void SetBehaviourSelector(CharacterType characterType)
         {
             if (characterType == CharacterType.Player && _controlUiView != null)
             {
                 SetBehaviourSelector(_controlUiView);
                 return;
             }
+
             SetBehaviourSelector(_npcBehaviourSelector);
         }
 
         private void SetBehaviourSelector(IBehaviourSelector behaviourSelector)
         {
             _currentBehaviourSelector = behaviourSelector;
-            
+
             _behaviourScope.Dispose();
-            
+
             _model.CurrentState
                 .TakeUntil(_behaviourScope)
                 .Subscribe(OnChangedState)
@@ -133,7 +156,7 @@ namespace dtank
                         _currentBehaviourSelector.SetActive(false);
                 })
                 .ScopeTo(_scope);
-            
+
             behaviourSelector.OnDamageAsObservable
                 .TakeUntil(_behaviourScope)
                 .Subscribe(_tankModel.Damage)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UniRx;
 using UnityEngine;
 
@@ -23,25 +24,23 @@ namespace dtank
 
         private float _remainTime;
         private bool _playingFlag;
+        private bool _isActive;
 
-        private readonly Dictionary<int, int> _scoreDictionary = new();
         private readonly float _duration;
         private readonly int _mainPlayerId;
-        private readonly int[] _playerIds;
-        private bool _isActive;
+        private readonly IReadOnlyList<BattleTankModel> _tankModels;
 
         public int WinnerId { get; private set; }
 
-        public BattleRuleModel(float duration, int mainPlayerId, int[] playerIds)
+        public BattleRuleModel(float duration, int mainPlayerId, IReadOnlyList<BattleTankModel> tankModels)
         {
             _duration = duration;
             _mainPlayerId = mainPlayerId;
-            _playerIds = playerIds;
+            _tankModels = tankModels;
         }
 
         public void Dispose()
         {
-            _scoreDictionary.Clear();
         }
 
         public void Update()
@@ -64,10 +63,6 @@ namespace dtank
 
             _remainTime = _duration;
             _remainTimeInt.Value = Mathf.CeilToInt(_remainTime);
-
-            _scoreDictionary.Clear();
-            foreach (var playerId in _playerIds)
-                _scoreDictionary.Add(playerId, 0);
         }
 
         public void Start()
@@ -87,22 +82,17 @@ namespace dtank
             _resultType.Value = WinnerId == _mainPlayerId ? BattleResultType.Win : BattleResultType.Lose;
         }
 
-        public void IncrementScore(int playerId)
-        {
-            if (!_scoreDictionary.ContainsKey(playerId))
-                return;
-
-            _scoreDictionary[playerId]++;
-            WinnerId = GetTopPlayerId();
-        }
-
         public void Dead(int id)
         {
-            _scoreDictionary.Remove(id);
             WinnerId = GetTopPlayerId();
             if (id == _mainPlayerId)
+            {
                 _resultType.Value = BattleResultType.Lose;
-            else if (_scoreDictionary.Count <= 1)
+                return;
+            }
+
+            var remainPlayerCount = _tankModels.Count(model => model.DeadFlag);
+            if (remainPlayerCount <= 1)
                 _resultType.Value = BattleResultType.Win;
         }
 
@@ -110,13 +100,16 @@ namespace dtank
         {
             var topPlayerId = _mainPlayerId;
             var maxScore = int.MinValue;
-            foreach (var pair in _scoreDictionary)
+            foreach (var tankModel in _tankModels)
             {
-                if (maxScore >= pair.Value)
+                if (tankModel.DeadFlag)
                     continue;
 
-                topPlayerId = pair.Key;
-                maxScore = pair.Value;
+                if (maxScore >= tankModel.Score.Value)
+                    continue;
+
+                topPlayerId = tankModel.Id;
+                maxScore = tankModel.Score.Value;
             }
 
             return topPlayerId;

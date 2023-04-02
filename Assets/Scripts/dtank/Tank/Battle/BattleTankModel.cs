@@ -27,6 +27,9 @@ namespace dtank
         private readonly ReactiveProperty<bool> _invincibleFlag = new(false);
         public IReactiveProperty<bool> InvincibleFlag => _invincibleFlag;
 
+        private readonly ReactiveProperty<int> _score = new();
+        public IReadOnlyReactiveProperty<int> Score => _score;
+
         public string Name { get; private set; }
         public int BodyId { get; private set; }
         public CharacterType CharacterType { get; private set; }
@@ -97,6 +100,11 @@ namespace dtank
 
             BeginInvincible();
             SetState(BattleTankState.Damage);
+        }
+        
+        public void IncrementScore()
+        {
+            _score.Value++;
         }
         
         #region Setter

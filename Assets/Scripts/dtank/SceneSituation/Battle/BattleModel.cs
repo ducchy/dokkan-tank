@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using GameFramework.Core;
 using GameFramework.CoroutineSystems;
 using GameFramework.ModelSystems;
@@ -34,11 +33,11 @@ namespace dtank
         public IObservable<Unit> SetupAsync(BattleEntryData entryData, FieldViewData fieldViewData)
         {
             return Observable.Defer(() =>
-                {
-                    var scope = new DisposableScope();
-                    return _coroutineRunner.StartCoroutineAsync(SetupRoutine(entryData, fieldViewData, scope),
-                        () => { scope.Dispose(); });
-                });
+            {
+                var scope = new DisposableScope();
+                return _coroutineRunner.StartCoroutineAsync(SetupRoutine(entryData, fieldViewData, scope),
+                    () => { scope.Dispose(); });
+            });
         }
 
         private IEnumerator SetupRoutine(BattleEntryData entryData, FieldViewData fieldViewData, IScope scope)
@@ -76,8 +75,7 @@ namespace dtank
                 .StartAsEnumerator(scope);
 
             var mainPlayerId = MainPlayerTankModel?.Id ?? -1;
-            RuleModel = new BattleRuleModel(ruleData.duration, mainPlayerId,
-                _tankModels.Select(m => m.Id).ToArray());
+            RuleModel = new BattleRuleModel(ruleData.duration, mainPlayerId, _tankModels);
 
             Bind();
         }
@@ -112,7 +110,7 @@ namespace dtank
         void ITask.Update()
         {
             _coroutineRunner.Update();
-            
+
             RuleModel?.Update();
             foreach (var tankModel in _tankModels)
                 tankModel.Update();
@@ -123,7 +121,7 @@ namespace dtank
             var current = _currentState.Value;
             if (current == next)
                 return;
-            
+
             Debug.Log($"[BattleModel] ChangeState: {current} -> {next}");
 
             _currentState.Value = next;

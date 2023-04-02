@@ -1,6 +1,5 @@
 using System;
 using GameFramework.Core;
-using GameFramework.EntitySystems;
 using UniRx;
 
 namespace dtank
@@ -11,7 +10,7 @@ namespace dtank
         private readonly BattleUiView _uiView;
         private readonly BattleCameraController _cameraController;
         private readonly BattleTankEntityContainer _tankEntityContainer;
-        private readonly DisposableScope _scope = new DisposableScope();
+        private readonly DisposableScope _scope = new();
 
         public BattlePresenter(
             BattleModel model,
@@ -48,11 +47,6 @@ namespace dtank
                     }
                 })
                 .ScopeTo(_scope);
-            
-            _model.MainPlayerTankModel.Hp
-                .TakeUntil(_scope)
-                .Subscribe(_uiView.PlayerStatusUiView.SetHp)
-                .ScopeTo(_scope);
         }
 
         private void SetEvent()
@@ -61,15 +55,6 @@ namespace dtank
                 .TakeUntil(_scope)
                 .Subscribe(_ => _model.ChangeState(BattleState.Playing))
                 .ScopeTo(_scope);
-
-            foreach (var pair in _tankEntityContainer.Dictionary)
-            {
-                var tankActor = pair.Value.GetActor<BattleTankActor>();
-                tankActor.OnDealDamageAsObservable
-                    .TakeUntil(_scope)
-                    .Subscribe(_ => _model.RuleModel.IncrementScore(pair.Key))
-                    .ScopeTo(_scope);
-            }
 
             _uiView.PlayingUiView.OnForceEndAsObservable
                 .TakeUntil(_scope)

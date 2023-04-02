@@ -98,14 +98,14 @@ namespace dtank
         private void SetupBattleEntryData()
         {
             // TODO: 選んだルールに応じて設定
-            var mainPlayerData = new BattlePlayerEntryData(1, "一郎", 1, 0, CharacterType.Player, 1);
+            var mainPlayerData = new BattlePlayerEntryData(1, "プレイヤー1", 1, 0, CharacterType.Player, 1);
             var battleEntryData = Services.Get<BattleEntryData>();
             battleEntryData.Set(1, mainPlayerData, new List<BattlePlayerEntryData>()
             {
                 mainPlayerData,
-                new(2, "二郎", 2, 1, CharacterType.NonPlayer, 1),
-                new(3, "三郎", 3, 2, CharacterType.NonPlayer, 1),
-                new(4, "四郎", 4, 3, CharacterType.NonPlayer, 1),
+                new(2, "プレイヤー2", 2, 1, CharacterType.NonPlayer, 1),
+                new(3, "プレイヤー3", 3, 2, CharacterType.NonPlayer, 1),
+                new(4, "プレイヤー4", 4, 3, CharacterType.NonPlayer, 1),
             });
         }
 
@@ -130,8 +130,10 @@ namespace dtank
             uiView.Setup(fadeController);
             uiView.ScopeTo(scope);
             RegisterTask(uiView, TaskOrder.UI);
+            
+            uiView.PlayerStatusUiView.Setup(model);
 
-            var tankEntityContainer = new BattleTankEntityContainer(uiView.TankControlUiView);
+            var tankEntityContainer = new BattleTankEntityContainer(uiView.TankControlUiView, uiView.PlayerStatusUiView);
             tankEntityContainer.ScopeTo(scope);
             yield return tankEntityContainer.SetupRoutine(model.TankModels, scope);
 
