@@ -91,7 +91,7 @@ namespace dtank
                 return;
             }
 
-            var remainPlayerCount = _tankModels.Count(model => model.DeadFlag);
+            var remainPlayerCount = _tankModels.Count(model => !model.DeadFlag);
             if (remainPlayerCount <= 1)
                 _resultType.Value = BattleResultType.Win;
         }
