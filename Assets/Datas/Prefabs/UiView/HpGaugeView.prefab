@@ -91,7 +91,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _nodePrefab: {fileID: 8840081555712018682, guid: f376425aa3c864be98c318b3384330c8, type: 3}
-  _nodeParent: {fileID: 5002169840170992595}
+  _nodeGroup: {fileID: 708708496283565238}
+  _alignment: 0
 --- !u!114 &708708496283565238
 MonoBehaviour:
   m_ObjectHideFlags: 0

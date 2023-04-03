@@ -1,14 +1,24 @@
 using System;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
 using Sequence = DG.Tweening.Sequence;
 
 namespace dtank
 {
     public class HpGaugeView : MonoBehaviour, IDisposable
     {
+        [Serializable]
+        private enum Alignment
+        {
+            Left,
+            Right, 
+        }
+        
         [SerializeField] private HpGaugeNodeView _nodePrefab;
-        [SerializeField] private Transform _nodeParent;
+        [SerializeField] private HorizontalLayoutGroup _nodeGroup;
+        [SerializeField] private Alignment _alignment;
 
         public int DisplayHp { get; private set; }
         public int CurrentHp { get; private set; }
@@ -18,9 +28,17 @@ namespace dtank
 
         public void Setup(int maxHp)
         {
+            _nodeGroup.childAlignment = _alignment == Alignment.Left
+                ? TextAnchor.MiddleLeft
+                : TextAnchor.MiddleRight;
+            
             _nodes = new HpGaugeNodeView[maxHp];
-            for (var i = 0; i < maxHp; i++)
-                _nodes[i] = Instantiate(_nodePrefab, _nodeParent);
+            for (var i = 0; i < maxHp; i++) {
+                var node = Instantiate(_nodePrefab, _nodeGroup.transform);
+                if (_alignment == Alignment.Right)
+                    node.transform.SetAsFirstSibling();
+                _nodes[i] = node;
+            }
         }
 
         public void Dispose()
