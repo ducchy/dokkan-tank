@@ -23,6 +23,7 @@ namespace dtank
         private readonly StatusEventListener _statusEventListener;
         private readonly DamageReceiveListener _damageReceiveListener;
         private readonly MeshRenderer[] _renderers;
+        private readonly MultipleMeshMaterialOverwriter _materialOverwriter;
 
         private readonly MoveController _moveController;
         private readonly CoroutineRunner _coroutineRunner;
@@ -57,16 +58,17 @@ namespace dtank
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public BattleTankActor(Body body, IBattleTankActorSetupData setupSetupData, TransformData startPointData)
+        public BattleTankActor(Body body, IBattleTankActorSetupData setupData, TransformData startPointData)
             : base(body)
         {
-            _setupData = setupSetupData;
+            _setupData = setupData;
             _startPointData = startPointData;
 
             _motionController = body.GetController<MotionController>();
             _statusEventListener = body.GetComponent<StatusEventListener>();
             _damageReceiveListener = body.GetComponent<DamageReceiveListener>();
             _renderers = body.GetComponentsInChildren<MeshRenderer>();
+            _materialOverwriter = body.GetComponent<MultipleMeshMaterialOverwriter>();
             var locatorParts = body.GetComponent<LocatorParts>();
 
             _coroutineRunner = new CoroutineRunner();
@@ -74,9 +76,10 @@ namespace dtank
                 _setupData.TurnMaxSpeed,
                 pos => _onPositionChangedSubject.OnNext(pos),
                 fwd => _onForwardChangedSubject.OnNext(fwd));
-            _sequenceClipContainer = SequenceClipContainer.Create(setupSetupData.ActionInfos);
+            _sequenceClipContainer = SequenceClipContainer.Create(setupData.ActionInfos);
             _sequenceController = new SequenceController();
 
+            _materialOverwriter.Setup(setupData.Color);
             _damageReceiveListener.SetCondition(attacker => attacker != this);
             _sequenceController
                 .BindSignalEventHandler<CreateBulletSignalSequenceEvent, CreateBulletSignalSequenceEventHandler>(

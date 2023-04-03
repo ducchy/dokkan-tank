@@ -1,6 +1,5 @@
 using System;
 using DG.Tweening;
-using GameFramework.Core;
 using GameFramework.EntitySystems;
 using GameFramework.Kinematics;
 using UniRx;

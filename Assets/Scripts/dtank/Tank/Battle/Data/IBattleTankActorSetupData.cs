@@ -1,4 +1,5 @@
 using UnityEditor.Animations;
+using UnityEngine;
 
 namespace dtank
 {
@@ -8,5 +9,6 @@ namespace dtank
         float TurnMaxSpeed { get; }
         AnimatorController Controller { get; }
         ActionInfo[] ActionInfos { get; }
+        Color Color { get; }
     }
 }

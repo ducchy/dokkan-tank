@@ -9,11 +9,13 @@ namespace dtank
         public float moveMaxSpeed;
         public float turnMaxSpeed;
         public AnimatorController controller;
-        public ActionInfo[] _actionInfos;
+        public ActionInfo[] actionInfos;
+        public Color color;
 
         float IBattleTankActorSetupData.MoveMaxSpeed => moveMaxSpeed;
         float IBattleTankActorSetupData.TurnMaxSpeed => turnMaxSpeed;
         AnimatorController IBattleTankActorSetupData.Controller => controller;
-        ActionInfo[] IBattleTankActorSetupData.ActionInfos => _actionInfos;
+        ActionInfo[] IBattleTankActorSetupData.ActionInfos => actionInfos;
+        Color IBattleTankActorSetupData.Color => color;
     }
 }

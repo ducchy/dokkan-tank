@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 2113151d298a74d2881491295688f278, type: 2}
+  - {fileID: 2100000, guid: 0afa39f08c6f34789b322a03c060438c, type: 2}
   - {fileID: 2100000, guid: 21ab5aa191e19447d994a1c48c69a4ed, type: 2}
   - {fileID: 2100000, guid: 21ab5aa191e19447d994a1c48c69a4ed, type: 2}
   m_StaticBatchInfo:
@@ -146,7 +146,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 2113151d298a74d2881491295688f278, type: 2}
+  - {fileID: 2100000, guid: 0afa39f08c6f34789b322a03c060438c, type: 2}
   - {fileID: 2100000, guid: 21ab5aa191e19447d994a1c48c69a4ed, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -230,7 +230,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 2113151d298a74d2881491295688f278, type: 2}
+  - {fileID: 2100000, guid: 0afa39f08c6f34789b322a03c060438c, type: 2}
   - {fileID: 2100000, guid: 21ab5aa191e19447d994a1c48c69a4ed, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -315,7 +315,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 2113151d298a74d2881491295688f278, type: 2}
+  - {fileID: 2100000, guid: 0afa39f08c6f34789b322a03c060438c, type: 2}
   - {fileID: 2100000, guid: 21ab5aa191e19447d994a1c48c69a4ed, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -420,6 +420,7 @@ GameObject:
   - component: {fileID: -6438802346361573906}
   - component: {fileID: -1966308097069274020}
   - component: {fileID: -2669482833063556459}
+  - component: {fileID: 1168317816052026463}
   m_Layer: 6
   m_Name: prfb_tank_001
   m_TagString: Untagged
@@ -547,6 +548,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b53555e0b6f4458cb8a678fa98704be0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1168317816052026463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7143250431412879937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b427e051fc834719a066e4663938812a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _materialPrefab: {fileID: 2100000, guid: 0afa39f08c6f34789b322a03c060438c, type: 2}
+  _targets:
+  - meshRenderer: {fileID: 3843997106081425186}
+    index: 0
+  - meshRenderer: {fileID: 3843997106081425188}
+    index: 0
+  - meshRenderer: {fileID: 3843997106081425194}
+    index: 0
+  - meshRenderer: {fileID: 3843997106081425184}
+    index: 0
 --- !u!1 &8775874107802431927
 GameObject:
   m_ObjectHideFlags: 0

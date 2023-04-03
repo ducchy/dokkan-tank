@@ -103,9 +103,9 @@ namespace dtank
             battleEntryData.Set(1, mainPlayerData, new List<BattlePlayerEntryData>()
             {
                 mainPlayerData,
-                new(2, "プレイヤー2", 2, 1, CharacterType.NonPlayer, 1),
-                new(3, "プレイヤー3", 3, 2, CharacterType.NonPlayer, 1),
-                new(4, "プレイヤー4", 4, 3, CharacterType.NonPlayer, 1),
+                new(2, "プレイヤー2", 1, 1, CharacterType.NonPlayer, 2),
+                new(3, "プレイヤー3", 1, 2, CharacterType.NonPlayer, 3),
+                new(4, "プレイヤー4", 1, 3, CharacterType.NonPlayer, 4),
             });
         }
 
