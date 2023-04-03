@@ -2,6 +2,7 @@ using System;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Sequence = DG.Tweening.Sequence;
 
 namespace dtank
@@ -11,24 +12,28 @@ namespace dtank
         [SerializeField] private CanvasGroup _group;
         [SerializeField] private TextMeshProUGUI _playerName;
         [SerializeField] private TextMeshProUGUI _score;
+        [SerializeField] private TextMeshProUGUI _rank;
+        [SerializeField] private Image _rankBg;
         [SerializeField] private HpGaugeView _hpGauge;
 
         private bool _openFlag;
 
         private Sequence _sequence;
         private Sequence _scoreSeq;
+        private Sequence _rankSeq;
 
-        public void Setup(string playerName, int maxHp)
+        public void Setup(string playerName, int maxHp, Color color)
         {
             _playerName.text = playerName;
-            
             _hpGauge.Setup(maxHp);
+            _rankBg.color = color;
         }
 
         public void Dispose()
         {
             _sequence?.Kill();
             _scoreSeq?.Kill();
+            _rankSeq?.Kill();
         }
 
         public void Reset()
@@ -57,6 +62,19 @@ namespace dtank
 
             _scoreSeq = DOTween.Sequence()
                 .Append(_score.transform.DOScale(1f, 0.2f).SetEase(Ease.OutQuad))
+                .SetLink(gameObject)
+                .Play();
+        }
+
+        public void SetRank(int rank)
+        {
+            _rankSeq?.Kill();
+            
+            _rank.text = rank.ToString();
+            _rank.transform.localScale = Vector3.one * 1.5f;
+
+            _rankSeq = DOTween.Sequence()
+                .Append(_rank.transform.DOScale(1f, 0.2f).SetEase(Ease.OutQuad))
                 .SetLink(gameObject)
                 .Play();
         }

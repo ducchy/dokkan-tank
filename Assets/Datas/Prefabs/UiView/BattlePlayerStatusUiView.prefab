@@ -116,7 +116,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _mainPlayerStatus: {fileID: 1228161426049122109}
-  _otherPlayerStatusPrefab: {fileID: 7025945555645971729, guid: 0e9b42f3fa75b4be9a829cb76cf672b4, type: 3}
+  _otherPlayerStatusPrefab: {fileID: 5835151121451556834, guid: 326f7cf2a10994011996c967aa14f465, type: 3}
   _otherPlayerStatusParent: {fileID: 5468500090421095029}
 --- !u!1 &7381349348707823445
 GameObject:

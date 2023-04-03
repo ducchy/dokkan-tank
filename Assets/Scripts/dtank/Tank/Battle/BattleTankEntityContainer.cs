@@ -80,7 +80,7 @@ namespace dtank
                 var taskRunner = Services.Get<TaskRunner>();
                 var body = entity.GetBody();
                 body.UserId = model.Id;
-                var actor = new BattleTankActor(body, model.ActorModel.Setup,
+                var actor = new BattleTankActor(body, model.ActorModel.SetupData,
                     model.ActorModel.StartPointData);
                 taskRunner.Register(actor, TaskOrder.Actor);
                 var controlUiView = model.CharacterType == CharacterType.Player ? _controlUiView : null;

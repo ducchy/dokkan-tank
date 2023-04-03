@@ -30,6 +30,9 @@ namespace dtank
         private readonly ReactiveProperty<int> _score = new();
         public IReadOnlyReactiveProperty<int> Score => _score;
 
+        private readonly ReactiveProperty<int> _rank = new();
+        public IReadOnlyReactiveProperty<int> Rank => _rank;
+
         public string Name { get; private set; }
         public int BodyId { get; private set; }
         public CharacterType CharacterType { get; private set; }
@@ -68,7 +71,7 @@ namespace dtank
             ParameterData = parameterData;
         }
 
-        public void Reset()
+        public void ResetParameter()
         {
             _hp.Value = ParameterData.hp;
         }

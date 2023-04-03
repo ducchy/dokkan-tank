@@ -84,7 +84,7 @@ namespace dtank
         {
             base.OnDeletedInternal();
 
-            RuleModel.Dispose();
+            RuleModel?.Dispose();
             foreach (var tankModel in _tankModels)
                 BattleTankModel.Delete(tankModel.Id);
 
@@ -131,7 +131,7 @@ namespace dtank
                 case BattleState.Ready:
                     RuleModel.Reset();
                     foreach (var tankModel in _tankModels)
-                        tankModel.Reset();
+                        tankModel.ResetParameter();
                     break;
                 case BattleState.Playing:
                     RuleModel.Start();

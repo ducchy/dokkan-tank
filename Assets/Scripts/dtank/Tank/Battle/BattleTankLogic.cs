@@ -75,18 +75,20 @@ namespace dtank
                 .Subscribe(_tankActor.SetInvincible)
                 .ScopeTo(_scope);
 
-            if (_playerStatusUiView != null)
-            {
-                _tankModel.Hp
-                    .TakeUntil(_scope)
-                    .Subscribe(_playerStatusUiView.SetHp)
-                    .ScopeTo(_scope);
+            _tankModel.Hp
+                .TakeUntil(_scope)
+                .Subscribe(_playerStatusUiView.SetHp)
+                .ScopeTo(_scope);
 
-                _tankModel.Score
-                    .TakeUntil(_scope)
-                    .Subscribe(_playerStatusUiView.SetScore)
-                    .ScopeTo(_scope);
-            }
+            _tankModel.Score
+                .TakeUntil(_scope)
+                .Subscribe(_playerStatusUiView.SetScore)
+                .ScopeTo(_scope);
+
+            _tankModel.Rank
+                .TakeUntil(_scope)
+                .Subscribe(_playerStatusUiView.SetRank)
+                .ScopeTo(_scope);
 
             if (_controlUiView != null)
             {
