@@ -9,18 +9,15 @@ namespace dtank
         private readonly BattleModel _model;
         private readonly BattleUiView _uiView;
         private readonly BattleCameraController _cameraController;
-        private readonly BattleTankEntityContainer _tankEntityContainer;
         private readonly DisposableScope _scope = new();
 
         public BattlePresenter(
             BattleModel model,
             BattleUiView uiView, 
-            BattleTankEntityContainer tankEntityContainer, 
             BattleCameraController cameraController)
         {
             _model = model;
             _uiView = uiView;
-            _tankEntityContainer = tankEntityContainer;
             _cameraController = cameraController;
 
             Bind();

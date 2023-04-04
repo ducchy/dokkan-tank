@@ -562,14 +562,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _materialPrefab: {fileID: 2100000, guid: 0afa39f08c6f34789b322a03c060438c, type: 2}
   _targets:
-  - meshRenderer: {fileID: 3843997106081425186}
-    index: 0
-  - meshRenderer: {fileID: 3843997106081425188}
-    index: 0
-  - meshRenderer: {fileID: 3843997106081425194}
-    index: 0
-  - meshRenderer: {fileID: 3843997106081425184}
-    index: 0
+  - _meshRenderer: {fileID: 3843997106081425186}
+    _index: 0
+  - _meshRenderer: {fileID: 3843997106081425188}
+    _index: 0
+  - _meshRenderer: {fileID: 3843997106081425194}
+    _index: 0
+  - _meshRenderer: {fileID: 3843997106081425184}
+    _index: 0
 --- !u!1 &8775874107802431927
 GameObject:
   m_ObjectHideFlags: 0

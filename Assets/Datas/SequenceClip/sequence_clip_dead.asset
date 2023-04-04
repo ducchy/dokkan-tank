@@ -15,9 +15,9 @@ MonoBehaviour:
   label: PlayExplosionEffect
   active: 1
   time: 1.4666667
-  prefab: {fileID: 1892078723244562, guid: 43f1aa89c597e41d3993c7f32502fbff, type: 3}
-  offsetPosition: {x: 0, y: 0, z: 0}
-  offsetAngles: {x: 0, y: 0, z: 0}
+  _prefab: {fileID: 7802691996131585273, guid: 348779e656aab469fa7b4a3f2f49a16e, type: 3}
+  _offsetPosition: {x: 0, y: 0, z: 0}
+  _offsetAngles: {x: 0, y: 0, z: 0}
 --- !u!114 &-6554005405044652378
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -33,13 +33,13 @@ MonoBehaviour:
   label: CreateBulletSignalSequenceEvent
   active: 1
   time: 0.033333335
-  prefab: {fileID: 2795397142068659117, guid: 68916852f19f6436b97db40dcce6be82, type: 3}
-  offsetPosition: {x: 0, y: 0, z: 0.35}
-  offsetAngles: {x: 0, y: 0, z: 0}
-  speed: 20
-  useGravity: 0
-  fireEffect: {fileID: 3277316613537239819, guid: 88166ed19b8f24d8aa595656ba46ab27, type: 3}
-  explosionEffect: {fileID: 7966239371800527581, guid: 348779e656aab469fa7b4a3f2f49a16e, type: 3}
+  _prefab: {fileID: 0}
+  _offsetPosition: {x: 0, y: 0, z: 0}
+  _offsetAngles: {x: 0, y: 0, z: 0}
+  _speed: 0
+  _useGravity: 0
+  _fireEffect: {fileID: 0}
+  _explosionEffect: {fileID: 0}
 --- !u!114 &-1091747445344768440
 MonoBehaviour:
   m_ObjectHideFlags: 1

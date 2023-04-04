@@ -6,16 +6,16 @@ namespace dtank
     [CreateAssetMenu(fileName = "dat_tank_actor_setup_999.asset", menuName = "dtank/Battle/TankActorSetupData")]
     public class BattleTankActorSetupData : ScriptableObject, IBattleTankActorSetupData
     {
-        public float moveMaxSpeed;
-        public float turnMaxSpeed;
-        public AnimatorController controller;
-        public ActionInfo[] actionInfos;
-        public Color color;
+        [SerializeField] private float _moveMaxSpeed;
+        [SerializeField] private float _turnMaxSpeed;
+        [SerializeField] private AnimatorController _controller;
+        [SerializeField] private ActionInfo[] _actionInfos;
+        [SerializeField] private Color _color;
 
-        float IBattleTankActorSetupData.MoveMaxSpeed => moveMaxSpeed;
-        float IBattleTankActorSetupData.TurnMaxSpeed => turnMaxSpeed;
-        AnimatorController IBattleTankActorSetupData.Controller => controller;
-        ActionInfo[] IBattleTankActorSetupData.ActionInfos => actionInfos;
-        Color IBattleTankActorSetupData.Color => color;
+        float IBattleTankActorSetupData.MoveMaxSpeed => _moveMaxSpeed;
+        float IBattleTankActorSetupData.TurnMaxSpeed => _turnMaxSpeed;
+        AnimatorController IBattleTankActorSetupData.Controller => _controller;
+        ActionInfo[] IBattleTankActorSetupData.ActionInfos => _actionInfos;
+        Color IBattleTankActorSetupData.Color => _color;
     }
 }

@@ -9,7 +9,7 @@ namespace dtank
 {
     public class BattleCameraController : MonoBehaviour, IDisposable
     {
-        [SerializeField] private Camera _camera;
+        // [SerializeField] private Camera _camera;
         [SerializeField] private Transform _axis;
         [SerializeField] private ParentAttachment _parentAttachment;
 

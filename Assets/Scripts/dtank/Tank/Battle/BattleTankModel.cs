@@ -73,7 +73,7 @@ namespace dtank
 
         public void ResetParameter()
         {
-            _hp.Value = ParameterData.hp;
+            _hp.Value = ParameterData.Hp;
         }
 
         public void Update()
@@ -197,7 +197,7 @@ namespace dtank
             if (_invincibleFlag.Value)
                 return;
 
-            _invincibleRemainTime = ParameterData.invincibleDuration;
+            _invincibleRemainTime = ParameterData.InvincibleDuration;
             _invincibleFlag.Value = true;
         }
 

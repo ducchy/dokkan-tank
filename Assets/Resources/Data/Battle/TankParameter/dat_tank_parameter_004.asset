@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30c45d1dc1aa40579146dc90b36adb62, type: 3}
   m_Name: dat_tank_parameter_004
   m_EditorClassIdentifier: 
-  hp: 5
-  invincibleDuration: 2
-  actorSetupDataId: 4
+  _hp: 5
+  _invincibleDuration: 2
+  _actorSetupDataId: 4

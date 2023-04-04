@@ -8,8 +8,11 @@ namespace dtank
         [Serializable]
         private class MeshMaterialIndex
         {
-            public MeshRenderer meshRenderer;
-            public int index;
+            [SerializeField] private MeshRenderer _meshRenderer;
+            [SerializeField] private int _index;
+
+            public MeshRenderer MeshRenderer => _meshRenderer;
+            public int Index => _index;
         }
 
         [SerializeField] private Material _materialPrefab;
@@ -22,13 +25,13 @@ namespace dtank
             _material = Instantiate(_materialPrefab);
             foreach (var target in _targets)
             {
-                var materials = target.meshRenderer.materials;
-                var index = target.index;
+                var materials = target.MeshRenderer.materials;
+                var index = target.Index;
                 if (index < 0 || materials.Length <= index)
                     continue;
                 
                 materials[index] = _material;
-                target.meshRenderer.materials = materials;
+                target.MeshRenderer.materials = materials;
             }
             
             SetMaterialColor(color);

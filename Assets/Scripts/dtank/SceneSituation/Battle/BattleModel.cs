@@ -55,7 +55,7 @@ namespace dtank
                 tankModel.Setup(player.Name, player.BodyId, player.CharacterType, parameterData);
 
                 var actorSetupData = default(BattleTankActorSetupData);
-                yield return new BattleTankActorSetupDataAssetRequest($"{parameterData.actorSetupDataId:d3}")
+                yield return new BattleTankActorSetupDataAssetRequest($"{parameterData.ActorSetupDataId:d3}")
                     .LoadAsync(scope)
                     .Do(x => actorSetupData = x)
                     .StartAsEnumerator(scope);
@@ -75,7 +75,7 @@ namespace dtank
                 .StartAsEnumerator(scope);
 
             var mainPlayerId = MainPlayerTankModel.Id;
-            RuleModel = new BattleRuleModel(ruleData.duration, mainPlayerId, _tankModels);
+            RuleModel = new BattleRuleModel(ruleData.Duration, mainPlayerId, _tankModels);
 
             Bind();
         }

@@ -140,7 +140,7 @@ namespace dtank
             cameraController.Setup(model, tankEntityContainer);
             cameraController.ScopeTo(scope);
 
-            var presenter = new BattlePresenter(model, uiView, tankEntityContainer, cameraController);
+            var presenter = new BattlePresenter(model, uiView, cameraController);
             presenter.ScopeTo(scope);
         }
 

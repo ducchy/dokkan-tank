@@ -9,9 +9,13 @@ namespace dtank
     /// </summary>
     public class PlayEffectSignalSequenceEvent : SignalSequenceEvent
     {
-        public GameObject prefab;
-        public Vector3 offsetPosition;
-        public Vector3 offsetAngles;
+        [SerializeField] private GameObject _prefab;
+        [SerializeField] private Vector3 _offsetPosition;
+        [SerializeField] private Vector3 _offsetAngles;
+
+        public GameObject Prefab => _prefab;
+        public Vector3 OffsetPosition => _offsetPosition;
+        public Vector3 OffsetAngles => _offsetAngles;
     }
 
     /// <summary>
@@ -38,12 +42,12 @@ namespace dtank
             if (_origin == null)
                 return;
 
-            if (sequenceEvent.prefab == null)
+            if (sequenceEvent.Prefab == null)
                 return;
 
-            var position = _origin.TransformPoint(sequenceEvent.offsetPosition);
-            var rotation = Quaternion.Euler(sequenceEvent.offsetAngles) * _origin.rotation;
-            var instance = Object.Instantiate(sequenceEvent.prefab);
+            var position = _origin.TransformPoint(sequenceEvent.OffsetPosition);
+            var rotation = Quaternion.Euler(sequenceEvent.OffsetAngles) * _origin.rotation;
+            var instance = Object.Instantiate(sequenceEvent.Prefab);
             instance.transform.position = position;
             instance.transform.rotation = rotation;
             var particleSystem = instance.GetComponent<ParticleSystem>();

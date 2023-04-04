@@ -20,7 +20,7 @@ namespace dtank
                 BattlePlayerStatusUiViewBase statusUi = tankModel.CharacterType == CharacterType.Player
                     ? _mainPlayerStatus
                     : Instantiate(_otherPlayerStatusPrefab, _otherPlayerStatusParent);
-                statusUi.Setup(tankModel.Name, tankModel.ParameterData.hp, tankModel.ActorModel.SetupData.color);
+                statusUi.Setup(tankModel.Name, tankModel.ParameterData.Hp, tankModel.ActorModel.SetupData.Color);
                 _statusUiDictionary.Add(tankModel.Id, statusUi);
             }
         }

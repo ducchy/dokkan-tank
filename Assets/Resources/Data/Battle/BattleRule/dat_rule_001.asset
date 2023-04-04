@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 355e176a1d664bc9a6687da773e76846, type: 3}
   m_Name: dat_rule_001
   m_EditorClassIdentifier: 
-  duration: 90
+  _duration: 90
