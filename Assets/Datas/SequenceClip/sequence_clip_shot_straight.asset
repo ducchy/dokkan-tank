@@ -16,7 +16,7 @@ MonoBehaviour:
   active: 1
   time: 0.06666667
   _prefab: {fileID: 2795397142068659117, guid: 68916852f19f6436b97db40dcce6be82, type: 3}
-  _offsetPosition: {x: 0, y: 0, z: 0}
+  _offsetPosition: {x: 0, y: 0, z: 0.35}
   _offsetAngles: {x: 0, y: 0, z: 0}
   _speed: 20
   _useGravity: 0
