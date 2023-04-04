@@ -63,6 +63,8 @@ namespace dtank
 
             _remainTime = _duration;
             _remainTimeInt.Value = Mathf.CeilToInt(_remainTime);
+            
+            UpdateRanking();
         }
 
         public void Start()
@@ -78,41 +80,35 @@ namespace dtank
         private void TimeUp()
         {
             _playingFlag = false;
-            WinnerId = GetTopPlayerId();
+            UpdateRanking();
             _resultType.Value = WinnerId == _mainPlayerId ? BattleResultType.Win : BattleResultType.Lose;
         }
 
         public void Dead(int id)
         {
-            WinnerId = GetTopPlayerId();
-            if (id == _mainPlayerId)
-            {
-                _resultType.Value = BattleResultType.Lose;
-                return;
-            }
-
-            var remainPlayerCount = _tankModels.Count(model => !model.DeadFlag);
-            if (remainPlayerCount <= 1)
+            var remainTankCount = _tankModels.Count(model => !model.DeadFlag);
+            var deadTankModel = _tankModels.FirstOrDefault(model => model.Id == id);
+            deadTankModel?.SetRank(remainTankCount + 1);
+            
+            UpdateRanking();
+            if (remainTankCount <= 1)
                 _resultType.Value = BattleResultType.Win;
         }
 
-        private int GetTopPlayerId()
+        public void UpdateRanking()
         {
-            var topPlayerId = _mainPlayerId;
-            var maxScore = int.MinValue;
-            foreach (var tankModel in _tankModels)
-            {
-                if (tankModel.DeadFlag)
-                    continue;
+            Debug.Log($"[BattleRuleModel] UpdateRanking");
+            
+            var ranking = _tankModels.Where(model => !model.DeadFlag)
+                .OrderByDescending(model => model.Score.Value)
+                .ThenBy(model => model.Id)
+                .ToList();
 
-                if (maxScore >= tankModel.Score.Value)
-                    continue;
+            for (var i = 0; i < ranking.Count(); i++)
+                ranking[i].SetRank(i + 1);
 
-                topPlayerId = tankModel.Id;
-                maxScore = tankModel.Score.Value;
-            }
-
-            return topPlayerId;
+            if (ranking.Count == 1)
+                WinnerId = ranking[0].Id;
         }
     }
 }

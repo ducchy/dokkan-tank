@@ -104,6 +104,10 @@ namespace dtank
                             RuleModel.Dead(tankModel.Id);
                     })
                     .ScopeTo(this);
+                
+                tankModel.Score
+                    .Subscribe(state => RuleModel.UpdateRanking())
+                    .ScopeTo(this);
             }
         }
 
@@ -129,9 +133,9 @@ namespace dtank
             switch (next)
             {
                 case BattleState.Ready:
-                    RuleModel.Reset();
                     foreach (var tankModel in _tankModels)
                         tankModel.ResetParameter();
+                    RuleModel.Reset();
                     break;
                 case BattleState.Playing:
                     RuleModel.Start();

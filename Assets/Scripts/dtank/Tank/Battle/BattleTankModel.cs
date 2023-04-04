@@ -122,6 +122,11 @@ namespace dtank
             Forward = forward;
         }
 
+        public void SetRank(int rank)
+        {
+            _rank.Value = rank;
+        }
+
         public void SetInputMoveAmount(float inputMoveAmount)
         {
             _inputMoveAmount = inputMoveAmount;
