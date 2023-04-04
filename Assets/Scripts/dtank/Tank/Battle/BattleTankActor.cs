@@ -23,6 +23,7 @@ namespace dtank
         private readonly StatusEventListener _statusEventListener;
         private readonly DamageReceiveListener _damageReceiveListener;
         private readonly MeshRenderer[] _renderers;
+        private readonly Collider _collider;
 
         private readonly MoveController _moveController;
         private readonly CoroutineRunner _coroutineRunner;
@@ -67,6 +68,7 @@ namespace dtank
             _statusEventListener = body.GetComponent<StatusEventListener>();
             _damageReceiveListener = body.GetComponent<DamageReceiveListener>();
             _renderers = body.GetComponentsInChildren<MeshRenderer>();
+            _collider = body.GetComponent<Collider>();
             var materialOverwriter = body.GetComponent<MultipleMeshMaterialOverwriter>();
             var locatorParts = body.GetComponent<LocatorParts>();
 
@@ -134,10 +136,13 @@ namespace dtank
         private void SetActive(bool active)
         {
             SetVisible(active);
+            
             if (active)
                 _playableProvider.GetPlayable().Play();
             else
                 _playableProvider.GetPlayable().Pause();
+            
+            _collider.enabled = active;
         }
 
         private void SetVisible(bool flag)
