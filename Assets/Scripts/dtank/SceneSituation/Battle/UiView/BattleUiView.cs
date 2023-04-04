@@ -1,13 +1,12 @@
 using System;
 using DG.Tweening;
 using GameFramework.Core;
-using GameFramework.TaskSystems;
 using UniRx;
 using UnityEngine;
 
 namespace dtank
 {
-    public class BattleUiView : MonoBehaviour, IDisposable, ITask
+    public class BattleUiView : MonoBehaviour, IDisposable
     {
         [SerializeField] private BattleTankControlUiView _tankControlUiView;
         [SerializeField] private BattlePlayerStatusUiView _playerStatusUiView;
@@ -20,8 +19,6 @@ namespace dtank
         public BattleReadyUiView ReadyUiView => _readyUiView;
         public BattlePlayingUiView PlayingUiView => _playingUiView;
         public BattleResultUiView ResultUiView => _resultUiView;
-
-        bool ITask.IsActive => isActiveAndEnabled;
 
         private FadeController _fadeController;
         private Sequence _sequence;
@@ -60,10 +57,6 @@ namespace dtank
             _readyUiView.Reset();
             _playingUiView.Reset();
             _resultUiView.Reset();
-        }
-
-        void ITask.Update()
-        {
         }
 
         public void EndPlaying()

@@ -14,15 +14,5 @@ namespace dtank
         public void Build(IBody body, GameObject gameObject)
         {
         }
-
-        private void RequireComponent<T>(GameObject gameObject)
-            where T : Component
-        {
-            var component = gameObject.GetComponent<T>();
-            if (component == null)
-            {
-                gameObject.AddComponent<T>();
-            }
-        }
     }
 }

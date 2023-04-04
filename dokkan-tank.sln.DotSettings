@@ -1,0 +1,10 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=0096A908_002D2A8C_002DCC05_002D12AA_002DD0E0DBCEBF2E/@EntryIndexedValue">ExplicitlyExcluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=14A3DD97_002DA7D1_002D896D_002D892A_002DEB4D123E40E5/@EntryIndexedValue">ExplicitlyExcluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=3C1C4885_002D5046_002D2FFF_002DFFBB_002D44D79C4F73C1/@EntryIndexedValue">ExplicitlyExcluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=43B44562_002D0047_002D1163_002D2C48_002DD9C5FCECE876/@EntryIndexedValue">ExplicitlyExcluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=57E4E13A_002D282D_002D9E78_002D63D6_002D9522B664FEBD_002Fd_003AAssets_002Fd_003AAssetStore_002Fd_003AJMO_0020Assets/@EntryIndexedValue">ExplicitlyExcluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=57E4E13A_002D282D_002D9E78_002D63D6_002D9522B664FEBD_002Fd_003AAssets_002Fd_003AAssetStore_002Fd_003A_005FHeathen_0020Engineering/@EntryIndexedValue">ExplicitlyExcluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=68659DAB_002D535E_002D1ABF_002D7CDC_002D7B5F08CDCF2B/@EntryIndexedValue">ExplicitlyExcluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=AD2BC808_002D8F0C_002DB588_002DBC82_002D0BCBBFBD2E4E/@EntryIndexedValue">ExplicitlyExcluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=CFCFCD27_002D0AC2_002DDE86_002DA7F3_002D15259DF4C041/@EntryIndexedValue">ExplicitlyExcluded</s:String></wpf:ResourceDictionary>

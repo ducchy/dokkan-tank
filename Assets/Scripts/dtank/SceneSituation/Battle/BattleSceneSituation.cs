@@ -129,7 +129,6 @@ namespace dtank
             var uiView = Services.Get<BattleUiView>();
             uiView.Setup(fadeController);
             uiView.ScopeTo(scope);
-            RegisterTask(uiView, TaskOrder.UI);
             
             uiView.PlayerStatusUiView.Setup(model);
 

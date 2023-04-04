@@ -74,7 +74,7 @@ namespace dtank
                 .Do(x => ruleData = x)
                 .StartAsEnumerator(scope);
 
-            var mainPlayerId = MainPlayerTankModel?.Id ?? -1;
+            var mainPlayerId = MainPlayerTankModel.Id;
             RuleModel = new BattleRuleModel(ruleData.duration, mainPlayerId, _tankModels);
 
             Bind();
@@ -106,7 +106,7 @@ namespace dtank
                     .ScopeTo(this);
                 
                 tankModel.Score
-                    .Subscribe(state => RuleModel.UpdateRanking())
+                    .Subscribe(_ => RuleModel.UpdateRanking())
                     .ScopeTo(this);
             }
         }
