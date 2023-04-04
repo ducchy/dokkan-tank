@@ -124,7 +124,7 @@ namespace dtank
             if (_target == null)
                 return null;
 
-            if (_target.DeadFlag)
+            if (_target.DeadFlag.Value)
             {
                 _target = FindTarget();
 
@@ -174,9 +174,9 @@ namespace dtank
 
         private BattleTankModel FindTarget()
         {
-            var targets = _tankModels.Where(o => o != _owner && o != _target && !o.DeadFlag).ToArray();
+            var targets = _tankModels.Where(o => o != _owner && o != _target && !o.DeadFlag.Value).ToArray();
             return targets.Length == 0
-                ? (_target is { DeadFlag: false } ? _target : null)
+                ? (_target != null && !_target.DeadFlag.Value ? _target : null)
                 : targets[Random.Range(0, targets.Length)];
         }
 

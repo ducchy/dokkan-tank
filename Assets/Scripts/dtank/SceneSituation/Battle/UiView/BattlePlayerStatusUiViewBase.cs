@@ -10,6 +10,7 @@ namespace dtank
     public abstract class BattlePlayerStatusUiViewBase : MonoBehaviour, IBattlePlayerStatusUiView, IDisposable
     {
         [SerializeField] private CanvasGroup _group;
+        [SerializeField] private CanvasGroup _innerGroup;
         [SerializeField] private TextMeshProUGUI _playerName;
         [SerializeField] private TextMeshProUGUI _score;
         [SerializeField] private TextMeshProUGUI _rank;
@@ -21,6 +22,7 @@ namespace dtank
         private Sequence _sequence;
         private Sequence _scoreSeq;
         private Sequence _rankSeq;
+        private Sequence _deadSeq;
 
         public void Setup(string playerName, int maxHp, Color color)
         {
@@ -34,6 +36,7 @@ namespace dtank
             _sequence?.Kill();
             _scoreSeq?.Kill();
             _rankSeq?.Kill();
+            _deadSeq?.Kill();
         }
 
         public void Reset()
@@ -85,6 +88,20 @@ namespace dtank
 
             if (_openFlag)
                 _hpGauge.Play();
+        }
+
+        public void SetDeadFlag(bool flag)
+        {
+            _deadSeq?.Kill();
+
+            var from = flag ? 1f : 0.5f;
+            var to = flag ? 0.5f : 1f;
+            _innerGroup.alpha = from;
+            
+            _deadSeq = DOTween.Sequence()
+                .Append(_innerGroup.DOFade(to, 0.2f).SetEase(Ease.OutQuad))
+                .SetLink(gameObject)
+                .Play();
         }
 
         public void Open()

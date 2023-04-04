@@ -89,6 +89,11 @@ namespace dtank
                 .TakeUntil(_scope)
                 .Subscribe(_playerStatusUiView.SetRank)
                 .ScopeTo(_scope);
+            
+            _tankModel.DeadFlag
+                .TakeUntil(_scope)
+                .Subscribe(_playerStatusUiView.SetDeadFlag)
+                .ScopeTo(_scope);
 
             if (_controlUiView != null)
             {

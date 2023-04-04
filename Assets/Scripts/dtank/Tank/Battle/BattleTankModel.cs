@@ -33,6 +33,9 @@ namespace dtank
         private readonly ReactiveProperty<int> _rank = new();
         public IReadOnlyReactiveProperty<int> Rank => _rank;
 
+        private readonly ReactiveProperty<bool> _deadFlag = new(false);
+        public IReadOnlyReactiveProperty<bool> DeadFlag => _deadFlag;
+
         public string Name { get; private set; }
         public int BodyId { get; private set; }
         public CharacterType CharacterType { get; private set; }
@@ -41,7 +44,6 @@ namespace dtank
 
         public Vector3 Position { get; private set; }
         public Vector3 Forward { get; private set; }
-        public bool DeadFlag => _hp.Value <= 0;
         public bool IsMovable => _currentState.Value == BattleTankState.FreeMove;
 
         private float _inputMoveAmount;
@@ -73,7 +75,7 @@ namespace dtank
 
         public void ResetParameter()
         {
-            _hp.Value = ParameterData.Hp;
+            SetHp(ParameterData.Hp);
         }
 
         public void Update()
@@ -92,7 +94,7 @@ namespace dtank
             if (_hp.Value <= 0)
                 return;
 
-            _hp.Value--;
+            SetHp(_hp.Value - 1);
             attacker?.DealDamage();
 
             if (_hp.Value == 0)
@@ -142,6 +144,12 @@ namespace dtank
         {
             _moveAmount.Value = IsMovable ? _inputMoveAmount : 0f;
             _turnAmount.Value = IsMovable ? _inputTurnAmount : 0f;
+        }
+
+        private void SetHp(int hp)
+        {
+            _hp.Value = hp;
+            _deadFlag.Value = hp == 0;
         }
         
         #endregion Setter

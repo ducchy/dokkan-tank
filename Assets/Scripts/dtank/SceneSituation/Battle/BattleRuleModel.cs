@@ -86,7 +86,7 @@ namespace dtank
 
         public void Dead(int id)
         {
-            var remainTankCount = _tankModels.Count(model => !model.DeadFlag);
+            var remainTankCount = _tankModels.Count(model => !model.DeadFlag.Value);
             var deadTankModel = _tankModels.FirstOrDefault(model => model.Id == id);
             deadTankModel?.SetRank(remainTankCount + 1);
             
@@ -99,7 +99,7 @@ namespace dtank
         {
             Debug.Log($"[BattleRuleModel] UpdateRanking");
             
-            var ranking = _tankModels.Where(model => !model.DeadFlag)
+            var ranking = _tankModels.Where(model => !model.DeadFlag.Value)
                 .OrderByDescending(model => model.Score.Value)
                 .ThenBy(model => model.Id)
                 .ToList();
