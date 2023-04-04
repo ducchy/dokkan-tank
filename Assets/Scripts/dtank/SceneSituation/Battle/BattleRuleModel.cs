@@ -30,7 +30,7 @@ namespace dtank
         private readonly int _mainPlayerId;
         private readonly IReadOnlyList<BattleTankModel> _tankModels;
 
-        public int WinnerId { get; private set; }
+        public int TopPlayerId { get; private set; }
 
         public BattleRuleModel(float duration, int mainPlayerId, IReadOnlyList<BattleTankModel> tankModels)
         {
@@ -63,7 +63,7 @@ namespace dtank
 
             _remainTime = _duration;
             _remainTimeInt.Value = Mathf.CeilToInt(_remainTime);
-            
+
             UpdateRanking();
         }
 
@@ -81,7 +81,7 @@ namespace dtank
         {
             _playingFlag = false;
             UpdateRanking();
-            _resultType.Value = WinnerId == _mainPlayerId ? BattleResultType.Win : BattleResultType.Lose;
+            _resultType.Value = TopPlayerId == _mainPlayerId ? BattleResultType.Win : BattleResultType.Lose;
         }
 
         public void Dead(int id)
@@ -89,8 +89,14 @@ namespace dtank
             var remainTankCount = _tankModels.Count(model => !model.DeadFlag.Value);
             var deadTankModel = _tankModels.FirstOrDefault(model => model.Id == id);
             deadTankModel?.SetRank(remainTankCount + 1);
-            
+
             UpdateRanking();
+            if (id == _mainPlayerId)
+            {
+                _resultType.Value = BattleResultType.Lose;
+                return;
+            }
+
             if (remainTankCount <= 1)
                 _resultType.Value = BattleResultType.Win;
         }
@@ -98,7 +104,7 @@ namespace dtank
         public void UpdateRanking()
         {
             Debug.Log($"[BattleRuleModel] UpdateRanking");
-            
+
             var ranking = _tankModels.Where(model => !model.DeadFlag.Value)
                 .OrderByDescending(model => model.Score.Value)
                 .ThenBy(model => model.Id)
@@ -107,8 +113,7 @@ namespace dtank
             for (var i = 0; i < ranking.Count(); i++)
                 ranking[i].SetRank(i + 1);
 
-            if (ranking.Count == 1)
-                WinnerId = ranking[0].Id;
+            TopPlayerId = ranking[0].Id;
         }
     }
 }

@@ -54,7 +54,7 @@ namespace dtank
 
         public void Activate()
         {
-            _cameraController.PlayResult(_model.RuleModel.WinnerId);
+            _cameraController.PlayResult(_model.RuleModel.TopPlayerId);
             _uiView.BeginResult();
         }
 
