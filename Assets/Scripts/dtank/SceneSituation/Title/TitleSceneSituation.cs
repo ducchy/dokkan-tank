@@ -82,8 +82,7 @@ namespace dtank
             var uiView = Services.Get<TitleUiView>();
             uiView.ScopeTo(scope);
 
-            var camera = Services.Get<TitleCamera>();
-            camera.Setup();
+            var camera = Services.Get<TitleCameraController>();
             camera.ScopeTo(scope);
 
             var model = TitleModel.Get();

@@ -79,6 +79,9 @@ namespace dtank
 
         private void TimeUp()
         {
+            if (_resultType.Value != BattleResultType.None)
+                return;
+
             _playingFlag = false;
             UpdateRanking();
             _resultType.Value = TopPlayerId == _mainPlayerId ? BattleResultType.Win : BattleResultType.Lose;
@@ -86,6 +89,9 @@ namespace dtank
 
         public void Dead(int id)
         {
+            if (_resultType.Value != BattleResultType.None)
+                return;
+            
             var remainTankCount = _tankModels.Count(model => !model.DeadFlag.Value);
             var deadTankModel = _tankModels.FirstOrDefault(model => model.Id == id);
             deadTankModel?.SetRank(remainTankCount + 1);
@@ -110,7 +116,12 @@ namespace dtank
                 .ThenBy(model => model.Id)
                 .ToList();
 
-            for (var i = 0; i < ranking.Count(); i++)
+            var count = ranking.Count();
+
+            if (count <= 0)
+                return;
+
+            for (var i = 0; i < count; i++)
                 ranking[i].SetRank(i + 1);
 
             TopPlayerId = ranking[0].Id;

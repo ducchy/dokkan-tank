@@ -52,11 +52,6 @@ namespace dtank
                 .TakeUntil(_scope)
                 .Subscribe(_ => _model.ChangeState(BattleState.Playing))
                 .ScopeTo(_scope);
-
-            _uiView.PlayingUiView.OnForceEndAsObservable
-                .TakeUntil(_scope)
-                .Subscribe(_ => _model.RuleModel.ForceEnd())
-                .ScopeTo(_scope);
         }
     }
 }

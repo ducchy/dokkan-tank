@@ -9,7 +9,6 @@ namespace dtank
         private readonly BattleModel _model;
         private readonly BattleCameraController _cameraController;
         private readonly BattleResultController _resultController;
-        private readonly BattleUiView _uiView;
         private readonly BattleResultUiView _resultUiView;
         private readonly DisposableScope _scope = new();
 
@@ -17,13 +16,11 @@ namespace dtank
             BattleModel model,
             BattleCameraController cameraController,
             BattleResultController resultController,
-            BattleUiView uiView,
             BattleResultUiView resultUiView)
         {
             _model = model;
             _cameraController = cameraController;
             _resultController = resultController;
-            _uiView = uiView;
             _resultUiView = resultUiView;
             
             SetEvent();
@@ -45,17 +42,12 @@ namespace dtank
                 .TakeUntil(_scope)
                 .Subscribe(_ =>  _model.ChangeState(BattleState.Retry))
                 .ScopeTo(_scope);
-            
-            _uiView.OnBeginResultAsObservable
-                .TakeUntil(_scope)
-                .Subscribe(_ => _resultController.PlayResult())
-                .ScopeTo(_scope);
         }
 
         public void Activate()
         {
             _cameraController.PlayResult(_model.RuleModel.TopPlayerId);
-            _uiView.BeginResult();
+            _resultController.PlayResult();
         }
 
         public void Deactivate()

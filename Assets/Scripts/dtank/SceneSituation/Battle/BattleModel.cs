@@ -18,6 +18,9 @@ namespace dtank
         private readonly List<BattleTankModel> _tankModels = new();
         public IReadOnlyList<BattleTankModel> TankModels => _tankModels;
 
+        private readonly List<NpcBehaviourSelector> _npcBehaviourSelectors = new();
+        public IReadOnlyList<NpcBehaviourSelector> NpcBehaviourSelectors => _npcBehaviourSelectors;
+
         public BattleTankModel MainPlayerTankModel { get; private set; }
 
         public BattleRuleModel RuleModel { get; private set; }
@@ -68,6 +71,10 @@ namespace dtank
                     MainPlayerTankModel = tankModel;
             }
 
+            _npcBehaviourSelectors.Clear();
+            foreach (var tankModel in _tankModels)
+                _npcBehaviourSelectors.Add(new NpcBehaviourSelector(tankModel, _tankModels));
+
             var ruleData = default(BattleRuleData);
             yield return new BattleRuleDataAssetRequest($"{entryData.RuleId:d3}")
                 .LoadAsync(scope)
@@ -104,7 +111,7 @@ namespace dtank
                             RuleModel.Dead(tankModel.Id);
                     })
                     .ScopeTo(this);
-                
+
                 tankModel.Score
                     .Subscribe(_ => RuleModel.UpdateRanking())
                     .ScopeTo(this);

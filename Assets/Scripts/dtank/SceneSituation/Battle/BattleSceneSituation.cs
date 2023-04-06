@@ -125,16 +125,15 @@ namespace dtank
         {
             var model = BattleModel.Get();
 
-            var fadeController = Services.Get<FadeController>();
             var uiView = Services.Get<BattleUiView>();
-            uiView.Setup(fadeController);
+            uiView.Setup();
             uiView.ScopeTo(scope);
             
             uiView.PlayerStatusUiView.Setup(model);
 
             var tankEntityContainer = new BattleTankEntityContainer(uiView.TankControlUiView, uiView.PlayerStatusUiView);
             tankEntityContainer.ScopeTo(scope);
-            yield return tankEntityContainer.SetupRoutine(model.TankModels, scope);
+            yield return tankEntityContainer.SetupRoutine(model.TankModels, model.NpcBehaviourSelectors, scope);
 
             var cameraController = Services.Get<BattleCameraController>();
             cameraController.Setup(model, tankEntityContainer);

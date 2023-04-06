@@ -13,11 +13,16 @@ namespace dtank
             var model = BattleModel.Get();
             var uiView = Services.Get<BattleUiView>();
 
-            _presenter = new BattlePlayingPresenter(model, uiView, uiView.PlayingUiView,
+            var playingUiView = uiView.PlayingUiView;
+            var fadeController = Services.Get<FadeController>();
+            playingUiView.Setup(fadeController);
+
+            _presenter = new BattlePlayingPresenter(model,
+                playingUiView,
                 uiView.PlayerStatusUiView,
                 uiView.TankControlUiView);
             _presenter.ScopeTo(scope);
-            
+
             _presenter.Activate();
         }
 

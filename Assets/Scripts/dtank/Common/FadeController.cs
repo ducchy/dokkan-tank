@@ -1,4 +1,5 @@
 using System;
+using GameFramework.Core;
 using GameFramework.TaskSystems;
 using UniRx;
 using UnityEngine;
@@ -14,7 +15,7 @@ namespace dtank
         [SerializeField, Tooltip("制御対象のImage")]
         private Image _image;
 
-        private Subject<Unit> _finishSubject = new Subject<Unit>();
+        private Subject<Unit> _finishSubject = new();
         private float _targetAlpha;
         private float _timer;
 
@@ -23,17 +24,41 @@ namespace dtank
         /// <summary>
         /// フェードアウト
         /// </summary>
+        public void FadeOut(Color color, float duration, Action onComplete, IScope scope)
+        {
+            FadeOutAsync(color, duration)
+                .Subscribe(
+                    onNext: _ => { },
+                    onCompleted: () => onComplete?.Invoke()
+                )
+                .ScopeTo(scope);
+        }
+
+        /// <summary>
+        /// フェードアウト
+        /// </summary>
         public IObservable<Unit> FadeOutAsync(Color color, float duration)
         {
             return Observable.Defer(() =>
-            {
-                _finishSubject.OnNext(Unit.Default);
+                {
+                    _finishSubject.OnNext(Unit.Default);
 
-                SetImageColor(color);
-                _targetAlpha = 1.0f;
-                _timer = duration;
-                return _finishSubject.First();
-            });
+                    SetImageColor(color);
+                    _targetAlpha = 1.0f;
+                    _timer = duration;
+                    return _finishSubject.First();
+                })
+                .Delay(TimeSpan.FromSeconds(0.5f));
+        }
+
+        public void FadeIn(float duration, Action onComplete, IScope scope)
+        {
+            FadeInAsync(duration)
+                .Subscribe(
+                    onNext: _ => { },
+                    onCompleted: () => onComplete?.Invoke()
+                )
+                .ScopeTo(scope);
         }
 
         /// <summary>

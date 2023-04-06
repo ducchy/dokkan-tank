@@ -33,6 +33,8 @@ namespace dtank
         private int _failedCount;
         private bool _activeFlag;
 
+        public int OwnerId => _owner.Id;
+
         public NpcBehaviourSelector(BattleTankModel owner, IReadOnlyList<BattleTankModel> tankModels)
         {
             _owner = owner;

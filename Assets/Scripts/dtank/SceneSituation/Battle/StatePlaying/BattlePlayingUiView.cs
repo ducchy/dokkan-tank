@@ -1,5 +1,6 @@
 using System;
 using DG.Tweening;
+using GameFramework.Core;
 using TMPro;
 using UniRx;
 using UnityEngine;
@@ -17,18 +18,25 @@ namespace dtank
 
         private Sequence _seq;
         private Sequence _finishSeq;
+        private FadeController _fadeController;
+        private readonly DisposableScope _fadeScope = new();
 
-        private readonly Subject<Unit> _onEndFinishSubject = new Subject<Unit>();
-        public IObservable<Unit> OnEndFinishAsObservable => _onEndFinishSubject;
+        private readonly Subject<Unit> _onEndPlayingSubject = new();
+        public IObservable<Unit> OnEndPlayingAsObservable => _onEndPlayingSubject;
 
         public IObservable<Unit> OnForceEndAsObservable => _forceEndButton.OnClickAsObservable();
+
+        public void Setup(FadeController fadeController)
+        {
+            _fadeController = fadeController;
+        }
 
         public void Dispose()
         {
             _seq?.Kill();
             _finishSeq?.Kill();
 
-            _onEndFinishSubject.Dispose();
+            _fadeScope.Dispose();
         }
 
         public void Reset()
@@ -70,6 +78,7 @@ namespace dtank
         public void Finish()
         {
             _seq?.Kill();
+            _fadeScope.Dispose();
 
             _forceEndButton.gameObject.SetActive(false);
 
@@ -86,7 +95,9 @@ namespace dtank
                 .OnComplete(() =>
                 {
                     SetActive(false);
-                    _onEndFinishSubject.OnNext(Unit.Default);
+                    
+                    _fadeController.FadeOut(Color.black, 0.5f,
+                        () => _onEndPlayingSubject.OnNext(Unit.Default), _fadeScope);
                 })
                 .SetLink(gameObject)
                 .Play();

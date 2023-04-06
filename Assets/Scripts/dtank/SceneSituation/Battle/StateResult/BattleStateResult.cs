@@ -11,12 +11,17 @@ namespace dtank
         public override void OnEnter(BattleState prevKey, IScope scope)
         {
             var model = BattleModel.Get();
+            var cameraController = Services.Get<BattleCameraController>();
+            
             var uiView = Services.Get<BattleUiView>();
-            var resultController = new BattleResultController(model.RuleModel, uiView.ResultUiView);
+            var resultUiView = uiView.ResultUiView;
+            var fadeController = Services.Get<FadeController>();
+            resultUiView.Setup(fadeController);
+            
+            var resultController = new BattleResultController(model.RuleModel, resultUiView);
             resultController.ScopeTo(scope);
             
-            var controller = Services.Get<BattleCameraController>();
-            _presenter = new BattleResultPresenter(model, controller, resultController, uiView, uiView.ResultUiView);
+            _presenter = new BattleResultPresenter(model, cameraController, resultController, resultUiView);
             _presenter.ScopeTo(scope);
 
             _presenter.Activate();

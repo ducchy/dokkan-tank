@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using GameFramework.BodySystems;
 using GameFramework.Core;
 using GameFramework.CoroutineSystems;
@@ -14,7 +15,6 @@ namespace dtank
     public class BattleTankEntityContainer : IDisposable
     {
         private readonly Dictionary<int, Entity> _dictionary = new();
-        public IReadOnlyDictionary<int, Entity> Dictionary => _dictionary;
 
         private readonly BattleTankControlUiView _controlUiView;
         private readonly BattlePlayerStatusUiView _statusUiView;
@@ -36,15 +36,25 @@ namespace dtank
             _dictionary.Clear();
         }
 
-        public IEnumerator SetupRoutine(IReadOnlyList<BattleTankModel> tankModels, IScope scope)
+        public IEnumerator SetupRoutine(
+            IReadOnlyList<BattleTankModel> tankModels,
+            IReadOnlyList<NpcBehaviourSelector> npcBehaviourSelectors, 
+            IScope scope)
         {
             Dispose();
 
             foreach (var tankModel in tankModels)
-                yield return AddRoutine(tankModel, tankModels, scope);
+            {
+                var npcBehaviourSelector = npcBehaviourSelectors.FirstOrDefault(nbs => nbs.OwnerId == tankModel.Id);
+                yield return AddRoutine(tankModel, npcBehaviourSelector, tankModels, scope);
+            }
         }
 
-        private IEnumerator AddRoutine(BattleTankModel model, IReadOnlyList<BattleTankModel> tankModels, IScope scope)
+        private IEnumerator AddRoutine(
+            BattleTankModel model, 
+            NpcBehaviourSelector npcBehaviourSelector,
+            IReadOnlyList<BattleTankModel> tankModels, 
+            IScope scope)
         {
             if (_dictionary.ContainsKey(model.Id))
             {
@@ -55,7 +65,7 @@ namespace dtank
             var entity = new Entity();
             _dictionary.Add(model.Id, entity);
 
-            yield return SetupBattleTankAsync(entity, model, tankModels, scope)
+            yield return SetupBattleTankAsync(entity, model, npcBehaviourSelector, tankModels, scope)
                 .StartAsEnumerator(scope);
         }
 
@@ -67,8 +77,12 @@ namespace dtank
         /// <summary>
         /// BattleTankEntityの初期化処理
         /// </summary>
-        private IObservable<Entity> SetupBattleTankAsync(Entity source, BattleTankModel model,
-            IReadOnlyList<BattleTankModel> tankModels, IScope scope)
+        private IObservable<Entity> SetupBattleTankAsync(
+            Entity source, 
+            BattleTankModel model,
+            NpcBehaviourSelector npcBehaviourSelector,
+            IReadOnlyList<BattleTankModel> tankModels, 
+            IScope scope)
         {
             return source.SetupAsync(() =>
             {
@@ -84,8 +98,6 @@ namespace dtank
                     model.ActorModel.StartPointData);
                 taskRunner.Register(actor, TaskOrder.Actor);
                 var controlUiView = model.CharacterType == CharacterType.Player ? _controlUiView : null;
-                var npcBehaviourSelector =
-                    new NpcBehaviourSelector(model, tankModels);
                 var statusUiView = _statusUiView.GetStatusUi(model.Id);
                 var logic = new BattleTankLogic(BattleModel.Get(), model, actor, controlUiView,
                     npcBehaviourSelector, statusUiView);

@@ -7,14 +7,14 @@ namespace dtank
     public class TitlePresenter : IDisposable
     {
         private readonly TitleUiView _uiView;
-        private readonly TitleCamera _camera;
+        private readonly TitleCameraController _cameraController;
         private readonly TitleModel _model;
         private readonly DisposableScope _scope = new();
 
-        public TitlePresenter(TitleUiView uiView, TitleCamera camera, TitleModel model)
+        public TitlePresenter(TitleUiView uiView, TitleCameraController cameraController, TitleModel model)
         {
             _uiView = uiView;
-            _camera = camera;
+            _cameraController = cameraController;
             _model = model;
             
             Bind();
@@ -35,7 +35,7 @@ namespace dtank
                     switch (state)
                     {
                         case TitleState.Idle:
-                            _camera.Play();
+                            _cameraController.Play();
                             break;
                         case TitleState.Start:
                             _model.ChangeState(TitleState.End);

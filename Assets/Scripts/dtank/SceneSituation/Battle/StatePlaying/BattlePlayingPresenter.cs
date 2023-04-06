@@ -7,7 +7,6 @@ namespace dtank
     public class BattlePlayingPresenter : IDisposable
     {
         private readonly BattleModel _model;
-        private readonly BattleUiView _uiView;
         private readonly BattlePlayingUiView _playingUiView;
         private readonly BattlePlayerStatusUiView _statusUiView;
         private readonly BattleTankControlUiView _controlUiView;
@@ -15,13 +14,11 @@ namespace dtank
 
         public BattlePlayingPresenter(
             BattleModel model,
-            BattleUiView uiView,
             BattlePlayingUiView playingUiView, 
             BattlePlayerStatusUiView statusUiView,
             BattleTankControlUiView controlUiView)
         {
             _model = model;
-            _uiView = uiView;
             _playingUiView = playingUiView;
             _statusUiView = statusUiView;
             _controlUiView = controlUiView;
@@ -61,14 +58,14 @@ namespace dtank
 
         private void SetEvent()
         {
-            _playingUiView.OnEndFinishAsObservable
-                .TakeUntil(_scope)
-                .Subscribe(_ => _uiView.EndPlaying())
-                .ScopeTo(_scope);
-            
-            _uiView.OnEndPlayingAsObservable
+            _playingUiView.OnEndPlayingAsObservable
                 .TakeUntil(_scope)
                 .Subscribe(_ => _model.ChangeState(BattleState.Result))
+                .ScopeTo(_scope);
+
+            _playingUiView.OnForceEndAsObservable
+                .TakeUntil(_scope)
+                .Subscribe(_ => _model.RuleModel.ForceEnd())
                 .ScopeTo(_scope);
         }
 

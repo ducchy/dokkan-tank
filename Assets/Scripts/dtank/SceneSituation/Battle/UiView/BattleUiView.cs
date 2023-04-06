@@ -1,7 +1,5 @@
 using System;
 using DG.Tweening;
-using GameFramework.Core;
-using UniRx;
 using UnityEngine;
 
 namespace dtank
@@ -19,21 +17,10 @@ namespace dtank
         public BattleReadyUiView ReadyUiView => _readyUiView;
         public BattlePlayingUiView PlayingUiView => _playingUiView;
         public BattleResultUiView ResultUiView => _resultUiView;
-
-        private FadeController _fadeController;
         private Sequence _sequence;
-        private readonly DisposableScope _fadeScope = new DisposableScope();
 
-        private readonly Subject<Unit> _onEndPlayingSubject = new Subject<Unit>();
-        public IObservable<Unit> OnEndPlayingAsObservable => _onEndPlayingSubject;
-
-        private readonly Subject<Unit> _onBeginResultSubject = new Subject<Unit>();
-        public IObservable<Unit> OnBeginResultAsObservable => _onBeginResultSubject;
-
-        public void Setup(FadeController fadeController)
+        public void Setup()
         {
-            _fadeController = fadeController;
-
             _tankControlUiView.Setup();
         }
 
@@ -46,8 +33,6 @@ namespace dtank
             _resultUiView.Dispose();
 
             _sequence.Kill();
-            _onEndPlayingSubject.Dispose();
-            _onBeginResultSubject.Dispose();
         }
 
         public void Reset()
@@ -57,29 +42,6 @@ namespace dtank
             _readyUiView.Reset();
             _playingUiView.Reset();
             _resultUiView.Reset();
-        }
-
-        public void EndPlaying()
-        {
-            _fadeScope.Dispose();
-            _fadeController.FadeOutAsync(Color.black, 0.5f)
-                .Delay(TimeSpan.FromSeconds(1f))
-                .Subscribe(
-                    onNext: _ => { },
-                    onCompleted: () => _onEndPlayingSubject.OnNext(Unit.Default)
-                )
-                .ScopeTo(_fadeScope);
-        }
-
-        public void BeginResult()
-        {
-            _fadeScope.Dispose();
-            _fadeController.FadeInAsync(0.5f)
-                .Subscribe(
-                    onNext: _ => { },
-                    onCompleted: () => _onBeginResultSubject.OnNext(Unit.Default)
-                )
-                .ScopeTo(_fadeScope);
         }
     }
 }

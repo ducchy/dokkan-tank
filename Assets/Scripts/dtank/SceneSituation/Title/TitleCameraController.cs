@@ -4,15 +4,11 @@ using UnityEngine;
 
 namespace dtank
 {
-    public class TitleCamera : MonoBehaviour, IDisposable
+    public class TitleCameraController : MonoBehaviour, IDisposable
     {
-        private Transform _transform;
+        // [SerializeField] private Camera _camera;
+        [SerializeField] private Transform _axis;
         private Sequence _sequence;
-
-        public void Setup()
-        {
-            _transform = transform;
-        }
 
         public void Dispose()
         {
@@ -23,7 +19,7 @@ namespace dtank
         {
             _sequence?.Kill();
             _sequence = DOTween.Sequence()
-                .Append(_transform.DOLocalRotate(new Vector3(0, 360f, 0), 12f, RotateMode.FastBeyond360)
+                .Append(_axis.DOLocalRotate(new Vector3(0, 360f, 0), 12f, RotateMode.FastBeyond360)
                     .SetEase(Ease.Linear))
                 .SetLoops(-1, LoopType.Restart)
                 .SetLink(gameObject)
