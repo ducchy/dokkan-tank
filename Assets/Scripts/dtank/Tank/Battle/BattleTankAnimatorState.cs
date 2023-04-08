@@ -7,6 +7,7 @@ namespace dtank
         Damage,
         ShotCurve,
         ShotStraight,
+        Dead,
     }
 
     public static class BattleTankAnimatorStateExtension
@@ -19,6 +20,7 @@ namespace dtank
                 case BattleTankAnimatorState.Damage:
                 case BattleTankAnimatorState.ShotCurve:
                 case BattleTankAnimatorState.ShotStraight:
+                case BattleTankAnimatorState.Dead:
                     return @this.ToString();
                 default: return string.Empty;
             }

@@ -88,9 +88,6 @@ namespace dtank
             _sequenceController
                 .BindSignalEventHandler<PlayEffectSignalSequenceEvent, PlayEffectSignalSequenceEventHandler>(
                     handler => { handler.Setup(locatorParts["Center"]); });
-            _sequenceController
-                .BindSignalEventHandler<EndSignalSequenceEvent, EndSignalSequenceEventHandler>(
-                    handler => { handler.Setup(() => SetActive(false)); });
 
             SetStartPoint();
         }
@@ -117,7 +114,12 @@ namespace dtank
 
             _statusEventListener.EnterSubject
                 .TakeUntil(scope)
-                .Subscribe(OnChangeState)
+                .Subscribe(OnEnterState)
+                .ScopeTo(scope);
+
+            _statusEventListener.ExitSubject
+                .TakeUntil(scope)
+                .Subscribe(OnExitState)
                 .ScopeTo(scope);
 
             _damageReceiveListener.ReceiveDamageObservable
@@ -136,12 +138,12 @@ namespace dtank
         private void SetActive(bool active)
         {
             SetVisible(active);
-            
+
             if (active)
                 _playableProvider.GetPlayable().Play();
             else
                 _playableProvider.GetPlayable().Pause();
-            
+
             _collider.enabled = active;
         }
 
@@ -211,23 +213,29 @@ namespace dtank
 
         public void Dead()
         {
-            if (_currentState != BattleTankAnimatorState.Idle)
-                return;
-
             SetTrigger("onDead");
         }
 
-        private void OnChangeState(string stateName)
+        private void OnEnterState(string stateName)
+        {
+            _onStateExitSubject.OnNext(_currentState);
+            _currentState = GetStateFromStateName(stateName);
+        }
+
+        private void OnExitState(string stateName)
+        {
+            var state = GetStateFromStateName(stateName);
+            if (state == BattleTankAnimatorState.Dead)
+                SetActive(false);
+        }
+
+        private BattleTankAnimatorState GetStateFromStateName(string stateName)
         {
             foreach (BattleTankAnimatorState value in Enum.GetValues(typeof(BattleTankAnimatorState)))
-            {
-                if (value.ToStateName() != stateName)
-                    continue;
-
-                _onStateExitSubject.OnNext(_currentState);
-                _currentState = value;
-                break;
-            }
+                if (value.ToStateName() == stateName)
+                    return value;
+            
+            return BattleTankAnimatorState.Invalid;
         }
 
         #endregion AnimatorState

@@ -9,6 +9,10 @@ namespace dtank
 {
     public class NpcBehaviourSelector : IBehaviourSelector
     {
+        private const float ActInterval = 0.5f;
+        private const float IdleDurationAfterShot = 1f;
+        private const float ShotRange = 10f;
+        
         private readonly Subject<Unit> _onShotCurveSubject = new();
         public IObservable<Unit> OnShotCurveAsObservable => _onShotCurveSubject;
 
@@ -91,7 +95,7 @@ namespace dtank
         void IBehaviourSelector.EndShotStraight()
         {
             _target = FindTarget();
-            ChangeState(new NpcTankStateIdle(2f));
+            ChangeState(new NpcTankStateIdle(IdleDurationAfterShot));
         }
 
         public void SetActive(bool active)
@@ -108,7 +112,7 @@ namespace dtank
             else
                 Reset();
             
-            ChangeState(active ? new NpcTankStateIdle(0.5f) : new NpcTankStateNone(), force: true);
+            ChangeState(active ? new NpcTankStateIdle(ActInterval) : new NpcTankStateNone(), force: true);
         }
 
         private void ToNextState(NpcTankStateResult result)
@@ -139,7 +143,7 @@ namespace dtank
                 {
                     _target = FindTarget();
                     _failedCount = 0;
-                    return new NpcTankStateTurn(_behaviourObserver, _owner, _target, 2f);
+                    return new NpcTankStateTurn(_behaviourObserver, _owner, _target, ActInterval);
                 }
             }
             else
@@ -149,23 +153,23 @@ namespace dtank
             {
                 case NpcTankState.Turn:
                     if (result == NpcTankStateResult.Failed)
-                        return new NpcTankStateTurn(_behaviourObserver, _owner, _target, 2f);
+                        return new NpcTankStateTurn(_behaviourObserver, _owner, _target, ActInterval);
 
                     var distance = Vector3.Distance(_owner.Position, _target.Position);
-                    if (distance < 10f)
+                    if (distance < ShotRange)
                         return new NpcTankStateShotStraight(_behaviourObserver);
 
-                    return new NpcTankStateMove(_behaviourObserver, _owner, 2f);
+                    return new NpcTankStateMove(_behaviourObserver, _owner, ActInterval);
                 case NpcTankState.Move:
                     if (result == NpcTankStateResult.Failed)
                     {
                         _target = FindTarget();
-                        return new NpcTankStateTurn(_behaviourObserver, _owner, _target, 2f);
+                        return new NpcTankStateTurn(_behaviourObserver, _owner, _target, ActInterval);
                     }
 
-                    return new NpcTankStateTurn(_behaviourObserver, _owner, _target, 2f);
+                    return new NpcTankStateTurn(_behaviourObserver, _owner, _target, ActInterval);
                 default:
-                    return new NpcTankStateTurn(_behaviourObserver, _owner, _target, 2f);
+                    return new NpcTankStateTurn(_behaviourObserver, _owner, _target, ActInterval);
             }
         }
 

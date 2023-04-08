@@ -55,7 +55,6 @@ MonoBehaviour:
   label: Track
   sequenceEvents:
   - {fileID: -7135705238228000736}
-  - {fileID: 789547235930027800}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
