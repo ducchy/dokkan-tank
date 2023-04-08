@@ -79,10 +79,10 @@ namespace dtank
 #if UNITY_EDITOR
             var vertical = Input.GetAxis("Vertical");
             var horizontal = Input.GetAxis("Horizontal");
-            if (Mathf.Abs(vertical) > 0.01f)
-                _verticalSlider.value = vertical;
-            if (Mathf.Abs(horizontal) > 0.01f)
-                _horizontalSlider.value = horizontal;
+
+            _verticalSlider.value = Mathf.Abs(vertical) > 0.01f ? vertical : 0f;
+            _horizontalSlider.value = Mathf.Abs(horizontal) > 0.01f ? horizontal : 0f;
+
             if (Input.GetKeyDown(KeyCode.Space))
                 _shotStraightButton.onClick.Invoke();
 #endif
@@ -115,7 +115,7 @@ namespace dtank
         private void OnAutoToggleValueChanged(bool isOn)
         {
             _onAutoToggleValueChanged.OnNext(isOn);
-            
+
             SetInteractive(!isOn);
         }
     }
