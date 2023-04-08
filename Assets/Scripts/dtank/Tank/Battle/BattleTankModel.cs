@@ -85,10 +85,10 @@ namespace dtank
 
         public void Damage(IAttacker attacker)
         {
-            if (_invincibleFlag.Value)
+            if (IsNoDamageState(_currentState.Value))
                 return;
-
-            if (_currentState.Value == BattleTankState.Damage)
+            
+            if (_invincibleFlag.Value)
                 return;
 
             if (_hp.Value <= 0)
@@ -179,8 +179,6 @@ namespace dtank
             if (next == current)
                 return false;
 
-            bool IsLastState(BattleTankState state) => state is BattleTankState.Dead or BattleTankState.Result;
-
             if (IsLastState(current))
                 return false;
 
@@ -202,6 +200,16 @@ namespace dtank
             }
 
             return true;
+        }
+
+        private bool IsLastState(BattleTankState state)
+        {
+            return state is BattleTankState.Dead or BattleTankState.Result;
+        }
+
+        private bool IsNoDamageState(BattleTankState state)
+        {
+            return state is BattleTankState.Ready or BattleTankState.Damage || IsLastState(state);
         }
 
         #endregion State
