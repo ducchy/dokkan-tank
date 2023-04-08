@@ -85,21 +85,8 @@ namespace dtank
 
         public void Damage(IAttacker attacker)
         {
-            if (IsNoDamageState(_currentState.Value))
+            if (IsInvalidDamage())
                 return;
-            
-            if (_invincibleFlag.Value)
-                return;
-
-            if (_hp.Value <= 0)
-                return;
-
-#if DEVELOPMENT_BUILD || UNITY_EDITOR
-            var battleDebugModel = DebugManager.BattleDebugModel;
-            if ((CharacterType == CharacterType.Player && battleDebugModel.NoReceiveDamageFlag.Value) ||
-                (CharacterType == CharacterType.NonPlayer && battleDebugModel.NoDealDamageFlag.Value))
-                return;
-#endif
 
             SetHp(_hp.Value - 1);
             attacker?.DealDamage();
@@ -112,6 +99,20 @@ namespace dtank
 
             BeginInvincible();
             SetState(BattleTankState.Damage);
+        }
+
+        public bool IsInvalidDamage()
+        {
+            if (IsInvalidDamageState(_currentState.Value) || _invincibleFlag.Value || _hp.Value <= 0)
+                return true;
+
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+            var battleDebugModel = DebugManager.BattleDebugModel;
+            if ((CharacterType == CharacterType.Player && battleDebugModel.NoReceiveDamageFlag.Value) ||
+                (CharacterType == CharacterType.NonPlayer && battleDebugModel.NoDealDamageFlag.Value))
+                return true;
+#endif
+            return false;
         }
 
         public void IncrementScore()
@@ -207,7 +208,7 @@ namespace dtank
             return state is BattleTankState.Dead or BattleTankState.Result;
         }
 
-        private bool IsNoDamageState(BattleTankState state)
+        private bool IsInvalidDamageState(BattleTankState state)
         {
             return state is BattleTankState.Ready or BattleTankState.Damage || IsLastState(state);
         }

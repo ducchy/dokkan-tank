@@ -3,6 +3,7 @@
 using System;
 using GameFramework.Core;
 using UniRx;
+using UnityDebugSheet.Runtime.Core.Scripts;
 
 namespace dtank
 {
@@ -14,18 +15,32 @@ namespace dtank
         public readonly Subject<Unit> OnDamageMyself = new();
         public readonly Subject<Unit> OnForceTimeUp = new();
 
-        private BattleModel _model;
         private readonly DisposableScope _scope = new();
 
-        public void Setup(BattleModel model)
+        public BattleModel BattleModel { get; private set; }
+
+        public void Setup(BattleModel battleModel)
         {
-            _model = model;
+            BattleModel = battleModel;
 
             Bind();
         }
 
         public void Dispose()
         {
+            BattleModel = null;
+
+            var currentPage = DebugSheet.Instance.CurrentDebugPage;
+            switch (currentPage)
+            {
+                case DtankBattleTankInfoDebugPage:
+                    DebugSheet.Instance.PopPage(true, 2);
+                    break;
+                case DtankBattleTankInfoListDebugPage:
+                    DebugSheet.Instance.PopPage(true);
+                    break;
+            }
+
             _scope.Dispose();
         }
 
@@ -33,18 +48,26 @@ namespace dtank
         {
             OnForceTimeUp
                 .TakeUntil(_scope)
-                .Subscribe(_ => _model.RuleModel.TimerModel.Update(_model.RuleModel.TimerModel.InitTime))
+                .Subscribe(_ => BattleModel.RuleModel.TimerModel.Update(BattleModel.RuleModel.TimerModel.InitTime))
                 .ScopeTo(_scope);
 
-            foreach (var tankModel in _model.TankModels)
+            foreach (var tankModel in BattleModel.TankModels)
             {
-                if (tankModel.CharacterType == CharacterType.Player)
-                {
-                    OnDamageMyself
-                        .TakeUntil(_scope)
-                        .Subscribe(_ => tankModel.Damage(null))
-                        .ScopeTo(_scope);
-                }
+                if (tankModel.CharacterType != CharacterType.Player)
+                    continue;
+
+                var model = tankModel;
+                OnDamageMyself
+                    .TakeUntil(_scope)
+                    .Subscribe(_ =>
+                    {
+                        // 被ダメ0判定を一時的に無効化
+                        var temp = NoReceiveDamageFlag.Value;
+                        NoReceiveDamageFlag.Value = false;
+                        model.Damage(null);
+                        NoReceiveDamageFlag.Value = temp;
+                    })
+                    .ScopeTo(_scope);
             }
         }
     }
