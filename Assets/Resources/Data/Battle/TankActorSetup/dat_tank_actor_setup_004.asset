@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd95c25711774ecbb6c2e8601011623b, type: 3}
   m_Name: dat_tank_actor_setup_004
   m_EditorClassIdentifier: 
-  _moveMaxSpeed: 300
-  _turnMaxSpeed: 180
+  _moveMaxSpeed: 600
+  _turnMaxSpeed: 360
   _controller: {fileID: 9100000, guid: 7223a35417cad4c3693897218484a565, type: 2}
   _actionInfos:
   - _triggerName: onShotCurve
@@ -23,11 +23,3 @@ MonoBehaviour:
   - _triggerName: onDead
     _sequenceClip: {fileID: 11400000, guid: 0d4afc677c453453da865c2ead26f526, type: 2}
   _color: {r: 1, g: 0.7607843, b: 0, a: 1}
-  actionInfos:
-  - _triggerName: onShotCurve
-    _sequenceClip: {fileID: 11400000, guid: cfa5016f7d9fe4d9b88bf300e3e5135f, type: 2}
-  - _triggerName: onShotStraight
-    _sequenceClip: {fileID: 11400000, guid: d111da424ef5548e2a8e20891870492e, type: 2}
-  - _triggerName: onDead
-    _sequenceClip: {fileID: 11400000, guid: 0d4afc677c453453da865c2ead26f526, type: 2}
-  color: {r: 1, g: 0.7607843, b: 0, a: 1}
