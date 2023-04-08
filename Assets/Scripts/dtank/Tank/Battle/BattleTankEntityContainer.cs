@@ -38,7 +38,7 @@ namespace dtank
 
         public IEnumerator SetupRoutine(
             IReadOnlyList<BattleTankModel> tankModels,
-            IReadOnlyList<NpcBehaviourSelector> npcBehaviourSelectors, 
+            IReadOnlyList<NpcBehaviourSelector> npcBehaviourSelectors,
             IScope scope)
         {
             Dispose();
@@ -46,14 +46,13 @@ namespace dtank
             foreach (var tankModel in tankModels)
             {
                 var npcBehaviourSelector = npcBehaviourSelectors.FirstOrDefault(nbs => nbs.OwnerId == tankModel.Id);
-                yield return AddRoutine(tankModel, npcBehaviourSelector, tankModels, scope);
+                yield return AddRoutine(tankModel, npcBehaviourSelector, scope);
             }
         }
 
         private IEnumerator AddRoutine(
-            BattleTankModel model, 
+            BattleTankModel model,
             NpcBehaviourSelector npcBehaviourSelector,
-            IReadOnlyList<BattleTankModel> tankModels, 
             IScope scope)
         {
             if (_dictionary.ContainsKey(model.Id))
@@ -65,7 +64,7 @@ namespace dtank
             var entity = new Entity();
             _dictionary.Add(model.Id, entity);
 
-            yield return SetupBattleTankAsync(entity, model, npcBehaviourSelector, tankModels, scope)
+            yield return SetupBattleTankAsync(entity, model, npcBehaviourSelector, scope)
                 .StartAsEnumerator(scope);
         }
 
@@ -78,10 +77,9 @@ namespace dtank
         /// BattleTankEntityの初期化処理
         /// </summary>
         private IObservable<Entity> SetupBattleTankAsync(
-            Entity source, 
+            Entity source,
             BattleTankModel model,
             NpcBehaviourSelector npcBehaviourSelector,
-            IReadOnlyList<BattleTankModel> tankModels, 
             IScope scope)
         {
             return source.SetupAsync(() =>

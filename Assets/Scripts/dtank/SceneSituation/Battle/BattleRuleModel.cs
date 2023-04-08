@@ -49,8 +49,7 @@ namespace dtank
                 return;
 
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
-            var battleDebugModel = DebugManager.ServiceContainer.Get<DtankBattleDebugPageModel>();
-            if (battleDebugModel != null && battleDebugModel.TimerStopFlag.Value)
+            if (DebugManager.BattleDebugModel.TimerStopFlag.Value)
                 return;
 #endif
 
@@ -75,6 +74,8 @@ namespace dtank
 
         public void Start()
         {
+            Debug.Log($"[BattleRuleModel] Start");
+            
             _playingFlag = true;
         }
 
@@ -85,8 +86,10 @@ namespace dtank
 
         private void TimeUp()
         {
-            if (_resultType.Value != BattleResultType.None)
+            if (_resultType.Value != BattleResultType.None  || !_playingFlag)
                 return;
+            
+            Debug.Log($"[BattleRuleModel] TimeUp");
 
             _playingFlag = false;
             UpdateRanking();

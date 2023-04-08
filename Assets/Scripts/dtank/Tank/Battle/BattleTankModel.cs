@@ -44,7 +44,7 @@ namespace dtank
 
         public Vector3 Position { get; private set; }
         public Vector3 Forward { get; private set; }
-        public bool IsMovable => _currentState.Value == BattleTankState.FreeMove;
+        public bool MovableFlag => _currentState.Value == BattleTankState.FreeMove;
 
         private float _inputMoveAmount;
         private float _inputTurnAmount;
@@ -95,11 +95,9 @@ namespace dtank
                 return;
 
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
-            var battleDebugModel = DebugManager.ServiceContainer.Get<DtankBattleDebugPageModel>();
-            if (battleDebugModel != null && (
-                    (CharacterType == CharacterType.Player && battleDebugModel.NoReceiveDamageFlag.Value) ||
-                    (CharacterType == CharacterType.NonPlayer && battleDebugModel.NoDealDamageFlag.Value)
-                ))
+            var battleDebugModel = DebugManager.BattleDebugModel;
+            if ((CharacterType == CharacterType.Player && battleDebugModel.NoReceiveDamageFlag.Value) ||
+                (CharacterType == CharacterType.NonPlayer && battleDebugModel.NoDealDamageFlag.Value))
                 return;
 #endif
 
@@ -152,8 +150,8 @@ namespace dtank
 
         private void SetMoveAmount()
         {
-            _moveAmount.Value = IsMovable ? _inputMoveAmount : 0f;
-            _turnAmount.Value = IsMovable ? _inputTurnAmount : 0f;
+            _moveAmount.Value = MovableFlag ? _inputMoveAmount : 0f;
+            _turnAmount.Value = MovableFlag ? _inputTurnAmount : 0f;
         }
 
         private void SetHp(int hp)

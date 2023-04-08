@@ -2,6 +2,7 @@
 
 using System;
 using UnityDebugSheet.Runtime.Core.Scripts;
+using UnityDebugSheet.Runtime.Extensions.Unity;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -13,11 +14,6 @@ namespace dtank
 
         public DtankDebugSheet()
         {
-            void RegisterModel()
-            {
-                DebugManager.ServiceContainer.Set(new DtankBattleDebugPageModel());
-            }
-
             void CreateDebugSheet()
             {
                 var prefab = Resources.Load<DebugSheet>(Path);
@@ -32,11 +28,18 @@ namespace dtank
 
             DebugPage CreateRootPage() => DebugSheet.Instance.GetOrCreateInitialPage();
 
-            RegisterModel();
             CreateDebugSheet();
 
             var rootPage = CreateRootPage();
-            rootPage.AddPageLinkButton<DtankDebugPage>("dtank Debug");
+            rootPage.AddPageLinkButton<DtankDebugPage>("dtank");
+            rootPage.AddPageLinkButton<SystemInfoDebugPage>("System Info");
+            rootPage.AddPageLinkButton<ApplicationDebugPage>("Application");
+            rootPage.AddPageLinkButton<TimeDebugPage>("Time");
+            rootPage.AddPageLinkButton<QualitySettingsDebugPage>("Quality Setting");
+            rootPage.AddPageLinkButton<ScreenDebugPage>("Screen");
+            rootPage.AddPageLinkButton<InputDebugPage>("Input");
+            rootPage.AddPageLinkButton<GraphicsDebugPage>("Graphics");
+            rootPage.AddPageLinkButton<PhysicsDebugPage>("Physics");
         }
 
         public void Dispose()

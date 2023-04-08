@@ -62,11 +62,6 @@ namespace dtank
                 .TakeUntil(_scope)
                 .Subscribe(_ => _model.ChangeState(BattleState.Result))
                 .ScopeTo(_scope);
-
-#if DEVELOPMENT_BUILD || UNITY_EDITOR
-            var battleDebugModel = DebugManager.ServiceContainer.Get<DtankBattleDebugPageModel>();
-            battleDebugModel.OnForceTimeUp = _model.RuleModel.ForceEnd;
-#endif
         }
 
         private void OnResultTypeChanged(BattleResultType type)

@@ -56,10 +56,10 @@ namespace dtank
 
             SetActive(false);
 
-            void onCompleteFadeIn()
+            void OnCompleteFadeIn()
             {
                 _resultSeq?.Kill();
-                
+
                 _resultLabel.text = winFlag ? "WIN!" : "LOSE!";
                 _resultLabel.color = new Color(0.2f, 0.2f, 0.2f, 0f);
                 _resultLabel.transform.localScale = Vector3.one * 3f;
@@ -79,7 +79,7 @@ namespace dtank
                     .Play();
             }
 
-            _fadeController.FadeIn(0.5f, onCompleteFadeIn, _fadeScope);
+            _fadeController.FadeIn(0.5f, OnCompleteFadeIn, _fadeScope);
         }
     }
 }

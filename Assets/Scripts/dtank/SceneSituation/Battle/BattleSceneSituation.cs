@@ -85,8 +85,9 @@ namespace dtank
             SetupStateContainer(scope);
             
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
-            var battleDebugModel = DebugManager.ServiceContainer.Get<DtankBattleDebugPageModel>();
-            battleDebugModel.ScopeTo(scope);
+            var model = BattleModel.Get();
+            DebugManager.BattleDebugModel.Setup(model);
+            DebugManager.BattleDebugModel.ScopeTo(scope);
 #endif
         }
 

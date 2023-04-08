@@ -8,7 +8,7 @@ namespace dtank
 {
     public sealed class DtankSceneDebugPage : DefaultDebugPageBase
     {
-        protected override string Title => "dtank Debug > Scene";
+        protected override string Title => "dtank > Scene";
 
         public override IEnumerator Initialize()
         {

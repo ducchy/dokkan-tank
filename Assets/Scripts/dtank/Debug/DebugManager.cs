@@ -12,6 +12,8 @@ namespace dtank
         private static readonly Services Services = new();
         public static IServiceContainer ServiceContainer => Services;
 
+        public static readonly BattleDebugModel BattleDebugModel = new();
+        
         public DebugManager()
         {
             var dtankDebugSheet = new DtankDebugSheet();

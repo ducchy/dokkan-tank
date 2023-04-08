@@ -131,14 +131,6 @@ namespace dtank
                 .TakeUntil(_scope)
                 .Subscribe(_ => _tankModel.IncrementScore())
                 .ScopeTo(_scope);
-
-#if DEVELOPMENT_BUILD || UNITY_EDITOR
-            if (_tankModel.CharacterType == CharacterType.Player)
-            {
-                var battleDebugModel = DebugManager.ServiceContainer.Get<DtankBattleDebugPageModel>();
-                battleDebugModel.OnDamageMyself = () => _tankModel.Damage(null);
-            }
-#endif
         }
 
         private void SetBehaviourSelector(CharacterType characterType)
