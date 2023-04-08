@@ -50,7 +50,7 @@ namespace dtank
         public void Update(float deltaTime)
         {
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
-            if (DebugManager.BattleDebugModel.TimerStopFlag.Value)
+            if (DebugManager.BattleDebugModel.TimerStopFlag)
                 return;
 #endif
             TimerModel.Update(deltaTime);

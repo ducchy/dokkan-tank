@@ -108,8 +108,8 @@ namespace dtank
 
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
             var battleDebugModel = DebugManager.BattleDebugModel;
-            if ((CharacterType == CharacterType.Player && battleDebugModel.NoReceiveDamageFlag.Value) ||
-                (CharacterType == CharacterType.NonPlayer && battleDebugModel.NoDealDamageFlag.Value))
+            if ((CharacterType == CharacterType.Player && battleDebugModel.NoReceiveDamageFlag) ||
+                (CharacterType == CharacterType.NonPlayer && battleDebugModel.NoDealDamageFlag))
                 return true;
 #endif
             return false;

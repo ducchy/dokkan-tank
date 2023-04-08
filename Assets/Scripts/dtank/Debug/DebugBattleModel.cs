@@ -9,9 +9,9 @@ namespace dtank
 {
     public class BattleDebugModel : IDisposable
     {
-        public readonly ReactiveProperty<bool> TimerStopFlag = new();
-        public readonly ReactiveProperty<bool> NoReceiveDamageFlag = new();
-        public readonly ReactiveProperty<bool> NoDealDamageFlag = new();
+        public bool TimerStopFlag;
+        public bool NoReceiveDamageFlag;
+        public bool NoDealDamageFlag;
         public readonly Subject<Unit> OnDamageMyself = new();
         public readonly Subject<Unit> OnForceTimeUp = new();
 
@@ -62,10 +62,10 @@ namespace dtank
                     .Subscribe(_ =>
                     {
                         // 被ダメ0判定を一時的に無効化
-                        var temp = NoReceiveDamageFlag.Value;
-                        NoReceiveDamageFlag.Value = false;
+                        var temp = NoReceiveDamageFlag;
+                        NoReceiveDamageFlag = false;
                         model.Damage(null);
-                        NoReceiveDamageFlag.Value = temp;
+                        NoReceiveDamageFlag = temp;
                     })
                     .ScopeTo(_scope);
             }

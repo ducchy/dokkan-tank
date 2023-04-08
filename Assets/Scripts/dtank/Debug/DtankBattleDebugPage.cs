@@ -17,12 +17,12 @@ namespace dtank
         {
             AddButton("自傷ダメージ", clicked: () => Model.OnDamageMyself.OnNext(Unit.Default));
             AddButton("強制タイムアップ", clicked: () => Model.OnForceTimeUp.OnNext(Unit.Default));
-            AddSwitch(Model.TimerStopFlag.Value, "タイマー停止",
-                valueChanged: value => Model.TimerStopFlag.Value = value);
-            AddSwitch(Model.NoReceiveDamageFlag.Value, "被ダメージ0",
-                valueChanged: value => Model.NoReceiveDamageFlag.Value = value);
-            AddSwitch(Model.NoDealDamageFlag.Value, "与ダメージ0",
-                valueChanged: value => Model.NoDealDamageFlag.Value = value);
+            AddSwitch(Model.TimerStopFlag, "タイマー停止",
+                valueChanged: value => Model.TimerStopFlag = value);
+            AddSwitch(Model.NoReceiveDamageFlag, "被ダメージ0",
+                valueChanged: value => Model.NoReceiveDamageFlag = value);
+            AddSwitch(Model.NoDealDamageFlag, "与ダメージ0",
+                valueChanged: value => Model.NoDealDamageFlag = value);
             AddPageLinkButton<DtankBattleTankInfoListDebugPage>("Tank Info");
             yield break;
         }
