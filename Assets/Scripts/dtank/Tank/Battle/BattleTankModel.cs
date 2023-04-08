@@ -8,7 +8,7 @@ namespace dtank
     public class BattleTankModel : AutoIdModel<BattleTankModel>
     {
         #region Variable
-        
+
         public BattleTankActorModel ActorModel { get; private set; }
 
         private readonly ReactiveProperty<BattleTankState> _currentState = new(BattleTankState.Invalid);
@@ -51,7 +51,7 @@ namespace dtank
         private float _invincibleRemainTime;
         private ITask _taskImplementation;
         private bool _isActive;
-        
+
         #endregion Variable
 
         private BattleTankModel(int id) : base(id)
@@ -94,6 +94,15 @@ namespace dtank
             if (_hp.Value <= 0)
                 return;
 
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+            var battleDebugModel = DebugManager.ServiceContainer.Get<DtankBattleDebugPageModel>();
+            if (battleDebugModel != null && (
+                    (CharacterType == CharacterType.Player && battleDebugModel.NoReceiveDamageFlag.Value) ||
+                    (CharacterType == CharacterType.NonPlayer && battleDebugModel.NoDealDamageFlag.Value)
+                ))
+                return;
+#endif
+
             SetHp(_hp.Value - 1);
             attacker?.DealDamage();
 
@@ -106,12 +115,12 @@ namespace dtank
             BeginInvincible();
             SetState(BattleTankState.Damage);
         }
-        
+
         public void IncrementScore()
         {
             _score.Value++;
         }
-        
+
         #region Setter
 
         public void SetPosition(Vector3 position)
@@ -140,6 +149,7 @@ namespace dtank
             _inputTurnAmount = inputTurnAmount;
             SetMoveAmount();
         }
+
         private void SetMoveAmount()
         {
             _moveAmount.Value = IsMovable ? _inputMoveAmount : 0f;
@@ -151,7 +161,7 @@ namespace dtank
             _hp.Value = hp;
             _deadFlag.Value = hp == 0;
         }
-        
+
         #endregion Setter
 
         #region State
@@ -160,7 +170,7 @@ namespace dtank
         {
             if (!CheckTransitionState(state))
                 return;
-            
+
             _currentState.Value = state;
             SetMoveAmount();
         }
@@ -195,9 +205,9 @@ namespace dtank
 
             return true;
         }
-        
+
         #endregion State
-        
+
         #region Invincible
 
         private void BeginInvincible()
@@ -223,7 +233,7 @@ namespace dtank
             if (_invincibleRemainTime <= 0f)
                 EndInvincible();
         }
-        
+
         #endregion Invincible
     }
 }
