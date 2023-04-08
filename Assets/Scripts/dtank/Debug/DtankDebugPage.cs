@@ -12,6 +12,7 @@ namespace dtank
         public override IEnumerator Initialize()
         {
             AddPageLinkButton<DtankSceneDebugPage>("Scene");
+            AddPageLinkButton<DtankBattleDebugPage>("Battle");
 
             yield break;
         }

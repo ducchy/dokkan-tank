@@ -13,6 +13,11 @@ namespace dtank
 
         public DtankDebugSheet()
         {
+            void RegisterModel()
+            {
+                DebugManager.ServiceContainer.Set(new DtankBattleDebugPageModel());
+            }
+
             void CreateDebugSheet()
             {
                 var prefab = Resources.Load<DebugSheet>(Path);
@@ -27,14 +32,11 @@ namespace dtank
 
             DebugPage CreateRootPage() => DebugSheet.Instance.GetOrCreateInitialPage();
 
-            void OnLoadDtankPage((string, DtankDebugPage) tuple)
-            {
-            }
-
+            RegisterModel();
             CreateDebugSheet();
 
             var rootPage = CreateRootPage();
-            rootPage.AddPageLinkButton<DtankDebugPage>("dtank Debug", onLoad: OnLoadDtankPage);
+            rootPage.AddPageLinkButton<DtankDebugPage>("dtank Debug");
         }
 
         public void Dispose()

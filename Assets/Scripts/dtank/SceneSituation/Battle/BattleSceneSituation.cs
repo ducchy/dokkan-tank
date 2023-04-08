@@ -83,6 +83,11 @@ namespace dtank
             yield return SetupModelRoutine(scope);
             yield return SetupPresenterRoutine(scope);
             SetupStateContainer(scope);
+            
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+            var battleDebugModel = DebugManager.ServiceContainer.Get<DtankBattleDebugPageModel>();
+            battleDebugModel.ScopeTo(scope);
+#endif
         }
 
         private IEnumerator SetupManagerRoutine()
