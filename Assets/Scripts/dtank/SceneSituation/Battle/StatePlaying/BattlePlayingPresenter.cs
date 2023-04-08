@@ -50,7 +50,7 @@ namespace dtank
                 .Subscribe(OnResultTypeChanged)
                 .ScopeTo(_scope);
 
-            _model.RuleModel.RemainTime
+            _model.RuleModel.TimerModel.RemainTime
                 .TakeUntil(_scope)
                 .Subscribe(_playingUiView.SetTime)
                 .ScopeTo(_scope);

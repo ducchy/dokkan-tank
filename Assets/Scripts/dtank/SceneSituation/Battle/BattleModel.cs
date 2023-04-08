@@ -122,7 +122,8 @@ namespace dtank
         {
             _coroutineRunner.Update();
 
-            RuleModel?.Update();
+            var deltaTime = Time.deltaTime;
+            RuleModel?.Update(deltaTime);
             foreach (var tankModel in _tankModels)
                 tankModel.Update();
         }

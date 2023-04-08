@@ -33,7 +33,7 @@ namespace dtank
         {
             OnForceTimeUp
                 .TakeUntil(_scope)
-                .Subscribe(_ => _model.RuleModel.ForceEnd())
+                .Subscribe(_ => _model.RuleModel.TimerModel.Update(_model.RuleModel.TimerModel.InitTime))
                 .ScopeTo(_scope);
 
             foreach (var tankModel in _model.TankModels)

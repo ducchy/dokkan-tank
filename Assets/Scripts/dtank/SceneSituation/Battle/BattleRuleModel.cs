@@ -16,17 +16,11 @@ namespace dtank
     public class BattleRuleModel : IDisposable
     {
         private readonly ReactiveProperty<BattleResultType> _resultType = new(BattleResultType.None);
-
         public IReadOnlyReactiveProperty<BattleResultType> ResultType => _resultType;
 
-        private readonly ReactiveProperty<int> _remainTimeInt = new();
-        public IReadOnlyReactiveProperty<int> RemainTime => _remainTimeInt;
-
-        private float _remainTime;
-        private bool _playingFlag;
         private bool _isActive;
 
-        private readonly float _duration;
+        public readonly TimerModel TimerModel;
         private readonly int _mainPlayerId;
         private readonly IReadOnlyList<BattleTankModel> _tankModels;
 
@@ -34,40 +28,40 @@ namespace dtank
 
         public BattleRuleModel(float duration, int mainPlayerId, IReadOnlyList<BattleTankModel> tankModels)
         {
-            _duration = duration;
+            TimerModel = new TimerModel(duration);
             _mainPlayerId = mainPlayerId;
             _tankModels = tankModels;
+
+            Bind();
         }
 
         public void Dispose()
         {
+            _resultType.Dispose();
+            TimerModel.Dispose();
         }
 
-        public void Update()
+        private void Bind()
         {
-            if (!_playingFlag)
-                return;
+            TimerModel.TimeUpObservable
+                .Subscribe(_ => TimeUp());
+        }
 
+        public void Update(float deltaTime)
+        {
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
             if (DebugManager.BattleDebugModel.TimerStopFlag.Value)
                 return;
 #endif
-
-            _remainTime -= Time.deltaTime;
-            _remainTimeInt.Value = Mathf.CeilToInt(_remainTime);
-
-            if (_remainTime < 0f)
-                TimeUp();
+            TimerModel.Update(deltaTime);
         }
 
         public void Reset()
         {
-            _playingFlag = false;
-
             _resultType.Value = BattleResultType.None;
 
-            _remainTime = _duration;
-            _remainTimeInt.Value = Mathf.CeilToInt(_remainTime);
+            TimerModel.SetActive(false);
+            TimerModel.Reset();
 
             UpdateRanking();
         }
@@ -75,23 +69,17 @@ namespace dtank
         public void Start()
         {
             Debug.Log($"[BattleRuleModel] Start");
-            
-            _playingFlag = true;
-        }
 
-        public void ForceEnd()
-        {
-            TimeUp();
+            TimerModel.SetActive(true);
         }
 
         private void TimeUp()
         {
-            if (_resultType.Value != BattleResultType.None  || !_playingFlag)
+            if (_resultType.Value != BattleResultType.None)
                 return;
-            
+
             Debug.Log($"[BattleRuleModel] TimeUp");
 
-            _playingFlag = false;
             UpdateRanking();
             _resultType.Value = TopPlayerId == _mainPlayerId ? BattleResultType.Win : BattleResultType.Lose;
         }
