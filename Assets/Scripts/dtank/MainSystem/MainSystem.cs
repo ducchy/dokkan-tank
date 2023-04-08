@@ -52,6 +52,8 @@ namespace dtank
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
             var debugManager = new DebugManager();
             Services.Instance.Set(debugManager);
+            
+            DebugManager.ServiceContainer.Set(_sceneSituationContainer);
 #endif
 
             var battleEntryData = new BattleEntryData();
