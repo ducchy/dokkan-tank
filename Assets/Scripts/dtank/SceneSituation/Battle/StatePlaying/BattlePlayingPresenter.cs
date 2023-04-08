@@ -67,11 +67,6 @@ namespace dtank
             var battleDebugModel = DebugManager.ServiceContainer.Get<DtankBattleDebugPageModel>();
             battleDebugModel.OnForceTimeUp = _model.RuleModel.ForceEnd;
 #endif
-
-            _playingUiView.OnForceEndAsObservable
-                .TakeUntil(_scope)
-                .Subscribe(_ => _model.RuleModel.ForceEnd())
-                .ScopeTo(_scope);
         }
 
         private void OnResultTypeChanged(BattleResultType type)

@@ -4,7 +4,6 @@ using GameFramework.Core;
 using TMPro;
 using UniRx;
 using UnityEngine;
-using UnityEngine.UI;
 using Sequence = DG.Tweening.Sequence;
 
 namespace dtank
@@ -12,7 +11,6 @@ namespace dtank
     public class BattlePlayingUiView : MonoBehaviour, IDisposable
     {
         [SerializeField] private CanvasGroup _group;
-        [SerializeField] private Button _forceEndButton;
         [SerializeField] private TextMeshProUGUI _centerLabel;
         [SerializeField] private TextMeshProUGUI _remainTime;
 
@@ -23,8 +21,6 @@ namespace dtank
 
         private readonly Subject<Unit> _onEndPlayingSubject = new();
         public IObservable<Unit> OnEndPlayingAsObservable => _onEndPlayingSubject;
-
-        public IObservable<Unit> OnForceEndAsObservable => _forceEndButton.OnClickAsObservable();
 
         public void Setup(FadeController fadeController)
         {
@@ -41,8 +37,6 @@ namespace dtank
 
         public void Reset()
         {
-            _forceEndButton.gameObject.SetActive(true);
-
             SetActive(false);
         }
 
@@ -79,8 +73,6 @@ namespace dtank
         {
             _seq?.Kill();
             _fadeScope.Dispose();
-
-            _forceEndButton.gameObject.SetActive(false);
 
             _centerLabel.text = "FINISH!";
             _centerLabel.color = new Color(0.2f, 0.2f, 0.2f, 0f);
