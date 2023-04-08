@@ -18,7 +18,7 @@ namespace dtank
             var fadeController = Services.Get<FadeController>();
             resultUiView.Setup(fadeController);
             
-            var resultController = new BattleResultController(model.RuleModel, resultUiView);
+            var resultController = new BattleResultController(model.RuleModel, model.TankModels, resultUiView);
             resultController.ScopeTo(scope);
             
             _presenter = new BattleResultPresenter(model, cameraController, resultController, resultUiView);

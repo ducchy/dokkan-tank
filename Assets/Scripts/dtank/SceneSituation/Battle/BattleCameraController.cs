@@ -9,7 +9,7 @@ namespace dtank
 {
     public class BattleCameraController : MonoBehaviour, IDisposable
     {
-        // [SerializeField] private Camera _camera;
+        [SerializeField] private Camera _camera;
         [SerializeField] private Transform _axis;
         [SerializeField] private ParentAttachment _parentAttachment;
 
@@ -53,6 +53,7 @@ namespace dtank
             _readySeq?.Kill();
 
             SetTarget(_model.MainPlayerTankModel.Id);
+            _camera.transform.localPosition = new Vector3(0f, 3f, -5f);
 
             _readySeq = DOTween.Sequence()
                 .AppendInterval(1f)
@@ -74,6 +75,7 @@ namespace dtank
             _resultSeq?.Kill();
 
             SetTarget(winnerId);
+            _camera.transform.localPosition = new Vector3(-1.5f, 3f, -5f);
 
             _resultSeq = DOTween.Sequence()
                 .Append(_axis.DOLocalRotate(new Vector3(0, 360f, 0), 4f, RotateMode.FastBeyond360)
