@@ -9,6 +9,7 @@ namespace dtank
     public class DtankBattleDebugPageModel : IDisposable
     {
         public Action OnDamageMyself;
+        public Action OnForceTimeUp;
 
         public void Dispose()
         {
@@ -27,6 +28,7 @@ namespace dtank
             DebugManager.ServiceContainer.Set(this);
             
             AddButton("自傷ダメージ", clicked: Model?.OnDamageMyself);
+            AddButton("強制タイムアップ", clicked: Model?.OnForceTimeUp);
             yield break;
         }
     }

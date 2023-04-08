@@ -14,7 +14,7 @@ namespace dtank
 
         public BattlePlayingPresenter(
             BattleModel model,
-            BattlePlayingUiView playingUiView, 
+            BattlePlayingUiView playingUiView,
             BattlePlayerStatusUiView statusUiView,
             BattleTankControlUiView controlUiView)
         {
@@ -63,6 +63,11 @@ namespace dtank
                 .Subscribe(_ => _model.ChangeState(BattleState.Result))
                 .ScopeTo(_scope);
 
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+            var battleDebugModel = DebugManager.ServiceContainer.Get<DtankBattleDebugPageModel>();
+            battleDebugModel.OnForceTimeUp = _model.RuleModel.ForceEnd;
+#endif
+
             _playingUiView.OnForceEndAsObservable
                 .TakeUntil(_scope)
                 .Subscribe(_ => _model.RuleModel.ForceEnd())
@@ -73,7 +78,7 @@ namespace dtank
         {
             if (type == BattleResultType.None)
                 return;
-            
+
             _playingUiView.Finish();
             _statusUiView.Close();
             _controlUiView.Close();
