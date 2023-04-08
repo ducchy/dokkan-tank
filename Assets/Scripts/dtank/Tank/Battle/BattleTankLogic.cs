@@ -172,11 +172,6 @@ namespace dtank
                 })
                 .ScopeTo(_scope);
 
-            behaviourSelector.OnDamageAsObservable
-                .TakeUntil(_behaviourScope)
-                .Subscribe(_tankModel.Damage)
-                .ScopeTo(_behaviourScope);
-
             behaviourSelector.OnShotCurveAsObservable
                 .TakeUntil(_behaviourScope)
                 .Subscribe(_ => _tankModel.SetState(BattleTankState.ShotCurve))

@@ -9,9 +9,6 @@ namespace dtank
 {
     public class NpcBehaviourSelector : IBehaviourSelector
     {
-        private readonly Subject<IAttacker> _onDamageSubject = new();
-        public IObservable<IAttacker> OnDamageAsObservable => _onDamageSubject;
-
         private readonly Subject<Unit> _onShotCurveSubject = new();
         public IObservable<Unit> OnShotCurveAsObservable => _onShotCurveSubject;
 
@@ -41,7 +38,6 @@ namespace dtank
             _tankModels = tankModels;
 
             _behaviourObserver = new NpcBehaviourObserver(
-                _onDamageSubject,
                 _onShotCurveSubject,
                 _onShotStraightSubject,
                 _onTurnValueChangedSubject,
@@ -56,7 +52,6 @@ namespace dtank
 
         public void Dispose()
         {
-            _onDamageSubject.Dispose();
             _onShotCurveSubject.Dispose();
             _onShotStraightSubject.Dispose();
             _onTurnValueChangedSubject.Dispose();

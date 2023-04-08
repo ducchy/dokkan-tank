@@ -5,7 +5,6 @@ namespace dtank
 {
     public interface IBehaviourSelector : IDisposable
     {
-        IObservable<IAttacker> OnDamageAsObservable { get; }
         IObservable<Unit> OnShotCurveAsObservable { get; }
         IObservable<Unit> OnShotStraightAsObservable { get; }
         IObservable<float> OnTurnValueChangedAsObservable { get; }

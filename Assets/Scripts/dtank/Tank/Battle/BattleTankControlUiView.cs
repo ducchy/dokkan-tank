@@ -9,17 +9,14 @@ namespace dtank
     public class BattleTankControlUiView : MonoBehaviour, IBehaviourSelector
     {
         [SerializeField] private CanvasGroup _group;
-        [SerializeField] private Button _damageButton;
         [SerializeField] private Button _shotCurveButton;
         [SerializeField] private Button _shotStraightButton;
         [SerializeField] private Slider _verticalSlider;
         [SerializeField] private Slider _horizontalSlider;
         [SerializeField] private Toggle _autoToggle;
 
-        private readonly Subject<IAttacker> _onDamageSubject = new();
         private readonly Subject<bool> _onAutoToggleValueChanged = new();
 
-        public IObservable<IAttacker> OnDamageAsObservable => _onDamageSubject;
         public IObservable<Unit> OnShotCurveAsObservable => _shotCurveButton.OnClickAsObservable();
         public IObservable<Unit> OnShotStraightAsObservable => _shotStraightButton.OnClickAsObservable();
         public IObservable<float> OnTurnValueChangedAsObservable => _horizontalSlider.OnValueChangedAsObservable();
@@ -30,7 +27,6 @@ namespace dtank
 
         public void Setup()
         {
-            _damageButton.onClick.AddListener(OnDamageButtonClicked);
             _autoToggle.onValueChanged.AddListener(OnAutoToggleValueChanged);
 
             Reset();
@@ -38,10 +34,7 @@ namespace dtank
 
         public void Dispose()
         {
-            _damageButton.onClick.RemoveListener(OnDamageButtonClicked);
             _autoToggle.onValueChanged.RemoveListener(OnAutoToggleValueChanged);
-
-            _onDamageSubject.Dispose();
         }
 
         public void Reset()
@@ -63,7 +56,6 @@ namespace dtank
 
         private void SetInteractive(bool interactable)
         {
-            _damageButton.interactable = interactable;
             _shotCurveButton.interactable = interactable;
             _shotStraightButton.interactable = interactable;
             _horizontalSlider.interactable = interactable;
@@ -118,11 +110,6 @@ namespace dtank
                 .OnComplete(() => SetActive(false))
                 .SetLink(gameObject)
                 .Play();
-        }
-
-        private void OnDamageButtonClicked()
-        {
-            _onDamageSubject.OnNext(null);
         }
 
         private void OnAutoToggleValueChanged(bool isOn)
