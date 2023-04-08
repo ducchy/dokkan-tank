@@ -49,6 +49,11 @@ namespace dtank
             var fieldManager = new FieldManager(Services.Instance);
             Services.Instance.Set(fieldManager);
 
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+            var debugManager = new DebugManager();
+            Services.Instance.Set(debugManager);
+#endif
+
             var battleEntryData = new BattleEntryData();
             Services.Instance.Set(battleEntryData);
 
