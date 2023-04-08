@@ -48,6 +48,12 @@ namespace dtank
             if (!_playingFlag)
                 return;
 
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+            var battleDebugModel = DebugManager.ServiceContainer.Get<DtankBattleDebugPageModel>();
+            if (battleDebugModel != null && battleDebugModel.TimerStopFlag.Value)
+                return;
+#endif
+
             _remainTime -= Time.deltaTime;
             _remainTimeInt.Value = Mathf.CeilToInt(_remainTime);
 
@@ -91,7 +97,7 @@ namespace dtank
         {
             if (_resultType.Value != BattleResultType.None)
                 return;
-            
+
             var remainTankCount = _tankModels.Count(model => !model.DeadFlag.Value);
             var deadTankModel = _tankModels.FirstOrDefault(model => model.Id == id);
             deadTankModel?.SetRank(remainTankCount + 1);
