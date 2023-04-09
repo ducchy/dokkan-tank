@@ -37,7 +37,7 @@ namespace dtank
 
         private void SetEvent()
         {
-            _readyUiView.OnSkipButtonClickAsObservable
+            _readyUiView.OnSkipButtonClickObservable
                 .TakeUntil(_scope)
                 .Subscribe(_ => _cameraController.SkipReady())
                 .ScopeTo(_scope);

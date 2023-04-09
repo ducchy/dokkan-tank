@@ -30,15 +30,18 @@ namespace dtank
         {
             BattleModel = null;
 
-            var currentPage = DebugSheet.Instance.CurrentDebugPage;
-            switch (currentPage)
+            if (DebugSheet.Instance != null)
             {
-                case DtankBattleTankInfoDebugPage:
-                    DebugSheet.Instance.PopPage(true, 2);
-                    break;
-                case DtankBattleTankInfoListDebugPage:
-                    DebugSheet.Instance.PopPage(true);
-                    break;
+                var currentPage = DebugSheet.Instance.CurrentDebugPage;
+                switch (currentPage)
+                {
+                    case DtankBattleTankInfoDebugPage:
+                        DebugSheet.Instance.PopPage(true, 2);
+                        break;
+                    case DtankBattleTankInfoListDebugPage:
+                        DebugSheet.Instance.PopPage(true);
+                        break;
+                }
             }
 
             _scope.Dispose();

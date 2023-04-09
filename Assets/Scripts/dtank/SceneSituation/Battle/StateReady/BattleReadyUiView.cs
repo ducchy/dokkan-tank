@@ -11,7 +11,7 @@ namespace dtank
         [SerializeField] private CanvasGroup _group;
         [SerializeField] private Button _skipButton;
 
-        public IObservable<Unit> OnSkipButtonClickAsObservable => _skipButton.OnClickAsObservable();
+        public IObservable<Unit> OnSkipButtonClickObservable => _skipButton.OnClickAsObservable();
 
         private Sequence _seq;
 

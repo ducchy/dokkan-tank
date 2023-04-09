@@ -9,7 +9,7 @@ namespace dtank
     {
         [SerializeField] private Button _startButton;
 
-        public IObservable<Unit> OnStartButtonClickAsObservable => _startButton.OnClickAsObservable();
+        public IObservable<Unit> OnStartButtonClickObservable => _startButton.OnClickAsObservable();
         
         public void Dispose()
         {

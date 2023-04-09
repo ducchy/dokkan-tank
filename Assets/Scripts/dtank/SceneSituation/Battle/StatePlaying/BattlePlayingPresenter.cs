@@ -58,7 +58,7 @@ namespace dtank
 
         private void SetEvent()
         {
-            _playingUiView.OnEndPlayingAsObservable
+            _playingUiView.OnEndPlayingObservable
                 .TakeUntil(_scope)
                 .Subscribe(_ => _model.ChangeState(BattleState.Result))
                 .ScopeTo(_scope);

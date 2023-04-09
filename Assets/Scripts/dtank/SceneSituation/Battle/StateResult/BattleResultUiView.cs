@@ -21,8 +21,8 @@ namespace dtank
         [SerializeField] private RectTransform _quitButtonRect;
         [SerializeField] private RectTransform _playerResultUiParent;
 
-        public IObservable<Unit> OnRetryButtonClickedAsObservable => _retryButton.OnClickAsObservable();
-        public IObservable<Unit> OnQuitButtonClickedAsObservable => _quitButton.OnClickAsObservable();
+        public IObservable<Unit> OnRetryButtonClickObservable => _retryButton.OnClickAsObservable();
+        public IObservable<Unit> OnQuitButtonClickObservable => _quitButton.OnClickAsObservable();
 
         private Sequence _resultSeq;
         private FadeController _fadeController;

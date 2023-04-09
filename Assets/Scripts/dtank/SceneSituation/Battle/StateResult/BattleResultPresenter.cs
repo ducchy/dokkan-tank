@@ -33,12 +33,12 @@ namespace dtank
 
         private void SetEvent()
         {
-            _resultUiView.OnQuitButtonClickedAsObservable
+            _resultUiView.OnQuitButtonClickObservable
                 .TakeUntil(_scope)
                 .Subscribe(_ => _model.ChangeState(BattleState.Quit))
                 .ScopeTo(_scope);
             
-            _resultUiView.OnRetryButtonClickedAsObservable
+            _resultUiView.OnRetryButtonClickObservable
                 .TakeUntil(_scope)
                 .Subscribe(_ =>  _model.ChangeState(BattleState.Retry))
                 .ScopeTo(_scope);

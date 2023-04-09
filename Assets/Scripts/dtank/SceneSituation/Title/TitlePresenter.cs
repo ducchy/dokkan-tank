@@ -47,7 +47,7 @@ namespace dtank
 
         private void SetEvent()
         {
-            _uiView.OnStartButtonClickAsObservable
+            _uiView.OnStartButtonClickObservable
                 .TakeUntil(_scope)
                 .Subscribe(_ => _model.ChangeState(TitleState.Start))
                 .ScopeTo(_scope);

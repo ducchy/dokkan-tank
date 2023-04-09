@@ -20,7 +20,7 @@ namespace dtank
         private readonly DisposableScope _fadeScope = new();
 
         private readonly Subject<Unit> _onEndPlayingSubject = new();
-        public IObservable<Unit> OnEndPlayingAsObservable => _onEndPlayingSubject;
+        public IObservable<Unit> OnEndPlayingObservable => _onEndPlayingSubject;
 
         public void Setup(FadeController fadeController)
         {
