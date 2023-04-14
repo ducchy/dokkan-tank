@@ -5,14 +5,14 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "08d139cc8ebc8dc6d9027e3fe97966db267dc4c9"
+      "hash": "cea765e0bdd9aaefb1e86ff3d3537c93b0df52b5"
     },
     "com.daitokuamy.gameframework": {
       "version": "https://github.com/DaitokuAmy/game-framework.git?path=/Packages/com.daitokuamy.gameframework",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "eff5dcec455029bf3d87ab6809860ebfe6739a06"
+      "hash": "690ee3e6a4ed32232cfbe2b53cf109c19dfa669a"
     },
     "com.harumak.unitydebugsheet": {
       "version": "https://github.com/Haruma-K/UnityDebugSheet.git?path=/Assets/UnityDebugSheet#1.5.1",
