@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using GameFramework.BodySystems;
 using GameFramework.Core;
-using GameFramework.CoroutineSystems;
 using GameFramework.SituationSystems;
 using GameFramework.StateSystems;
 using GameFramework.TaskSystems;
@@ -116,10 +115,13 @@ namespace dtank
             var fieldViewData = Services.Get<FieldViewData>();
 
             var battleModel = BattleModel.Create();
-            RegisterTask(battleModel, TaskOrder.Logic);
-            yield return battleModel.SetupAsync(_battleEntryData, fieldViewData)
-                .StartAsEnumerator(scope);
             battleModel.ScopeTo(scope);
+
+            var modelSetupData = default(BattleModelSetUpData);
+            yield return new BattleModelSetUpDataRequester().LoadRoutine(_battleEntryData,
+                data => modelSetupData = data, scope);
+            battleModel.Setup(_battleEntryData, fieldViewData, modelSetupData);
+            RegisterTask(battleModel, TaskOrder.Logic);
         }
 
         private IEnumerator SetupPresenterRoutine(IScope scope)

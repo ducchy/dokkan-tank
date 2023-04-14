@@ -33,37 +33,18 @@ namespace dtank
         {
         }
 
-        public IObservable<Unit> SetupAsync(BattleEntryData entryData, FieldViewData fieldViewData)
-        {
-            return Observable.Defer(() =>
-            {
-                var scope = new DisposableScope();
-                return _coroutineRunner.StartCoroutineAsync(SetupRoutine(entryData, fieldViewData, scope),
-                    () => { scope.Dispose(); });
-            });
-        }
-
-        private IEnumerator SetupRoutine(BattleEntryData entryData, FieldViewData fieldViewData, IScope scope)
+        public void Setup(BattleEntryData entryData, FieldViewData fieldViewData, BattleModelSetUpData setUpData)
         {
             _tankModels.Clear();
             foreach (var player in entryData.Players)
             {
-                var parameterData = default(BattleTankParameterData);
-                yield return new BattleTankParameterDataAssetRequest($"{player.ParameterId:d3}")
-                    .LoadAsync(scope)
-                    .Do(x => parameterData = x)
-                    .StartAsEnumerator(scope);
+                var tankModelSetupData = setUpData.TankModelSetupDataDict[player.PlayerId];
 
                 var tankModel = BattleTankModel.Create();
-                tankModel.Setup(player.Name, player.BodyId, player.CharacterType, parameterData);
+                tankModel.Setup(player.Name, player.BodyId, player.CharacterType, tankModelSetupData.ParameterData);
 
-                var actorSetupData = default(BattleTankActorSetupData);
-                yield return new BattleTankActorSetupDataAssetRequest($"{parameterData.ActorSetupDataId:d3}")
-                    .LoadAsync(scope)
-                    .Do(x => actorSetupData = x)
-                    .StartAsEnumerator(scope);
                 var startPointData = fieldViewData.StartPointDataArray[player.PositionIndex];
-                tankModel.ActorModel.Update(actorSetupData, startPointData);
+                tankModel.ActorModel.Update(tankModelSetupData.ActorSetupData, startPointData);
 
                 _tankModels.Add(tankModel);
 
@@ -75,12 +56,7 @@ namespace dtank
             foreach (var tankModel in _tankModels)
                 _npcBehaviourSelectors.Add(new NpcBehaviourSelector(tankModel, _tankModels));
 
-            var ruleData = default(BattleRuleData);
-            yield return new BattleRuleDataAssetRequest($"{entryData.RuleId:d3}")
-                .LoadAsync(scope)
-                .Do(x => ruleData = x)
-                .StartAsEnumerator(scope);
-
+            var ruleData = setUpData.RuleData;
             var mainPlayerId = MainPlayerTankModel.Id;
             RuleModel = new BattleRuleModel(ruleData.Duration, mainPlayerId, _tankModels);
 
@@ -90,7 +66,7 @@ namespace dtank
         protected override void OnDeletedInternal()
         {
             Debug.Log("[BattleModel] OnDeletedInternal");
-            
+
             base.OnDeletedInternal();
 
             RuleModel?.Dispose();
@@ -158,14 +134,14 @@ namespace dtank
         void ITaskEventHandler.OnRegistered(TaskRunner runner)
         {
             Debug.Log("[BattleModel] OnRegistered");
-            
+
             _taskRunner = runner;
         }
 
         void ITaskEventHandler.OnUnregistered(TaskRunner runner)
         {
             Debug.Log("[BattleModel] OnUnregistered");
-            
+
             if (_taskRunner == runner)
                 _taskRunner = null;
         }
