@@ -1,4 +1,5 @@
 using GameFramework.Core;
+using UniRx;
 
 namespace dtank
 {
@@ -6,16 +7,19 @@ namespace dtank
     {
         public override BattleState Key => BattleState.Ready;
 
-        private BattleReadyPresenter _presenter;
-
+        private BattleCameraController _cameraController;
+        private BattleReadyUiView _readyUiView;
+        
         public override void OnEnter(BattleState prevKey, IScope scope)
         {
-            var controller = Services.Get<BattleCameraController>();
-            var uiView = Services.Get<BattleUiView>();
-            _presenter = new BattleReadyPresenter(controller, uiView.ReadyUiView);
-            _presenter.ScopeTo(scope);
+            _cameraController = Services.Get<BattleCameraController>();
             
-            _presenter.Activate();
+            var uiView = Services.Get<BattleUiView>();
+            _readyUiView = uiView.ReadyUiView;
+
+            SetEvent(scope);
+            
+            _readyUiView.Begin();
         }
 
         public override void OnUpdate(float deltaTime)
@@ -24,7 +28,15 @@ namespace dtank
 
         public override void OnExit(BattleState nextKey)
         {
-            _presenter.Deactivate();
+            _readyUiView.End();
+        }
+
+        private void SetEvent(IScope scope)
+        {
+            _readyUiView.OnSkipButtonClickObservable
+                .TakeUntil(scope)
+                .Subscribe(_ => _cameraController.SkipReady())
+                .ScopeTo(scope);
         }
     }
 }

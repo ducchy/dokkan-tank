@@ -34,7 +34,7 @@ namespace dtank
             _group.blocksRaycasts = flag;
         }
 
-        public void BeginReady()
+        public void Begin()
         {
             SetActive(false);
 
@@ -47,7 +47,7 @@ namespace dtank
                 .Play();
         }
 
-        public void EndReady()
+        public void End()
         {
             SetActive(true);
 
