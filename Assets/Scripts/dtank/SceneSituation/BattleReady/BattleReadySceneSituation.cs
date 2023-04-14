@@ -9,7 +9,19 @@ namespace dtank
     {
         protected override string SceneAssetPath => "BattleReady";
 
+        private readonly BattleEntryData _battleEntryData;
+
         private float _timer;
+
+        public BattleReadySceneSituation()
+        {
+            _battleEntryData = BattleEntryData.CreateDefaultData();
+        }
+
+        public BattleReadySceneSituation(BattleEntryData battleEntryData)
+        {
+            _battleEntryData = battleEntryData;
+        }
 
         protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope)
         {
@@ -21,7 +33,7 @@ namespace dtank
         {
             if (_timer <= 0f)
                 return;
-            
+
             _timer -= Time.deltaTime;
             if (_timer > 0f)
                 return;
@@ -31,7 +43,8 @@ namespace dtank
 
         private void TransitionToBattle()
         {
-            ParentContainer.Transition(new BattleSceneSituation(), new CommonFadeTransitionEffect(0f, 0.5f));
+            ParentContainer.Transition(new BattleSceneSituation(_battleEntryData),
+                new CommonFadeTransitionEffect(0f, 0.5f));
         }
     }
 }

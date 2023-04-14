@@ -67,7 +67,7 @@ namespace dtank
 
                 _tankModels.Add(tankModel);
 
-                if (player.PlayerId == entryData.MainPlayer.PlayerId)
+                if (player.PlayerId == entryData.MainPlayerId)
                     MainPlayerTankModel = tankModel;
             }
 
@@ -89,6 +89,8 @@ namespace dtank
 
         protected override void OnDeletedInternal()
         {
+            Debug.Log("[BattleModel] OnDeletedInternal");
+            
             base.OnDeletedInternal();
 
             RuleModel?.Dispose();
@@ -155,11 +157,15 @@ namespace dtank
 
         void ITaskEventHandler.OnRegistered(TaskRunner runner)
         {
+            Debug.Log("[BattleModel] OnRegistered");
+            
             _taskRunner = runner;
         }
 
         void ITaskEventHandler.OnUnregistered(TaskRunner runner)
         {
+            Debug.Log("[BattleModel] OnUnregistered");
+            
             if (_taskRunner == runner)
                 _taskRunner = null;
         }

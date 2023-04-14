@@ -1,22 +1,33 @@
+using System;
+using UnityEngine;
+
 namespace dtank
 {
+    [Serializable]
     public class BattlePlayerEntryData
     {
-        public readonly int PlayerId;
-        public readonly string Name;
-        public readonly int BodyId;
-        public readonly int PositionIndex;
-        public readonly CharacterType CharacterType;
-        public readonly int ParameterId;
+        public int PlayerId => _playerId;
+        public string Name => _name;
+        public int BodyId => _bodyId;
+        public int PositionIndex => _positionIndex;
+        public CharacterType CharacterType => _characterType;
+        public int ParameterId => _parameterId;
+        
+        [SerializeField] private int _playerId;
+        [SerializeField] private string _name;
+        [SerializeField] private int _bodyId;
+        [SerializeField] private int _positionIndex;
+        [SerializeField] private CharacterType _characterType;
+        [SerializeField] private int _parameterId;
 
         public BattlePlayerEntryData(int playerId, string name, int bodyId, int positionIndex, CharacterType characterType, int parameterId)
         {
-            PlayerId = playerId;
-            Name = name;
-            BodyId = bodyId;
-            PositionIndex = positionIndex;
-            CharacterType = characterType;
-            ParameterId = parameterId;
+            _playerId = playerId;
+            _name = name;
+            _bodyId = bodyId;
+            _positionIndex = positionIndex;
+            _characterType = characterType;
+            _parameterId = parameterId;
         }
     }
 }

@@ -56,9 +56,6 @@ namespace dtank
             DebugManager.ServiceContainer.Set(_sceneSituationContainer);
 #endif
 
-            var battleEntryData = new BattleEntryData();
-            Services.Instance.Set(battleEntryData);
-
             SceneSituation startSituation = null;
             if (args.Length > 0)
                 startSituation = args[0] as SceneSituation;

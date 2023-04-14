@@ -17,10 +17,22 @@ namespace dtank
 
         private StateContainer<BattleStateBase, BattleState> _stateContainer;
 
+        private readonly BattleEntryData _battleEntryData;
+
+        public BattleSceneSituation()
+        {
+            _battleEntryData = BattleEntryData.CreateDefaultData();
+        }
+
+        public BattleSceneSituation(BattleEntryData battleEntryData)
+        {
+            _battleEntryData = battleEntryData;
+        }
+
         protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope)
         {
             Debug.Log("[BattleSceneSituation] Begin SetupRoutineInternal");
-            
+
             yield return SetupAllRoutine(scope);
 
             Bind(scope);
@@ -38,7 +50,7 @@ namespace dtank
         protected override void UnloadInternal(TransitionHandle handle)
         {
             Debug.Log("[BattleSceneSituation] UnloadInternal");
-            
+
             UnloadAll();
         }
 
@@ -52,10 +64,12 @@ namespace dtank
                     switch (state)
                     {
                         case BattleState.Quit:
-                            ParentContainer.Transition(new TitleSceneSituation(), new CommonFadeTransitionEffect(0.5f, 0.5f));
+                            ParentContainer.Transition(new TitleSceneSituation(),
+                                new CommonFadeTransitionEffect(0.5f, 0.5f));
                             break;
                         case BattleState.Retry:
-                            ParentContainer.Transition(new BattleReadySceneSituation(), new CommonFadeTransitionEffect(0.5f, 0f));
+                            ParentContainer.Transition(new BattleReadySceneSituation(_battleEntryData),
+                                new CommonFadeTransitionEffect(0.5f, 0f));
                             break;
                         default:
                             _stateContainer.Change(state);
@@ -76,11 +90,10 @@ namespace dtank
         private IEnumerator SetupAllRoutine(IScope scope)
         {
             yield return SetupManagerRoutine();
-            SetupBattleEntryData();
             yield return SetupModelRoutine(scope);
             yield return SetupPresenterRoutine(scope);
             SetupStateContainer(scope);
-            
+
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
             var model = BattleModel.Get();
             DebugManager.BattleDebugModel.Setup(model);
@@ -98,28 +111,13 @@ namespace dtank
             yield return fieldManager.LoadRoutine(1);
         }
 
-        private void SetupBattleEntryData()
-        {
-            // TODO: 選んだルールに応じて設定
-            var mainPlayerData = new BattlePlayerEntryData(1, "プレイヤー1", 1, 0, CharacterType.Player, 1);
-            var battleEntryData = Services.Get<BattleEntryData>();
-            battleEntryData.Set(1, mainPlayerData, new List<BattlePlayerEntryData>()
-            {
-                mainPlayerData,
-                new(2, "プレイヤー2", 1, 1, CharacterType.NonPlayer, 2),
-                new(3, "プレイヤー3", 1, 2, CharacterType.NonPlayer, 3),
-                new(4, "プレイヤー4", 1, 3, CharacterType.NonPlayer, 4),
-            });
-        }
-
         private IEnumerator SetupModelRoutine(IScope scope)
         {
-            var battleEntryData = Services.Get<BattleEntryData>();
             var fieldViewData = Services.Get<FieldViewData>();
 
             var battleModel = BattleModel.Create();
             RegisterTask(battleModel, TaskOrder.Logic);
-            yield return battleModel.SetupAsync(battleEntryData, fieldViewData)
+            yield return battleModel.SetupAsync(_battleEntryData, fieldViewData)
                 .StartAsEnumerator(scope);
             battleModel.ScopeTo(scope);
         }
@@ -131,10 +129,11 @@ namespace dtank
             var uiView = Services.Get<BattleUiView>();
             uiView.Setup();
             uiView.ScopeTo(scope);
-            
+
             uiView.PlayerStatusUiView.Setup(model);
 
-            var tankEntityContainer = new BattleTankEntityContainer(uiView.TankControlUiView, uiView.PlayerStatusUiView);
+            var tankEntityContainer =
+                new BattleTankEntityContainer(uiView.TankControlUiView, uiView.PlayerStatusUiView);
             tankEntityContainer.ScopeTo(scope);
             yield return tankEntityContainer.SetupRoutine(model.TankModels, model.NpcBehaviourSelectors, scope);
 
