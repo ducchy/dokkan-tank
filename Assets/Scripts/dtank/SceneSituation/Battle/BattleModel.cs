@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace dtank
 {
-    public class BattleModel : SingleModel<BattleModel>, ITask
+    public class BattleModel : SingleModel<BattleModel>, ITask, ITaskEventHandler
     {
         private readonly ReactiveProperty<BattleState> _currentState = new();
         public IReadOnlyReactiveProperty<BattleState> CurrentState => _currentState;
@@ -22,10 +22,10 @@ namespace dtank
         public IReadOnlyList<NpcBehaviourSelector> NpcBehaviourSelectors => _npcBehaviourSelectors;
 
         public BattleTankModel MainPlayerTankModel { get; private set; }
-
         public BattleRuleModel RuleModel { get; private set; }
 
         private readonly CoroutineRunner _coroutineRunner = new();
+        private TaskRunner _taskRunner;
 
         bool ITask.IsActive => true;
 
@@ -95,6 +95,8 @@ namespace dtank
             foreach (var tankModel in _tankModels)
                 BattleTankModel.Delete(tankModel.Id);
 
+            _taskRunner?.Unregister(this);
+
             _tankModels.Clear();
             _coroutineRunner.Dispose();
             _currentState.Dispose();
@@ -149,6 +151,17 @@ namespace dtank
                     RuleModel.Start();
                     break;
             }
+        }
+
+        void ITaskEventHandler.OnRegistered(TaskRunner runner)
+        {
+            _taskRunner = runner;
+        }
+
+        void ITaskEventHandler.OnUnregistered(TaskRunner runner)
+        {
+            if (_taskRunner == runner)
+                _taskRunner = null;
         }
     }
 }

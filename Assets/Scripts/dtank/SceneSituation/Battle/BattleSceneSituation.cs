@@ -15,8 +15,6 @@ namespace dtank
     {
         protected override string SceneAssetPath => "Battle";
 
-        private readonly List<ITask> _tasks = new();
-        
         private StateContainer<BattleStateBase, BattleState> _stateContainer;
 
         protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope)
@@ -71,7 +69,6 @@ namespace dtank
         {
             var taskRunner = Services.Get<TaskRunner>();
             taskRunner.Register(task, order);
-            _tasks.Add(task);
         }
 
         #region Setup
@@ -171,10 +168,6 @@ namespace dtank
         {
             var fieldManager = Services.Get<FieldManager>();
             fieldManager.Unload();
-
-            var taskRunner = Services.Get<TaskRunner>();
-            foreach (var task in _tasks)
-                taskRunner.Unregister(task);
 
             BattleModel.Delete();
         }
