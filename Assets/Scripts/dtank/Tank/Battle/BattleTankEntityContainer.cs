@@ -36,7 +36,22 @@ namespace dtank
             _dictionary.Clear();
         }
 
-        public IEnumerator SetupRoutine(
+        public AsyncOperationHandle SetupAsync(
+            IReadOnlyList<BattleTankModel> tankModels,
+            IReadOnlyList<NpcBehaviourSelector> npcBehaviourSelectors,
+            IScope scope)
+        {
+            var op = new AsyncOperator();
+            SetupRoutine(tankModels, npcBehaviourSelectors, scope)
+                .ToObservable()
+                .Subscribe(
+                    _ => { },
+                    () => op.Completed());
+                
+            return op;
+        }
+
+        private IEnumerator SetupRoutine(
             IReadOnlyList<BattleTankModel> tankModels,
             IReadOnlyList<NpcBehaviourSelector> npcBehaviourSelectors,
             IScope scope)

@@ -136,7 +136,7 @@ namespace dtank
             var tankEntityContainer =
                 new BattleTankEntityContainer(uiView.TankControlUiView, uiView.PlayerStatusUiView);
             tankEntityContainer.ScopeTo(scope);
-            yield return tankEntityContainer.SetupRoutine(model.TankModels, model.NpcBehaviourSelectors, scope);
+            yield return tankEntityContainer.SetupAsync(model.TankModels, model.NpcBehaviourSelectors, scope);
 
             var cameraController = Services.Get<BattleCameraController>();
             cameraController.Setup(model, tankEntityContainer);
