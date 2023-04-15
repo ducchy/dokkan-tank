@@ -88,7 +88,7 @@ namespace dtank
 
         private IEnumerator SetupAllRoutine(IScope scope)
         {
-            yield return SetupManagerRoutine();
+            yield return SetupManagerRoutine(scope);
             yield return SetupModelRoutine(scope);
             yield return SetupPresenterRoutine(scope);
             SetupStateContainer(scope);
@@ -100,9 +100,10 @@ namespace dtank
 #endif
         }
 
-        private IEnumerator SetupManagerRoutine()
+        private IEnumerator SetupManagerRoutine(IScope scope)
         {
             var bodyManager = new BodyManager(new BodyBuilder());
+            bodyManager.ScopeTo(scope);
             ServiceContainer.Set(bodyManager);
             RegisterTask(bodyManager, TaskOrder.Body);
 
