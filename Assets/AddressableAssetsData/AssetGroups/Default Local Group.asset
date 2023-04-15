@@ -16,7 +16,47 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: b8dd0ef343c2447178a2d6cf6c21ad25
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: 0cb71e6141c424e379f00d863482b4f6
+    m_Address: Assets/Datas/Body/Tank/prfb_tank_001.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: ca6aaf55da97249df95bea833cad40b6
+    m_Address: Assets/Datas/Data/Battle/BattleRule/dat_rule_001.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 9ee1a87a14f4b4647872be479e34ded9
+    m_Address: Assets/Datas/Data/Battle/TankActorSetup/dat_tank_actor_setup_003.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 9149435f39a78469d9cff9fd1083f08c
+    m_Address: Assets/Datas/Data/Battle/TankActorSetup/dat_tank_actor_setup_004.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3f2feb5d5c41e4950ba8f32100334422
+    m_Address: Assets/Datas/Data/Battle/TankActorSetup/dat_tank_actor_setup_001.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8daecbbdcf7ea44c4b1ef25487dbf5c1
+    m_Address: Assets/Datas/Data/Battle/TankActorSetup/dat_tank_actor_setup_002.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 218724d483c3f40918f8c3af97808f46
+    m_Address: Assets/Datas/Data/Battle/TankParameter/dat_tank_parameter_003.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8d7bf26d38fb241dc82bd718bf869349
+    m_Address: Assets/Datas/Data/Battle/TankParameter/dat_tank_parameter_004.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: da2cc3148ab7841cab1d67ef20ae4384
+    m_Address: Assets/Datas/Data/Battle/TankParameter/dat_tank_parameter_001.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1d790243f7d434f9b8b9d50f249a9b4e
+    m_Address: Assets/Datas/Data/Battle/TankParameter/dat_tank_parameter_002.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 6e8a96b6284ee451aa6a90f3f2d99f6d, type: 2}
   m_SchemaSet:

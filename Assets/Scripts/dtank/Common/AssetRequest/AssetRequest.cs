@@ -13,13 +13,8 @@ namespace dtank
     public abstract class AssetRequest<T> : GameFramework.AssetSystems.AssetRequest<T>
         where T : Object
     {
-        public override string Address { get; }
-        public override int[] ProviderIndices => new[] { (int)AssetProviderType.Resources };
-
-        protected AssetRequest(string relativePath)
-        {
-            Address = GetPath(relativePath);
-        }
+        public override int[] ProviderIndices =>
+            new[] { (int)AssetProviderType.AssetDatabase };
 
         /// <summary>
         /// アセットの読み込み
@@ -58,11 +53,6 @@ namespace dtank
                         }
                     });
             });
-        }
-
-        private string GetPath(string relativePath)
-        {
-            return $"Assets/SampleGame/Resources/{relativePath}";
         }
     }
 }

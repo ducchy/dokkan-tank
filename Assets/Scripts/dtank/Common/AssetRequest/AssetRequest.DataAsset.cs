@@ -5,42 +5,43 @@ namespace dtank
     public abstract class DataAssetRequestBase<T> : AssetRequest<T>
         where T : Object
     {
-        protected DataAssetRequestBase(string relativePath)
-            : base($"Data/{relativePath}")
-        {
-        }
     }
 
     public abstract class BattleDataAssetRequestBase<T> : DataAssetRequestBase<T>
         where T : Object
     {
-        protected BattleDataAssetRequestBase(string relativePath)
-            : base($"Battle/{relativePath}")
-        {
-        }
     }
 
     public class BattleRuleDataAssetRequest : BattleDataAssetRequestBase<BattleRuleData>
     {
+        public override string Address => $"Assets/AddressableAssets/Data/Battle/BattleRule/dat_rule_{_assetKey}.asset";
+        private readonly string _assetKey;
+
         public BattleRuleDataAssetRequest(string assetKey)
-            : base($"BattleRule/dat_rule_{assetKey}.asset")
         {
+            _assetKey = assetKey;
         }
     }
 
     public class BattleTankParameterDataAssetRequest : BattleDataAssetRequestBase<BattleTankParameterData>
     {
+        public override string Address => $"Assets/AddressableAssets/Data/Battle/TankParameter/dat_tank_parameter_{_assetKey}.asset";
+        private readonly string _assetKey;
+
         public BattleTankParameterDataAssetRequest(string assetKey)
-            : base($"TankParameter/dat_tank_parameter_{assetKey}.asset")
         {
+            _assetKey = assetKey;
         }
     }
 
     public class BattleTankActorSetupDataAssetRequest : BattleDataAssetRequestBase<BattleTankActorSetupData>
     {
+        public override string Address => $"Assets/AddressableAssets/Data/Battle/TankActorSetup/dat_tank_actor_setup_{_assetKey}.asset";
+        private readonly string _assetKey;
+
         public BattleTankActorSetupDataAssetRequest(string assetKey)
-            : base($"TankActorSetup/dat_tank_actor_setup_{assetKey}.asset")
         {
+            _assetKey = assetKey;
         }
     }
 }

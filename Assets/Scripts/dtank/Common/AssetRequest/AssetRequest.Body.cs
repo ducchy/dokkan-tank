@@ -7,18 +7,19 @@ namespace dtank
     /// </summary>
     public abstract class BodyPrefabAssetRequestBase : AssetRequest<GameObject>
     {
-        protected BodyPrefabAssetRequestBase(string relativePath)
-            : base($"BodyAssets/{relativePath}")
-        {
-        }
     }
 
     /// <summary>
     /// TankPrefabのAssetRequest
     /// </summary>
-    public class TankPrefabAssetRequest : BodyPrefabAssetRequestBase {
+    public class TankPrefabAssetRequest : BodyPrefabAssetRequestBase
+    {
+        public override string Address => $"Assets/AddressableAssets/Body/Tank/prfb_tank_{_assetKey}.prefab";
+        private readonly string _assetKey;
+
         public TankPrefabAssetRequest(string assetKey)
-            : base($"Tank/prfb_tank_{assetKey}.prefab") {
+        {
+            _assetKey = assetKey;
         }
     }
 }

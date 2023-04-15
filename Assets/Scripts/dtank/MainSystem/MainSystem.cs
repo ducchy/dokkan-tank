@@ -34,10 +34,9 @@ namespace dtank
             // 各種システム初期化
             _taskRunner = new TaskRunner();
             Services.Instance.Set(_taskRunner);
+            
             var assetManager = new AssetManager();
-            assetManager.Initialize(
-                new AssetDatabaseAssetProvider(),
-                new ResourcesAssetProvider());
+            assetManager.Initialize(new AddressablesAssetProvider(), new AssetDatabaseAssetProvider());
             Services.Instance.Set(assetManager);
 
             // 各種GlobalObjectのタスク登録
@@ -52,7 +51,7 @@ namespace dtank
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
             var debugManager = new DebugManager();
             Services.Instance.Set(debugManager);
-            
+
             DebugManager.ServiceContainer.Set(_sceneSituationContainer);
 #endif
 
@@ -83,7 +82,7 @@ namespace dtank
         {
             Debug.Log("[MainSystem] OnDestroyInternal()");
 
-            _sceneSituationContainer.Dispose();
+            _sceneSituationContainer?.Dispose();
             _sceneSituationContainer = null;
         }
     }
