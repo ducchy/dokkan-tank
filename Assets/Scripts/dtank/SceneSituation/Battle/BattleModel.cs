@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using GameFramework.Core;
 using GameFramework.CoroutineSystems;
@@ -33,12 +31,12 @@ namespace dtank
         {
         }
 
-        public void Setup(BattleEntryData entryData, FieldViewData fieldViewData, BattleModelSetUpData setUpData)
+        public void Setup(BattleEntryData entryData, FieldViewData fieldViewData, BattleModelSetupData setupData)
         {
             _tankModels.Clear();
             foreach (var player in entryData.Players)
             {
-                var tankModelSetupData = setUpData.TankModelSetupDataDict[player.PlayerId];
+                var tankModelSetupData = setupData.TankModelSetupDataDict[player.PlayerId];
 
                 var tankModel = BattleTankModel.Create();
                 tankModel.Setup(player.Name, player.BodyId, player.CharacterType, tankModelSetupData.ParameterData);
@@ -56,7 +54,7 @@ namespace dtank
             foreach (var tankModel in _tankModels)
                 _npcBehaviourSelectors.Add(new NpcBehaviourSelector(tankModel, _tankModels));
 
-            var ruleData = setUpData.RuleData;
+            var ruleData = setupData.RuleData;
             var mainPlayerId = MainPlayerTankModel.Id;
             RuleModel = new BattleRuleModel(ruleData.Duration, mainPlayerId, _tankModels);
 

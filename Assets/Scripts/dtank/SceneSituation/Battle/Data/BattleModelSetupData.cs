@@ -2,14 +2,14 @@ using System.Collections.Generic;
 
 namespace dtank
 {
-    public class BattleModelSetUpData
+    public class BattleModelSetupData
     {
         public BattleRuleData RuleData { get; private set; }
         public IReadOnlyDictionary<int, BattleTankModelSetupData> TankModelSetupDataDict => _tankModelSetupDataDict;
 
         private readonly Dictionary<int, BattleTankModelSetupData> _tankModelSetupDataDict;
 
-        public BattleModelSetUpData(
+        public BattleModelSetupData(
             BattleRuleData ruleData,
             Dictionary<int, BattleTankModelSetupData> tankModelSetupDataDict)
         {
