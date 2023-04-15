@@ -26,6 +26,8 @@ namespace dtank
 
         public void Dispose()
         {
+            Debug.Log($"[BattleUiView] Dispose");
+            
             _tankControlUiView.Dispose();
             _playerStatusUiView.Dispose();
             _readyUiView.Dispose();

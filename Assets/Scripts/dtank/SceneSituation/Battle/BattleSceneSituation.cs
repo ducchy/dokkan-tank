@@ -129,8 +129,7 @@ namespace dtank
 
             var uiView = Services.Get<BattleUiView>();
             uiView.Setup();
-            uiView.ScopeTo(scope);
-
+            
             uiView.PlayerStatusUiView.Setup(model);
 
             var tankEntityContainer =

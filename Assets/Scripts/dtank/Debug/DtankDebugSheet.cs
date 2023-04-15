@@ -40,6 +40,8 @@ namespace dtank
             rootPage.AddPageLinkButton<InputDebugPage>("Input");
             rootPage.AddPageLinkButton<GraphicsDebugPage>("Graphics");
             rootPage.AddPageLinkButton<PhysicsDebugPage>("Physics");
+
+            DebugSheet.Instance.PushPage<DtankDebugPage>(false);
         }
 
         public void Dispose()
