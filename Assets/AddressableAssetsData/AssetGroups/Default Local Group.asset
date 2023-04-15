@@ -17,10 +17,6 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: b8dd0ef343c2447178a2d6cf6c21ad25
   m_SerializeEntries:
-  - m_GUID: e73fa4632da524a948d411ad65735803
-    m_Address: AddressableAssets
-    m_ReadOnly: 0
-    m_SerializedLabels: []
   - m_GUID: 0cb71e6141c424e379f00d863482b4f6
     m_Address: Assets/AddressableAssets/Body/Tank/prfb_tank_001.prefab
     m_ReadOnly: 0

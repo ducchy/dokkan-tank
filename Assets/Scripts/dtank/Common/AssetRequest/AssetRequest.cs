@@ -14,7 +14,7 @@ namespace dtank
         where T : Object
     {
         public override int[] ProviderIndices =>
-            new[] { (int)AssetProviderType.AssetDatabase };
+            new[] { (int)AssetProviderType.Addressable };
 
         /// <summary>
         /// アセットの読み込み

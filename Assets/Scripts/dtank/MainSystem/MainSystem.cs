@@ -4,6 +4,7 @@ using System.Collections;
 using GameFramework.AssetSystems;
 using GameFramework.TaskSystems;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace dtank
 {
@@ -39,6 +40,9 @@ namespace dtank
             assetManager.Initialize(new AddressablesAssetProvider(), new AssetDatabaseAssetProvider());
             Services.Instance.Set(assetManager);
 
+            var addressableInitializeHandle = Addressables.InitializeAsync();
+            yield return addressableInitializeHandle;
+            
             // 各種GlobalObjectのタスク登録
             _taskRunner.Register(Services.Get<FadeController>(), TaskOrder.UI);
 
