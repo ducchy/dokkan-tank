@@ -151,7 +151,7 @@ namespace dtank
             _stateContainer = new StateContainer<BattleStateBase, BattleState>();
             _stateContainer.ScopeTo(scope);
 
-            var states = new List<BattleStateBase>()
+            var states = new List<BattleStateBase>
             {
                 new BattleStateReady(),
                 new BattleStatePlaying(),

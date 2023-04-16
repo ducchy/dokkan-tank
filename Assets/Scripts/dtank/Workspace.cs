@@ -1,7 +1,6 @@
 using System.Collections;
 using GameFramework.AssetSystems;
 using GameFramework.Core;
-using UniRx;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
@@ -9,10 +8,9 @@ namespace dtank
 {
     public class Workspace : MonoBehaviour
     {
-        // Start is called before the first frame update
         void Start()
         {
-            //StartCoroutine(CreateTankRoutine());
+            StartCoroutine(CreateTankRoutine());
             StartCoroutine(CreateTankRoutine2());
         }
 

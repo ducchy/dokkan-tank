@@ -224,19 +224,6 @@ namespace dtank
             }
         }
 
-        private void OnAnimationEvent(string id)
-        {
-            switch (id)
-            {
-                case "ShotCurve":
-                    _tankActor.ShotCurve();
-                    break;
-                case "ShotStraight":
-                    _tankActor.ShotStraight();
-                    break;
-            }
-        }
-
         private void OnChangedState(BattleState state)
         {
             _currentBehaviourSelector.SetActive(state == BattleState.Playing);
