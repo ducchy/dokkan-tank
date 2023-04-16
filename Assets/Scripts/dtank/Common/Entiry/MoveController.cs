@@ -16,22 +16,17 @@ namespace dtank
         private float _moveAmount;
         private float _turnAmount;
 
-        private Action<Vector3> _updatePosition;
-        private Action<Vector3> _updateForward;
-
-        private Vector3 Forward => _rigidbody.rotation * Vector3.forward;
+        public Vector3 Position => _rigidbody.position;
+        public Vector3 Forward => _rigidbody.rotation * Vector3.forward;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public MoveController(Rigidbody rigidbody, float moveMaxSpeed, float turnMaxSpeed,
-            Action<Vector3> updatePosition, Action<Vector3> updateForward)
+        public MoveController(Rigidbody rigidbody, float moveMaxSpeed, float turnMaxSpeed)
         {
             _rigidbody = rigidbody;
             _moveMaxSpeed = moveMaxSpeed;
             _turnMaxSpeed = turnMaxSpeed;
-            _updatePosition = updatePosition;
-            _updateForward = updateForward;
         }
 
         /// <summary>
@@ -40,8 +35,6 @@ namespace dtank
         public void Dispose()
         {
             _rigidbody = null;
-            _updatePosition = null;
-            _updateForward = null;
         }
 
         public void SetTransform(TransformData data)
@@ -49,9 +42,6 @@ namespace dtank
             _rigidbody.transform.Set(data);
             _rigidbody.position = data.Position;
             _rigidbody.rotation = Quaternion.Euler(data.Angle);
-
-            OnUpdatePosition();
-            OnUpdateForward();
         }
 
         public void SetMoveAmount(float moveAmount)
@@ -77,26 +67,12 @@ namespace dtank
         {
             var movement = Forward * (_moveAmount * _moveMaxSpeed * deltaTime);
             _rigidbody.velocity = movement;
-
-            OnUpdatePosition();
         }
 
         private void Turn(float deltaTime)
         {
             var turn = _turnAmount * _turnMaxSpeed * deltaTime;
             _rigidbody.angularVelocity = new Vector3(0f, turn, 0f);
-
-            OnUpdateForward();
-        }
-
-        private void OnUpdatePosition()
-        {
-            _updatePosition?.Invoke(_rigidbody.position);
-        }
-
-        private void OnUpdateForward()
-        {
-            _updateForward?.Invoke(Forward);
         }
     }
 }

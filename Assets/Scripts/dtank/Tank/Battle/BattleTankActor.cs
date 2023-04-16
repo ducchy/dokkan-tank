@@ -42,16 +42,13 @@ namespace dtank
         private readonly Subject<IAttacker> _onDamageReceivedSubject = new();
         public IObservable<IAttacker> OnDamageReceivedAsObservable => _onDamageReceivedSubject;
 
-        private readonly Subject<Vector3> _onPositionChangedSubject = new();
-        public IObservable<Vector3> OnPositionChangedAsObservable => _onPositionChangedSubject;
-
-        private readonly Subject<Vector3> _onForwardChangedSubject = new();
-        public IObservable<Vector3> OnForwardChangedAsObservable => _onForwardChangedSubject;
-
         private readonly Subject<Unit> _onDealDamageSubject = new();
         public IObservable<Unit> OnDealDamageAsObservable => _onDealDamageSubject;
 
         int IAttacker.Id => (int)Body.UserId;
+
+        public Vector3 Position => _moveController.Position;
+        public Vector3 Forward => _moveController.Forward;
 
         #endregion Variable
 
@@ -73,10 +70,9 @@ namespace dtank
             var locatorParts = body.GetComponent<LocatorParts>();
 
             _coroutineRunner = new CoroutineRunner();
-            _moveController = new MoveController(body.GetComponent<Rigidbody>(), _setupData.MoveMaxSpeed,
-                _setupData.TurnMaxSpeed,
-                pos => _onPositionChangedSubject.OnNext(pos),
-                fwd => _onForwardChangedSubject.OnNext(fwd));
+            _moveController = new MoveController(body.GetComponent<Rigidbody>(),
+                _setupData.MoveMaxSpeed,
+                _setupData.TurnMaxSpeed);
             _sequenceClipContainer = SequenceClipContainer.Create(setupData.ActionInfos);
             _sequenceController = new SequenceController();
 
@@ -103,8 +99,6 @@ namespace dtank
 
             _onStateExitSubject.Dispose();
             _onDamageReceivedSubject.Dispose();
-            _onPositionChangedSubject.Dispose();
-            _onForwardChangedSubject.Dispose();
             _onDealDamageSubject.Dispose();
         }
 
@@ -234,7 +228,7 @@ namespace dtank
             foreach (BattleTankAnimatorState value in Enum.GetValues(typeof(BattleTankAnimatorState)))
                 if (value.ToStateName() == stateName)
                     return value;
-            
+
             return BattleTankAnimatorState.Invalid;
         }
 

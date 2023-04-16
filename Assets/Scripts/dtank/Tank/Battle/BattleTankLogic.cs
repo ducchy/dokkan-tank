@@ -106,16 +106,6 @@ namespace dtank
                 .Subscribe(_tankModel.Damage)
                 .ScopeTo(_scope);
 
-            _tankActor.OnPositionChangedAsObservable
-                .TakeUntil(_scope)
-                .Subscribe(_tankModel.SetPosition)
-                .ScopeTo(_scope);
-
-            _tankActor.OnForwardChangedAsObservable
-                .TakeUntil(_scope)
-                .Subscribe(_tankModel.SetForward)
-                .ScopeTo(_scope);
-
             _tankActor.OnDealDamageAsObservable
                 .TakeUntil(_scope)
                 .Subscribe(_ => _tankModel.IncrementScore())

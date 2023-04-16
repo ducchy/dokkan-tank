@@ -43,7 +43,14 @@ namespace dtank
 
         public void Update()
         {
+            FetchViewInfo();
             _currentTankBehaviour?.Update();
+        }
+
+        private void FetchViewInfo()
+        {
+            _tankModel.SetPosition(_tankActor.Position);
+            _tankModel.SetForward(_tankActor.Forward);
         }
 
         private void SetEvents()
