@@ -15,33 +15,30 @@ namespace dtank
             var op = new AsyncOperator<BattleModelSetupData>();
 
             var modelSetupData = default(BattleModelSetupData);
-            LoadRoutine(entryData, data => modelSetupData = data, scope)
-                .ToObservable()
+            LoadObservable(entryData, scope)
                 .Subscribe(
-                    onNext: _ => { },
+                    onNext: data => modelSetupData = data,
                     onCompleted: () => { op.Completed(modelSetupData); }
                 );
 
             return op;
         }
 
-        private IEnumerator LoadRoutine(BattleEntryData entryData, Action<BattleModelSetupData> onLoaded, IScope scope)
+        private IObservable<BattleModelSetupData> LoadObservable(BattleEntryData entryData, IScope scope)
         {
             var tankModelSetupDataDict = new Dictionary<int, BattleTankModelSetupData>();
             var ruleData = default(BattleRuleData);
 
-            var sources = entryData.Players
+            var loadObservables = entryData.Players
                 .Select(player => LoadTankModelSetupDataRoutine(player, tankModelSetupDataDict, scope).ToObservable())
                 .ToList();
-            sources.Add(LoadRuleModelObservable(entryData.RuleId, scope)
+            loadObservables.Add(LoadRuleModelObservable(entryData.RuleId, scope)
                 .Do(data => ruleData = data)
                 .AsUnitObservable());
 
-            yield return sources.Merge()
-                .StartAsEnumerator(scope);
-
-            var modelSetupData = new BattleModelSetupData(ruleData, tankModelSetupDataDict);
-            onLoaded?.Invoke(modelSetupData);
+            return loadObservables.Merge()
+                .AsSingleUnitObservable()
+                .Select(_ => new BattleModelSetupData(ruleData, tankModelSetupDataDict));
         }
 
         private IEnumerator LoadTankModelSetupDataRoutine(BattlePlayerEntryData player,
