@@ -3,7 +3,7 @@ using UniRx;
 
 namespace dtank
 {
-    public interface IBehaviourSelector : IDisposable
+    public interface ITankBehaviour : IDisposable
     {
         IObservable<Unit> OnShotCurveAsObservable { get; }
         IObservable<Unit> OnShotStraightAsObservable { get; }

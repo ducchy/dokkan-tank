@@ -38,7 +38,7 @@ namespace dtank
 
         public AsyncOperationHandle SetupAsync(
             IReadOnlyList<BattleTankModel> tankModels,
-            IReadOnlyList<NpcBehaviourSelector> npcBehaviourSelectors,
+            IReadOnlyList<NpcTankBehaviour> npcBehaviourSelectors,
             IScope scope)
         {
             var op = new AsyncOperator();
@@ -47,13 +47,13 @@ namespace dtank
                 .Subscribe(
                     _ => { },
                     () => op.Completed());
-                
+
             return op;
         }
 
         private IEnumerator SetupRoutine(
             IReadOnlyList<BattleTankModel> tankModels,
-            IReadOnlyList<NpcBehaviourSelector> npcBehaviourSelectors,
+            IReadOnlyList<NpcTankBehaviour> npcBehaviourSelectors,
             IScope scope)
         {
             Dispose();
@@ -67,7 +67,7 @@ namespace dtank
 
         private IEnumerator AddRoutine(
             BattleTankModel model,
-            NpcBehaviourSelector npcBehaviourSelector,
+            NpcTankBehaviour npcTankBehaviour,
             IScope scope)
         {
             if (_dictionary.ContainsKey(model.Id))
@@ -79,7 +79,7 @@ namespace dtank
             var entity = new Entity();
             _dictionary.Add(model.Id, entity);
 
-            yield return SetupBattleTankAsync(entity, model, npcBehaviourSelector, scope)
+            yield return SetupBattleTankAsync(entity, model, npcTankBehaviour, scope)
                 .StartAsEnumerator(scope);
         }
 
@@ -94,7 +94,7 @@ namespace dtank
         private IObservable<Entity> SetupBattleTankAsync(
             Entity source,
             BattleTankModel model,
-            NpcBehaviourSelector npcBehaviourSelector,
+            NpcTankBehaviour npcTankBehaviour,
             IScope scope)
         {
             return source.SetupAsync(() =>
@@ -112,8 +112,10 @@ namespace dtank
                 taskRunner.Register(actor, TaskOrder.Actor);
                 var controlUiView = model.CharacterType == CharacterType.Player ? _controlUiView : null;
                 var statusUiView = _statusUiView.GetStatusUi(model.Id);
-                var logic = new BattleTankLogic(BattleModel.Get(), model, actor, controlUiView,
-                    npcBehaviourSelector, statusUiView);
+                var battleModel = BattleModel.Get();
+                var behaviourSelectorController =
+                    new TankBehaviourController(battleModel, model, actor, controlUiView, npcTankBehaviour);
+                var logic = new BattleTankLogic(battleModel, model, actor, statusUiView, behaviourSelectorController);
                 taskRunner.Register(logic, TaskOrder.Logic);
                 entity.AddActor(actor)
                     .AddLogic(logic);

@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 
 namespace dtank
 {
-    public class NpcBehaviourSelector : IBehaviourSelector
+    public class NpcTankBehaviour : ITankBehaviour
     {
         private const float ActInterval = 0.5f;
         private const float IdleDurationAfterShot = 1f;
@@ -36,7 +36,7 @@ namespace dtank
 
         public int OwnerId => _owner.Id;
 
-        public NpcBehaviourSelector(BattleTankModel owner, IReadOnlyList<BattleTankModel> tankModels)
+        public NpcTankBehaviour(BattleTankModel owner, IReadOnlyList<BattleTankModel> tankModels)
         {
             _owner = owner;
             _tankModels = tankModels;
@@ -82,17 +82,17 @@ namespace dtank
                 ToNextState(_current.Result);
         }
 
-        void IBehaviourSelector.BeginDamage()
+        void ITankBehaviour.BeginDamage()
         {
             ChangeState(new NpcTankStateDamage());
         }
 
-        void IBehaviourSelector.EndDamage()
+        void ITankBehaviour.EndDamage()
         {
             ToNextState(NpcTankStateResult.Cancel);
         }
 
-        void IBehaviourSelector.EndShotStraight()
+        void ITankBehaviour.EndShotStraight()
         {
             _target = FindTarget();
             ChangeState(new NpcTankStateIdle(IdleDurationAfterShot));

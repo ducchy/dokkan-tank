@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace dtank
 {
-    public class BattleTankControlUiView : MonoBehaviour, IBehaviourSelector
+    public class BattleTankControlUiView : MonoBehaviour, ITankBehaviour
     {
         [SerializeField] private CanvasGroup _group;
         [SerializeField] private Button _shotCurveButton;
@@ -74,7 +74,7 @@ namespace dtank
         {
         }
 
-        void IBehaviourSelector.Update()
+        void ITankBehaviour.Update()
         {
 #if UNITY_EDITOR
             var vertical = Input.GetAxis("Vertical");

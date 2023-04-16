@@ -9,42 +9,35 @@ namespace dtank
         private readonly BattleModel _model;
         private readonly BattleTankModel _tankModel;
         private readonly BattleTankActor _tankActor;
-        private readonly BattleTankControlUiView _controlUiView;
-        private readonly IBehaviourSelector _npcBehaviourSelector;
         private readonly IBattlePlayerStatusUiView _playerStatusUiView;
-
-        private IBehaviourSelector _currentBehaviourSelector;
+        private readonly TankBehaviourController _controller;
 
         private readonly DisposableScope _scope = new();
-        private readonly DisposableScope _behaviourScope = new();
 
         public BattleTankLogic(
             BattleModel model,
             BattleTankModel tankModel,
             BattleTankActor tankActor,
-            BattleTankControlUiView controlUiView,
-            IBehaviourSelector npcBehaviourSelector,
-            IBattlePlayerStatusUiView playerStatusUiView)
+            IBattlePlayerStatusUiView playerStatusUiView, 
+            TankBehaviourController controller)
         {
             _model = model;
             _tankModel = tankModel;
             _tankActor = tankActor;
-            _controlUiView = controlUiView;
-            _npcBehaviourSelector = npcBehaviourSelector;
             _playerStatusUiView = playerStatusUiView;
+            _controller = controller;
 
-            SetBehaviourSelector(tankModel.CharacterType);
+            _controller.ScopeTo(_scope);
         }
 
         protected override void UpdateInternal()
         {
-            _currentBehaviourSelector?.Update();
+            _controller.Update();
         }
 
         protected override void DisposeInternal()
         {
             _scope.Dispose();
-            _behaviourScope.Dispose();
         }
 
         protected override void ActivateInternal(IScope scope)
@@ -55,9 +48,14 @@ namespace dtank
 
         private void Bind()
         {
+            _model.CurrentState
+                .TakeUntil(_scope)
+                .Subscribe(OnChangedBattleState)
+                .ScopeTo(_scope);
+            
             _tankModel.CurrentState
                 .TakeUntil(_scope)
-                .Subscribe(OnStateChanged)
+                .Subscribe(OnChangedBattleTankState)
                 .ScopeTo(_scope);
 
             _tankModel.MoveAmount
@@ -94,15 +92,6 @@ namespace dtank
                 .TakeUntil(_scope)
                 .Subscribe(_playerStatusUiView.SetDeadFlag)
                 .ScopeTo(_scope);
-
-            if (_controlUiView != null)
-            {
-                _controlUiView.OnAutoToggleValueChangedAsObservable
-                    .TakeUntil(_scope)
-                    .Subscribe(autoFlag =>
-                        SetBehaviourSelector(autoFlag ? CharacterType.NonPlayer : CharacterType.Player))
-                    .ScopeTo(_scope);
-            }
         }
 
         private void SetEvents()
@@ -133,64 +122,11 @@ namespace dtank
                 .ScopeTo(_scope);
         }
 
-        private void SetBehaviourSelector(CharacterType characterType)
-        {
-            if (characterType == CharacterType.Player && _controlUiView != null)
-            {
-                SetBehaviourSelector(_controlUiView);
-                return;
-            }
-
-            SetBehaviourSelector(_npcBehaviourSelector);
-        }
-
-        private void SetBehaviourSelector(IBehaviourSelector behaviourSelector)
-        {
-            _currentBehaviourSelector = behaviourSelector;
-
-            _behaviourScope.Dispose();
-
-            _model.CurrentState
-                .TakeUntil(_behaviourScope)
-                .Subscribe(OnChangedState)
-                .ScopeTo(_behaviourScope);
-
-            _model.RuleModel.ResultType
-                .TakeUntil(_scope)
-                .Subscribe(result =>
-                {
-                    if (result != BattleResultType.None)
-                        _currentBehaviourSelector.SetActive(false);
-                })
-                .ScopeTo(_scope);
-
-            behaviourSelector.OnShotCurveAsObservable
-                .TakeUntil(_behaviourScope)
-                .Subscribe(_ => _tankModel.SetState(BattleTankState.ShotCurve))
-                .ScopeTo(_behaviourScope);
-
-            behaviourSelector.OnShotStraightAsObservable
-                .TakeUntil(_behaviourScope)
-                .Subscribe(_ => _tankModel.SetState(BattleTankState.ShotStraight))
-                .ScopeTo(_behaviourScope);
-
-            behaviourSelector.OnTurnValueChangedAsObservable
-                .TakeUntil(_behaviourScope)
-                .Subscribe(_tankModel.SetInputTurnAmount)
-                .ScopeTo(_behaviourScope);
-
-            behaviourSelector.OnMoveValueChangedAsObservable
-                .TakeUntil(_behaviourScope)
-                .Subscribe(_tankModel.SetInputMoveAmount)
-                .ScopeTo(_behaviourScope);
-        }
-
-        private void OnStateChanged(BattleTankState state)
+        private void OnChangedBattleTankState(BattleTankState state)
         {
             switch (state)
             {
                 case BattleTankState.Damage:
-                    _currentBehaviourSelector.BeginDamage();
                     _tankActor.Damage();
                     break;
                 case BattleTankState.ShotCurve:
@@ -201,7 +137,6 @@ namespace dtank
                     break;
                 case BattleTankState.Dead:
                     _tankActor.Dead();
-                    _currentBehaviourSelector.SetActive(false);
                     break;
             }
         }
@@ -212,26 +147,21 @@ namespace dtank
             {
                 case BattleTankAnimatorState.Damage:
                     _tankModel.SetState(BattleTankState.FreeMove);
-                    _currentBehaviourSelector.EndDamage();
                     break;
                 case BattleTankAnimatorState.ShotCurve:
                     _tankModel.SetState(BattleTankState.FreeMove);
                     break;
                 case BattleTankAnimatorState.ShotStraight:
                     _tankModel.SetState(BattleTankState.FreeMove);
-                    _currentBehaviourSelector.EndShotStraight();
                     break;
             }
         }
 
-        private void OnChangedState(BattleState state)
+        private void OnChangedBattleState(BattleState state)
         {
-            _currentBehaviourSelector.SetActive(state == BattleState.Playing);
-
             switch (state)
             {
                 case BattleState.Ready:
-                    _currentBehaviourSelector.Reset();
                     _tankModel.SetState(BattleTankState.Ready);
                     break;
                 case BattleState.Playing:

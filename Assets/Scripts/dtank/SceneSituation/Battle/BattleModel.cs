@@ -16,8 +16,8 @@ namespace dtank
         private readonly List<BattleTankModel> _tankModels = new();
         public IReadOnlyList<BattleTankModel> TankModels => _tankModels;
 
-        private readonly List<NpcBehaviourSelector> _npcBehaviourSelectors = new();
-        public IReadOnlyList<NpcBehaviourSelector> NpcBehaviourSelectors => _npcBehaviourSelectors;
+        private readonly List<NpcTankBehaviour> _npcBehaviourSelectors = new();
+        public IReadOnlyList<NpcTankBehaviour> NpcBehaviourSelectors => _npcBehaviourSelectors;
 
         public BattleTankModel MainPlayerTankModel { get; private set; }
         public BattleRuleModel RuleModel { get; private set; }
@@ -52,7 +52,7 @@ namespace dtank
 
             _npcBehaviourSelectors.Clear();
             foreach (var tankModel in _tankModels)
-                _npcBehaviourSelectors.Add(new NpcBehaviourSelector(tankModel, _tankModels));
+                _npcBehaviourSelectors.Add(new NpcTankBehaviour(tankModel, _tankModels));
 
             var ruleData = setupData.RuleData;
             var mainPlayerId = MainPlayerTankModel.Id;
