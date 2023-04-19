@@ -118,7 +118,7 @@ namespace dtank
             var battleModel = BattleModel.Create();
             battleModel.ScopeTo(scope);
 
-            var asyncOperationHandle = new BattleModelSetupDataRequest().LoadAsync(_battleEntryData, scope);
+            var asyncOperationHandle = BattleRequestUtility.CreateBattleModelSetupDataAsync(_battleEntryData, scope);
             yield return asyncOperationHandle;
             battleModel.Setup(_battleEntryData, fieldViewData, asyncOperationHandle.Result);
             RegisterTask(battleModel, TaskOrder.Logic);
