@@ -8,8 +8,8 @@ using UniRx;
 
 namespace dtank
 {
-    /// <summary>バトル関連リクエストのユーティリティ</summary>
-    public static class BattleRequestUtility
+    /// <summary>バトル関連データのユーティリティ</summary>
+    public static class BattleDataUtility
     {
         /// <summary>BattleModelのSetupに必要なデータの作成</summary>
         public static AsyncOperationHandle<BattleModelSetupData> CreateBattleModelSetupDataAsync(
