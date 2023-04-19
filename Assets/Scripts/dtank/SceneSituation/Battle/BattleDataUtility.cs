@@ -20,7 +20,7 @@ namespace dtank
             var tankModelSetupDataDict = new Dictionary<int, BattleTankModelSetupData>();
             var loadObservables = entryData.Players
                 .Select(player =>
-                    CreateTankModelSetupDataRoutine(
+                    CreateTankModelSetupDataAsync(
                         player,
                         data => tankModelSetupDataDict.Add(player.PlayerId, data),
                         scope).ToObservable())
@@ -44,7 +44,7 @@ namespace dtank
         }
 
         /// <summary>BattleTankModelのSetupに必要なデータの作成</summary>
-        private static IEnumerator CreateTankModelSetupDataRoutine(BattlePlayerEntryData player,
+        private static IEnumerator CreateTankModelSetupDataAsync(BattlePlayerEntryData player,
             Action<BattleTankModelSetupData> onCreated, IScope scope)
         {
             var parameterData = default(BattleTankParameterData);
