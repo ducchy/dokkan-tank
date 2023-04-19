@@ -4,5 +4,17 @@
 
 ## クラス関係図
 
+### Title
+
 ![Title](Image/dokkan-tank-Title.png)
+
+### Battle
+
 ![Battle](Image/dokkan-tank-Battle.png)
+
+## 利用しているパッケージ
+
+- [game-framework](https://github.com/DaitokuAmy/game-framework.git)
+- [action-sequencer](https://github.com/DaitokuAmy/action-sequencer.git)
+- [UnityDebugSheet](https://github.com/Haruma-K/UnityDebugSheet.git)
+- [UniRx](https://github.com/neuecc/UniRx.git)
