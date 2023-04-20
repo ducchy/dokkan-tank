@@ -1,5 +1,22 @@
 {
   "dependencies": {
+    "com.annulusgames.tween-playables": {
+      "version": "https://github.com/AnnulusGames/TweenPlayables.git?path=/Assets/TweenPlayables",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.textmeshpro": "2.0.1",
+        "com.unity.timeline": "1.2.14"
+      },
+      "hash": "7dca23c000b2e439b17cc946c0d0767983342fa6"
+    },
+    "com.brunomikoski.animationsequencer": {
+      "version": "0.5.1",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
     "com.daitokuamy.actionsequencer": {
       "version": "https://github.com/DaitokuAmy/action-sequencer.git?path=/Packages/com.daitokuamy.actionsequencer",
       "depth": 0,
@@ -20,6 +37,16 @@
       "source": "git",
       "dependencies": {},
       "hash": "48e873879d510c5a7d29c8dd34fe5df22c33f404"
+    },
+    "com.harumak.unityuiplayables": {
+      "version": "https://github.com/Haruma-K/UnityUIPlayables.git?path=/Assets/UnityUIPlayables#0.1.2",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.textmeshpro": "2.0.1",
+        "com.unity.timeline": "1.2.14"
+      },
+      "hash": "73ec0528a4b276223454af9266c8414250c4c8ad"
     },
     "com.neuecc.unirx": {
       "version": "https://github.com/neuecc/UniRx.git?path=Assets/Plugins/UniRx/Scripts",
