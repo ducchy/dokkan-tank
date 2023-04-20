@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GameFramework.Core;
-using UniRx;
 
 namespace dtank
 {
@@ -14,15 +13,10 @@ namespace dtank
         {
             var tankModelSetupDataDict = new Dictionary<int, BattleTankModelSetupData>();
             foreach (var player in entryData.Players)
-            {
-                var tankModelSetupData = await CreateTankModelSetupDataAsync(player, scope);
-                tankModelSetupDataDict.Add(player.PlayerId, tankModelSetupData);
-            }
-            
-            var ruleData = default(BattleRuleData);
-            await new BattleRuleDataAssetRequest(entryData.RuleId)
+                tankModelSetupDataDict.Add(player.PlayerId, await CreateTankModelSetupDataAsync(player, scope));
+
+            var ruleData = await new BattleRuleDataAssetRequest(entryData.RuleId)
                 .LoadAsync(scope)
-                .Do(data => ruleData = data)
                 .ToUniTask();
 
             return new BattleModelSetupData(ruleData, tankModelSetupDataDict);
@@ -32,16 +26,12 @@ namespace dtank
         private static async UniTask<BattleTankModelSetupData> CreateTankModelSetupDataAsync(
             BattlePlayerEntryData player, IScope scope)
         {
-            var parameterData = default(BattleTankParameterData);
-            await new BattleTankParameterDataAssetRequest(player.ParameterId)
+            var parameterData = await new BattleTankParameterDataAssetRequest(player.ParameterId)
                 .LoadAsync(scope)
-                .Do(data => parameterData = data)
                 .ToUniTask();
 
-            var actorSetupData = default(BattleTankActorSetupData);
-            await new BattleTankActorSetupDataAssetRequest(parameterData.ActorSetupDataId)
+            var actorSetupData = await new BattleTankActorSetupDataAssetRequest(parameterData.ActorSetupDataId)
                 .LoadAsync(scope)
-                .Do(data => actorSetupData = data)
                 .ToUniTask();
 
             return new BattleTankModelSetupData(parameterData, actorSetupData);
