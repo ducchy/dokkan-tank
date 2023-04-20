@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using GameFramework.BodySystems;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
@@ -118,9 +119,10 @@ namespace dtank
             var battleModel = BattleModel.Create();
             battleModel.ScopeTo(scope);
 
-            var asyncOperationHandle = BattleDataUtility.CreateBattleModelSetupDataAsync(_battleEntryData, scope);
-            yield return asyncOperationHandle;
-            battleModel.Setup(_battleEntryData, fieldViewData, asyncOperationHandle.Result);
+            var modelSetupData = default(BattleModelSetupData);
+            yield return BattleDataUtility.CreateBattleModelSetupDataAsync(_battleEntryData, scope)
+                .ToCoroutine(data => modelSetupData = data);
+            battleModel.Setup(_battleEntryData, fieldViewData, modelSetupData);
             RegisterTask(battleModel, TaskOrder.Logic);
         }
 
