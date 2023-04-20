@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using GameFramework.Core;
-using GameFramework.CoroutineSystems;
 using UniRx;
 
 namespace dtank
@@ -20,14 +18,14 @@ namespace dtank
             var tankModelSetupDataDict = new Dictionary<int, BattleTankModelSetupData>();
             var loadObservables = entryData.Players
                 .Select(player =>
-                    CreateTankModelSetupDataAsync(
-                        player,
-                        data => tankModelSetupDataDict.Add(player.PlayerId, data),
-                        scope).ToObservable())
+                    CreateTankModelSetupDataAsync(player, scope)
+                        .Do(data => tankModelSetupDataDict.Add(player.PlayerId, data))
+                        .AsUnitObservable()
+                )
                 .ToList();
 
             var ruleData = default(BattleRuleData);
-            loadObservables.Add(new BattleRuleDataAssetRequest($"{entryData.RuleId:d3}")
+            loadObservables.Add(new BattleRuleDataAssetRequest(entryData.RuleId)
                 .LoadAsync(scope)
                 .Do(data => ruleData = data)
                 .AsUnitObservable());
@@ -44,23 +42,15 @@ namespace dtank
         }
 
         /// <summary>BattleTankModelのSetupに必要なデータの作成</summary>
-        private static IEnumerator CreateTankModelSetupDataAsync(BattlePlayerEntryData player,
-            Action<BattleTankModelSetupData> onCreated, IScope scope)
+        private static IObservable<BattleTankModelSetupData> CreateTankModelSetupDataAsync(BattlePlayerEntryData player,
+            IScope scope)
         {
-            var parameterData = default(BattleTankParameterData);
-            yield return new BattleTankParameterDataAssetRequest($"{player.ParameterId:d3}")
+            return new BattleTankParameterDataAssetRequest(player.ParameterId)
                 .LoadAsync(scope)
-                .Do(x => parameterData = x)
-                .StartAsEnumerator(scope);
-
-            var actorSetupData = default(BattleTankActorSetupData);
-            yield return new BattleTankActorSetupDataAssetRequest($"{parameterData.ActorSetupDataId:d3}")
-                .LoadAsync(scope)
-                .Do(x => actorSetupData = x)
-                .StartAsEnumerator(scope);
-
-            var tankModelSetupData = new BattleTankModelSetupData(parameterData, actorSetupData);
-            onCreated?.Invoke(tankModelSetupData);
+                .SelectMany(parameterData =>
+                    new BattleTankActorSetupDataAssetRequest(parameterData.ActorSetupDataId)
+                        .LoadAsync(scope)
+                        .Select(actorSetupData => new BattleTankModelSetupData(parameterData, actorSetupData)));
         }
     }
 }

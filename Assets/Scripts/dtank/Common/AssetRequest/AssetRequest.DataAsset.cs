@@ -17,31 +17,35 @@ namespace dtank
         public override string Address => $"Assets/AddressableAssets/Data/Battle/BattleRule/dat_rule_{_assetKey}.asset";
         private readonly string _assetKey;
 
-        public BattleRuleDataAssetRequest(string assetKey)
+        public BattleRuleDataAssetRequest(int ruleId)
         {
-            _assetKey = assetKey;
+            _assetKey = $"{ruleId:d3}";
         }
     }
 
     public class BattleTankParameterDataAssetRequest : BattleDataAssetRequestBase<BattleTankParameterData>
     {
-        public override string Address => $"Assets/AddressableAssets/Data/Battle/TankParameter/dat_tank_parameter_{_assetKey}.asset";
+        public override string Address =>
+            $"Assets/AddressableAssets/Data/Battle/TankParameter/dat_tank_parameter_{_assetKey}.asset";
+
         private readonly string _assetKey;
 
-        public BattleTankParameterDataAssetRequest(string assetKey)
+        public BattleTankParameterDataAssetRequest(int parameterId)
         {
-            _assetKey = assetKey;
+            _assetKey = $"{parameterId:d3}";
         }
     }
 
     public class BattleTankActorSetupDataAssetRequest : BattleDataAssetRequestBase<BattleTankActorSetupData>
     {
-        public override string Address => $"Assets/AddressableAssets/Data/Battle/TankActorSetup/dat_tank_actor_setup_{_assetKey}.asset";
+        public override string Address =>
+            $"Assets/AddressableAssets/Data/Battle/TankActorSetup/dat_tank_actor_setup_{_assetKey}.asset";
+
         private readonly string _assetKey;
 
-        public BattleTankActorSetupDataAssetRequest(string assetKey)
+        public BattleTankActorSetupDataAssetRequest(int actorSetupDataId)
         {
-            _assetKey = assetKey;
+            _assetKey = $"{actorSetupDataId:d3}";
         }
     }
 }
