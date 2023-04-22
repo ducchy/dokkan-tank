@@ -8,11 +8,11 @@ namespace dtank
         [SerializeField] private Transform[] _startPointArray;
         [SerializeField] private Transform[] _gimmickPointArray;
 
-        public FieldViewData CreateData()
+        public FieldData CreateData()
         {
             var startPointDataArray = _startPointArray.Select(t => new TransformData(t)).ToArray();
             var gimmickPointDataArray = _gimmickPointArray.Select(t => new TransformData(t)).ToArray();
-            return new FieldViewData(startPointDataArray, gimmickPointDataArray);
+            return new FieldData(startPointDataArray, gimmickPointDataArray);
         }
     }
 }

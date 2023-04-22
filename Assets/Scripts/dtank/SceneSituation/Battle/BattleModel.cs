@@ -31,19 +31,17 @@ namespace dtank
         {
         }
 
-        public void Setup(BattleEntryData entryData, FieldViewData fieldViewData, BattleModelSetupData setupData)
+        public void Setup(BattleEntryData entryData, BattleSetupData setupData)
         {
             _tankModels.Clear();
             foreach (var player in entryData.Players)
             {
-                var tankModelSetupData = setupData.TankModelSetupDataDict[player.PlayerId];
+                var tankModelSetupData = setupData.ModelSetupData.TankModelSetupDataDict[player.PlayerId];
 
                 var tankModel = BattleTankModel.Create();
                 tankModel.Setup(player.Name, player.BodyId, player.CharacterType, tankModelSetupData.ParameterData);
-
-                var startPointData = fieldViewData.StartPointDataArray[player.PositionIndex];
-                tankModel.ActorModel.Update(tankModelSetupData.ActorSetupData, startPointData);
-
+                tankModel.ActorModel.Update(setupData.ActorSetupData.TankActorSetupDataDict[player.PlayerId]);
+                
                 _tankModels.Add(tankModel);
 
                 if (player.PlayerId == entryData.MainPlayerId)
@@ -54,7 +52,7 @@ namespace dtank
             foreach (var tankModel in _tankModels)
                 _npcBehaviourSelectors.Add(new NpcTankBehaviour(tankModel, _tankModels));
 
-            var ruleData = setupData.RuleData;
+            var ruleData = setupData.ModelSetupData.RuleData;
             var mainPlayerId = MainPlayerTankModel.Id;
             RuleModel = new BattleRuleModel(ruleData.Duration, mainPlayerId, _tankModels);
 

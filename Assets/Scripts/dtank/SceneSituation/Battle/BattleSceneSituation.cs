@@ -114,15 +114,15 @@ namespace dtank
 
         private IEnumerator SetupModelRoutine(IScope scope)
         {
-            var fieldViewData = Services.Get<FieldViewData>();
+            var fieldData = Services.Get<FieldData>();
 
             var battleModel = BattleModel.Create();
             battleModel.ScopeTo(scope);
 
-            var modelSetupData = default(BattleModelSetupData);
-            yield return BattleDataUtility.CreateBattleModelSetupDataAsync(_battleEntryData, scope)
-                .ToCoroutine(data => modelSetupData = data);
-            battleModel.Setup(_battleEntryData, fieldViewData, modelSetupData);
+            var setupData = default(BattleSetupData);
+            yield return BattleDataUtility.CreateBattleSetupDataAsync(_battleEntryData, fieldData, scope)
+                .ToCoroutine(data => setupData = data);
+            battleModel.Setup(_battleEntryData, setupData);
             RegisterTask(battleModel, TaskOrder.Logic);
         }
 

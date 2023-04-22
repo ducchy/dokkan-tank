@@ -10,5 +10,6 @@ namespace dtank
         AnimatorController Controller { get; }
         ActionInfo[] ActionInfos { get; }
         Color Color { get; }
+        TransformData StartPointData { get; }
     }
 }

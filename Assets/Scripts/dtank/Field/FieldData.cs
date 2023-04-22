@@ -1,11 +1,11 @@
 namespace dtank
 {
-    public class FieldViewData
+    public class FieldData
     {
         public readonly TransformData[] StartPointDataArray;
         public readonly TransformData[] GimmickPointArray;
 
-        public FieldViewData(TransformData[] startPointDataArray, TransformData[] gimmickPointArray)
+        public FieldData(TransformData[] startPointDataArray, TransformData[] gimmickPointArray)
         {
             StartPointDataArray = startPointDataArray;
             GimmickPointArray = gimmickPointArray;

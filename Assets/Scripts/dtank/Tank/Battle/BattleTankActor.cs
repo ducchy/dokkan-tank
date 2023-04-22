@@ -17,7 +17,6 @@ namespace dtank
         #region Variable
 
         private readonly IBattleTankActorSetupData _setupData;
-        private readonly TransformData _startPointData;
 
         private readonly MotionController _motionController;
         private readonly StatusEventListener _statusEventListener;
@@ -55,11 +54,10 @@ namespace dtank
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public BattleTankActor(Body body, IBattleTankActorSetupData setupData, TransformData startPointData)
+        public BattleTankActor(Body body, IBattleTankActorSetupData setupData)
             : base(body)
         {
             _setupData = setupData;
-            _startPointData = startPointData;
 
             _motionController = body.GetController<MotionController>();
             _statusEventListener = body.GetComponent<StatusEventListener>();
@@ -238,7 +236,7 @@ namespace dtank
 
         private void SetStartPoint()
         {
-            _moveController.SetTransform(_startPointData);
+            _moveController.SetTransform(_setupData.StartPointData);
         }
 
         public void SetMoveAmount(float moveAmount)
