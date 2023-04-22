@@ -65,11 +65,11 @@ namespace dtank
                     {
                         case BattleState.Quit:
                             ParentContainer.Transition(new TitleSceneSituation(),
-                                new CommonFadeTransitionEffect(0.5f, 0.5f));
+                                new CommonFadeTransitionEffect(true, true));
                             break;
                         case BattleState.Retry:
                             ParentContainer.Transition(new BattleReadySceneSituation(_battleEntryData),
-                                new CommonFadeTransitionEffect(0.5f, 0f));
+                                new CommonFadeTransitionEffect(true, false));
                             break;
                         default:
                             _stateContainer.Change(state);
