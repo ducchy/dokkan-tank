@@ -18,3 +18,4 @@
 - [action-sequencer](https://github.com/DaitokuAmy/action-sequencer.git)
 - [UnityDebugSheet](https://github.com/Haruma-K/UnityDebugSheet.git)
 - [UniRx](https://github.com/neuecc/UniRx.git)
+- [UniTask](https://github.com/Cysharp/UniTask.git)

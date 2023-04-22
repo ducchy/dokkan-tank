@@ -44,7 +44,7 @@ namespace dtank
         private void TransitionToBattle()
         {
             ParentContainer.Transition(new BattleSceneSituation(_battleEntryData),
-                new CommonFadeTransitionEffect(0f, 0.5f));
+                new CommonFadeTransitionEffect(false, true));
         }
     }
 }

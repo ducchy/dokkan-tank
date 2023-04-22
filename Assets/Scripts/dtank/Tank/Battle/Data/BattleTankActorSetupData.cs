@@ -12,10 +12,18 @@ namespace dtank
         [SerializeField] private ActionInfo[] _actionInfos;
         [SerializeField] private Color _color;
 
+        private TransformData _startPointData;
+
         float IBattleTankActorSetupData.MoveMaxSpeed => _moveMaxSpeed;
         float IBattleTankActorSetupData.TurnMaxSpeed => _turnMaxSpeed;
         AnimatorController IBattleTankActorSetupData.Controller => _controller;
         ActionInfo[] IBattleTankActorSetupData.ActionInfos => _actionInfos;
         Color IBattleTankActorSetupData.Color => _color;
+        TransformData IBattleTankActorSetupData.StartPointData => _startPointData;
+
+        public void SetNonSerializeData(TransformData startPointData)
+        {
+            _startPointData = startPointData;
+        }
     }
 }

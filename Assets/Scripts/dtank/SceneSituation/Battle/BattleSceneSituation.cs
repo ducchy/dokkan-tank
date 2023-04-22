@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using GameFramework.BodySystems;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
@@ -64,11 +65,11 @@ namespace dtank
                     {
                         case BattleState.Quit:
                             ParentContainer.Transition(new TitleSceneSituation(),
-                                new CommonFadeTransitionEffect(0.5f, 0.5f));
+                                new CommonFadeTransitionEffect(true, true));
                             break;
                         case BattleState.Retry:
                             ParentContainer.Transition(new BattleReadySceneSituation(_battleEntryData),
-                                new CommonFadeTransitionEffect(0.5f, 0f));
+                                new CommonFadeTransitionEffect(true, false));
                             break;
                         default:
                             _stateContainer.Change(state);
@@ -113,14 +114,15 @@ namespace dtank
 
         private IEnumerator SetupModelRoutine(IScope scope)
         {
-            var fieldViewData = Services.Get<FieldViewData>();
+            var fieldData = Services.Get<FieldData>();
 
             var battleModel = BattleModel.Create();
             battleModel.ScopeTo(scope);
 
-            var asyncOperationHandle = BattleDataUtility.CreateBattleModelSetupDataAsync(_battleEntryData, scope);
-            yield return asyncOperationHandle;
-            battleModel.Setup(_battleEntryData, fieldViewData, asyncOperationHandle.Result);
+            var setupData = default(BattleSetupData);
+            yield return BattleDataUtility.CreateBattleSetupDataAsync(_battleEntryData, fieldData, scope)
+                .ToCoroutine(data => setupData = data);
+            battleModel.Setup(_battleEntryData, setupData);
             RegisterTask(battleModel, TaskOrder.Logic);
         }
 
@@ -140,7 +142,6 @@ namespace dtank
 
             var cameraController = Services.Get<BattleCameraController>();
             cameraController.Setup(model, tankEntityContainer);
-            cameraController.ScopeTo(scope);
 
             var presenter = new BattlePresenter(model, uiView, cameraController);
             presenter.ScopeTo(scope);

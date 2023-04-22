@@ -99,7 +99,7 @@ namespace dtank
         {
             return source.SetupAsync(() =>
             {
-                return new TankPrefabAssetRequest(model.AssetKey)
+                return new TankPrefabAssetRequest(model.BodyId)
                     .LoadAsync(scope)
                     .Select(prefab => Services.Get<BodyManager>().CreateFromPrefab(prefab));
             }, entity =>
@@ -107,8 +107,7 @@ namespace dtank
                 var taskRunner = Services.Get<TaskRunner>();
                 var body = entity.GetBody();
                 body.UserId = model.Id;
-                var actor = new BattleTankActor(body, model.ActorModel.SetupData,
-                    model.ActorModel.StartPointData);
+                var actor = new BattleTankActor(body, model.ActorModel.SetupData);
                 taskRunner.Register(actor, TaskOrder.Actor);
                 var controlUiView = model.CharacterType == CharacterType.Player ? _controlUiView : null;
                 var statusUiView = _statusUiView.GetStatusUi(model.Id);

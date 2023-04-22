@@ -3,14 +3,11 @@ namespace dtank
     public class BattleTankModelSetupData
     {
         public BattleTankParameterData ParameterData { get; private set; }
-        public BattleTankActorSetupData ActorSetupData { get; private set; }
 
         public BattleTankModelSetupData(
-            BattleTankParameterData parameterData, 
-            BattleTankActorSetupData actorSetupData)
+            BattleTankParameterData parameterData)
         {
             ParameterData = parameterData;
-            ActorSetupData = actorSetupData;
         }
     }
 }

@@ -15,7 +15,7 @@ namespace dtank
         [SerializeField, Tooltip("制御対象のImage")]
         private Image _image;
 
-        private Subject<Unit> _finishSubject = new();
+        private readonly Subject<Unit> _finishSubject = new();
         private float _targetAlpha;
         private float _timer;
 

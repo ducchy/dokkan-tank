@@ -10,7 +10,6 @@ namespace dtank
         public int Id { get; private set; }
         public string Name { get; private set; }
         public Color Color { get; private set; }
-        public string AssetKey { get; private set; }
         public int BodyId { get; private set; }
         public CharacterType CharacterType { get; private set; }
         public BattleTankState CurrentState { get; private set; }
@@ -46,7 +45,6 @@ namespace dtank
             Id = _model.Id;
             Name = _model.Name;
             Color = _model.ActorModel.SetupData.Color;
-            AssetKey = _model.AssetKey;
             BodyId = _model.BodyId;
             CharacterType = _model.CharacterType;
             CurrentState = _model.CurrentState.Value;
@@ -67,7 +65,6 @@ namespace dtank
             Id = default;
             Name = "未設定";
             Color = default;
-            AssetKey = default;
             BodyId = default;
             CharacterType = default;
             CurrentState = default;

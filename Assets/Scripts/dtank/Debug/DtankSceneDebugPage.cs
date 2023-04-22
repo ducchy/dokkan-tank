@@ -12,16 +12,19 @@ namespace dtank
 
         public override IEnumerator Initialize()
         {
-            AddButton("Title", clicked: () => OnClickSceneButton(new TitleSceneSituation()));
-            AddButton("BattleReady", clicked: () => OnClickSceneButton(new BattleReadySceneSituation()));
-            AddButton("Battle", clicked: () => OnClickSceneButton(new BattleSceneSituation()));
+            AddButton("Title", clicked: () => OnClickSceneButton(new TitleSceneSituation(), true));
+            AddButton("BattleReady", clicked: () => OnClickSceneButton(new BattleReadySceneSituation(), false));
+            AddButton("Battle", clicked: () => OnClickSceneButton(new BattleSceneSituation(), true));
             yield break;
         }
 
-        private void OnClickSceneButton(SceneSituation sceneSituation)
+        private void OnClickSceneButton(SceneSituation sceneSituation, bool withFadeIn)
         {
             var sceneSituationContainer = DebugManager.ServiceContainer.Get<SceneSituationContainer>();
-            sceneSituationContainer?.Transition(sceneSituation);
+            if (withFadeIn)
+                sceneSituationContainer?.Transition(sceneSituation, new CommonFadeTransitionEffect(false, true));
+            else
+                sceneSituationContainer?.Transition(sceneSituation);
         }
     }
 }

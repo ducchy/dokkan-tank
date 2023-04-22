@@ -1,56 +1,92 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using GameFramework.Core;
-using UniRx;
 
 namespace dtank
 {
     /// <summary>バトル関連データのユーティリティ</summary>
     public static class BattleDataUtility
     {
+        /// <summary>BattleのSetupに必要なデータの作成</summary>
+        public static async UniTask<BattleSetupData> CreateBattleSetupDataAsync(BattleEntryData entryData,
+            FieldData fieldData, IScope scope)
+        {
+            var modelSetupData = await CreateBattleModelSetupDataAsync(entryData, scope);
+            var actorSetupData = await CreateBattleActorSetupDataAsync(entryData, fieldData, modelSetupData, scope);
+            return new BattleSetupData(modelSetupData, actorSetupData);
+        }
+
         /// <summary>BattleModelのSetupに必要なデータの作成</summary>
-        public static AsyncOperationHandle<BattleModelSetupData> CreateBattleModelSetupDataAsync(
+        private static async UniTask<BattleModelSetupData> CreateBattleModelSetupDataAsync(
             BattleEntryData entryData, IScope scope)
         {
-            var op = new AsyncOperator<BattleModelSetupData>();
-
-            var tankModelSetupDataDict = new Dictionary<int, BattleTankModelSetupData>();
-            var loadObservables = entryData.Players
-                .Select(player =>
-                    CreateTankModelSetupDataAsync(player, scope)
-                        .Do(data => tankModelSetupDataDict.Add(player.PlayerId, data))
-                        .AsUnitObservable()
-                )
-                .ToList();
-
-            var ruleData = default(BattleRuleData);
-            loadObservables.Add(new BattleRuleDataAssetRequest(entryData.RuleId)
+            var createTankModelSetupDataTasks =
+                UniTask.WhenAll(
+                    entryData.Players
+                        .Select(player => CreateTankModelSetupDataAsync(player, scope))
+                        .ToArray());
+            var loadRuleDataTask = new BattleRuleDataAssetRequest(entryData.RuleId)
                 .LoadAsync(scope)
-                .Do(data => ruleData = data)
-                .AsUnitObservable());
+                .ToUniTask();
 
-            var modelSetupData = default(BattleModelSetupData);
-            loadObservables.WhenAll()
-                .Do(_ => modelSetupData = new BattleModelSetupData(ruleData, tankModelSetupDataDict))
-                .Subscribe(
-                    onNext: _ => { },
-                    onCompleted: () => { op.Completed(modelSetupData); }
-                );
+            var (tankModelSetupDataDictPairs, ruleData) =
+                await UniTask.WhenAll(createTankModelSetupDataTasks, loadRuleDataTask);
 
-            return op;
+            var tankModelSetupDataDict = tankModelSetupDataDictPairs
+                .ToDictionary(
+                    tankModelSetupDataDictPair => tankModelSetupDataDictPair.Item1,
+                    tankModelSetupDataDictPair => tankModelSetupDataDictPair.Item2);
+
+            return new BattleModelSetupData(ruleData, tankModelSetupDataDict);
         }
 
         /// <summary>BattleTankModelのSetupに必要なデータの作成</summary>
-        private static IObservable<BattleTankModelSetupData> CreateTankModelSetupDataAsync(BattlePlayerEntryData player,
+        private static async UniTask<(int, BattleTankModelSetupData)> CreateTankModelSetupDataAsync(
+            BattlePlayerEntryData player, IScope scope)
+        {
+            var parameterData = await new BattleTankParameterDataAssetRequest(player.ParameterId)
+                .LoadAsync(scope)
+                .ToUniTask();
+
+            return (player.PlayerId, new BattleTankModelSetupData(parameterData));
+        }
+
+        /// <summary>BattleActorのSetupに必要なデータの作成</summary>
+        private static async UniTask<BattleActorSetupData> CreateBattleActorSetupDataAsync(
+            BattleEntryData entryData, FieldData fieldData, BattleModelSetupData modelSetupData, IScope scope)
+        {
+            var tankActorSetupDataDictPairs = await UniTask.WhenAll(
+                entryData.Players
+                    .Select(player =>
+                    {
+                        var tankModelSetupData = modelSetupData.TankModelSetupDataDict[player.PlayerId];
+                        var startPointData = fieldData.StartPointDataArray[player.PositionIndex];
+                        return CreateTankActorSetupDataAsync(player, tankModelSetupData, startPointData, scope);
+                    })
+                    .ToArray()
+            );
+
+            var tankActorSetupDataDict = tankActorSetupDataDictPairs
+                .ToDictionary(
+                    tankModelSetupDataDictPair => tankModelSetupDataDictPair.Item1,
+                    tankModelSetupDataDictPair => tankModelSetupDataDictPair.Item2);
+
+            return new BattleActorSetupData(tankActorSetupDataDict);
+        }
+
+        /// <summary>BattleTankActorのSetupに必要なデータの作成</summary>
+        private static async UniTask<(int, BattleTankActorSetupData)> CreateTankActorSetupDataAsync(
+            BattlePlayerEntryData player, BattleTankModelSetupData modelSetupData, TransformData startPointData,
             IScope scope)
         {
-            return new BattleTankParameterDataAssetRequest(player.ParameterId)
-                .LoadAsync(scope)
-                .SelectMany(parameterData =>
-                    new BattleTankActorSetupDataAssetRequest(parameterData.ActorSetupDataId)
-                        .LoadAsync(scope)
-                        .Select(actorSetupData => new BattleTankModelSetupData(parameterData, actorSetupData)));
+            var actorSetupData =
+                await new BattleTankActorSetupDataAssetRequest(modelSetupData.ParameterData.ActorSetupDataId)
+                    .LoadAsync(scope)
+                    .ToUniTask();
+
+            actorSetupData.SetNonSerializeData(startPointData);
+
+            return (player.PlayerId, actorSetupData);
         }
     }
 }

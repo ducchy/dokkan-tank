@@ -65,7 +65,7 @@ namespace dtank
 
             startSituation ??= new TitleSceneSituation();
 
-            var handle = _sceneSituationContainer.Transition(startSituation, new CommonFadeTransitionEffect(0f, 0.5f));
+            var handle = _sceneSituationContainer.Transition(startSituation, new CommonFadeTransitionEffect(false, true));
 
             yield return handle;
 
