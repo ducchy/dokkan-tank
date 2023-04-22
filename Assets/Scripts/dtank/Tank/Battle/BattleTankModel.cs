@@ -40,7 +40,6 @@ namespace dtank
         public int BodyId { get; private set; }
         public CharacterType CharacterType { get; private set; }
         public BattleTankParameterData ParameterData { get; private set; }
-        public string AssetKey => $"{BodyId:D3}";
 
         public Vector3 Position { get; private set; }
         public Vector3 Forward { get; private set; }

@@ -17,9 +17,9 @@ namespace dtank
         public override string Address => $"Assets/AddressableAssets/Body/Tank/prfb_tank_{_assetKey}.prefab";
         private readonly string _assetKey;
 
-        public TankPrefabAssetRequest(string assetKey)
+        public TankPrefabAssetRequest(int bodyId)
         {
-            _assetKey = assetKey;
+            _assetKey = $"{bodyId:D3}";
         }
     }
 }

@@ -99,7 +99,7 @@ namespace dtank
         {
             return source.SetupAsync(() =>
             {
-                return new TankPrefabAssetRequest(model.AssetKey)
+                return new TankPrefabAssetRequest(model.BodyId)
                     .LoadAsync(scope)
                     .Select(prefab => Services.Get<BodyManager>().CreateFromPrefab(prefab));
             }, entity =>

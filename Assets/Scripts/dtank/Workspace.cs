@@ -30,7 +30,7 @@ namespace dtank
             var addressableInitializeHandle = Addressables.InitializeAsync();
             yield return addressableInitializeHandle;
             
-            var request = new TankPrefabAssetRequest("001");
+            var request = new TankPrefabAssetRequest(1);
 
             IScope loadScope = new DisposableScope();
             var handle = request.LoadAsync(assetManager, loadScope);
