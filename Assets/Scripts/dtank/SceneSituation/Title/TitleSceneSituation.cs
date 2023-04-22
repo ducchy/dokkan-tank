@@ -80,11 +80,7 @@ namespace dtank
         private void SetupPresenter(IScope scope)
         {
             var uiView = Services.Get<TitleUiView>();
-            uiView.ScopeTo(scope);
-
             var camera = Services.Get<TitleCameraController>();
-            camera.ScopeTo(scope);
-
             var model = TitleModel.Get();
 
             var presenter = new TitlePresenter(uiView, camera, model);
