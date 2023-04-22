@@ -11,9 +11,9 @@ namespace dtank
     /// </summary>
     public class FadeTransitionEffect : ITransitionEffect
     {
-        private Color _color;
-        private float _enterDuration;
-        private float _exitDuration;
+        private readonly Color _color;
+        private readonly float _enterDuration;
+        private readonly float _exitDuration;
         private DisposableScope _scope;
 
         /// <summary>

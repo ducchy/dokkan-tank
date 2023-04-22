@@ -56,11 +56,7 @@ namespace dtank {
             }
 
             var listener = animator.GetComponentInParent<IStatusEventListener>();
-            if (listener == null) {
-                return;
-            }
-
-            listener.OnStatusEnter(_status);
+            listener?.OnStatusEnter(_status);
         }
 
         /// <summary>
@@ -82,11 +78,7 @@ namespace dtank {
             }
 
             var listener = animator.GetComponentInParent<IStatusEventListener>();
-            if (listener == null) {
-                return;
-            }
-
-            listener.OnStatusCycle(_status, _cycle);
+            listener?.OnStatusCycle(_status, _cycle);
         }
 
         /// <summary>
@@ -100,11 +92,7 @@ namespace dtank {
             }
 
             var listener = animator.GetComponentInParent<IStatusEventListener>();
-            if (listener == null) {
-                return;
-            }
-
-            listener.OnStatusExit(_status);
+            listener?.OnStatusExit(_status);
         }
 
         /// <summary>
@@ -119,11 +107,7 @@ namespace dtank {
             }
 
             var listener = animator.GetComponentInParent<IStatusEventListener>();
-            if (listener == null) {
-                return;
-            }
-
-            listener.OnStatusEnter(_status);
+            listener?.OnStatusEnter(_status);
         }
 
         /// <summary>
@@ -138,11 +122,7 @@ namespace dtank {
             }
 
             var listener = animator.GetComponentInParent<IStatusEventListener>();
-            if (listener == null) {
-                return;
-            }
-
-            listener.OnStatusExit(_status);
+            listener?.OnStatusExit(_status);
         }
     }
 }

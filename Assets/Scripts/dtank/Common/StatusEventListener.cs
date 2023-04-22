@@ -1,5 +1,4 @@
 using System;
-using JetBrains.Annotations;
 using UniRx;
 using UnityEngine;
 
@@ -8,12 +7,11 @@ namespace dtank {
     /// ステータスイベント監視用リスナー
     /// </summary>
     public class StatusEventListener : MonoBehaviour, IStatusEventListener {
-        private Subject<string> _enterSubject = new Subject<string>();
-        private Subject<Tuple<string, int>> _cycleSubject = new Subject<Tuple<string, int>>();
-        private Subject<string> _exitSubject = new Subject<string>();
+        private readonly Subject<string> _enterSubject = new();
+        private readonly Subject<Tuple<string, int>> _cycleSubject = new();
+        private readonly Subject<string> _exitSubject = new();
 
         public IObservable<string> EnterSubject => _enterSubject;
-        [CanBeNull]
         public IObservable<Tuple<string, int>> CycleSubject => _cycleSubject;
         public IObservable<string> ExitSubject => _exitSubject;
 

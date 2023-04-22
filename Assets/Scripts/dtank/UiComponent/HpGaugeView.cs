@@ -19,8 +19,8 @@ namespace dtank
         [SerializeField] private HorizontalLayoutGroup _nodeGroup;
         [SerializeField] private Alignment _alignment;
 
-        public int DisplayHp { get; private set; }
-        public int CurrentHp { get; private set; }
+        private int _displayHp;
+        private int _currentHp;
         
         private HpGaugeNodeView[] _nodes;
         private Sequence _sequence;
@@ -47,12 +47,12 @@ namespace dtank
 
         public void SetHp(int hp)
         {
-            if (CurrentHp == hp)
+            if (_currentHp == hp)
                 return;
 
-            Debug.Log($"[BattleTankStatusUiView] SetHp: {CurrentHp} -> {hp}");
+            Debug.Log($"[BattleTankStatusUiView] SetHp: {_currentHp} -> {hp}");
 
-            CurrentHp = hp;
+            _currentHp = hp;
         }
 
         public void SetHpImmediate(int hp)
@@ -60,14 +60,14 @@ namespace dtank
             for (var i = 0; i < _nodes.Length; i++)
                 _nodes[i].SetEnable(i < hp);
 
-            CurrentHp = DisplayHp = hp;
+            _currentHp = _displayHp = hp;
         }
 
         public void Play(Action onComplete = null)
         {
-            PlayChangeHp(DisplayHp, CurrentHp, onComplete);
+            PlayChangeHp(_displayHp, _currentHp, onComplete);
 
-            DisplayHp = CurrentHp;
+            _displayHp = _currentHp;
         }
 
         private void PlayChangeHp(int from, int to, Action onComplete = null)

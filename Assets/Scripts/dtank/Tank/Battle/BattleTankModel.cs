@@ -100,7 +100,7 @@ namespace dtank
             SetState(BattleTankState.Damage);
         }
 
-        public bool IsInvalidDamage()
+        private bool IsInvalidDamage()
         {
             if (IsInvalidDamageState(_currentState.Value) || _invincibleFlag.Value || _hp.Value <= 0)
                 return true;
