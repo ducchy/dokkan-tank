@@ -1,21 +1,19 @@
 using System;
-using DG.Tweening;
+using BrunoMikoski.AnimationSequencer;
 using GameFramework.Core;
 using TMPro;
 using UniRx;
 using UnityEngine;
-using Sequence = DG.Tweening.Sequence;
 
 namespace dtank
 {
     public class BattlePlayingUiView : MonoBehaviour, IDisposable
     {
         [SerializeField] private CanvasGroup _group;
-        [SerializeField] private TextMeshProUGUI _centerLabel;
         [SerializeField] private TextMeshProUGUI _remainTime;
+        [SerializeField] private AnimationSequencerController _startSeq;
+        [SerializeField] private AnimationSequencerController _finishSeq;
 
-        private Sequence _seq;
-        private Sequence _finishSeq;
         private FadeController _fadeController;
         private readonly DisposableScope _fadeScope = new();
 
@@ -29,8 +27,8 @@ namespace dtank
 
         public void Dispose()
         {
-            _seq?.Kill();
-            _finishSeq?.Kill();
+            _startSeq.Kill();
+            _finishSeq.Kill();
 
             _fadeScope.Dispose();
         }
@@ -51,48 +49,27 @@ namespace dtank
 
         public void Start()
         {
-            _seq?.Kill();
+            _startSeq.Kill();
 
             SetActive(true);
 
-            _centerLabel.text = "START!";
-            _centerLabel.color = new Color(0.2f, 0.2f, 0.2f, 0f);
-            _centerLabel.transform.localScale = Vector3.one * 3f;
-
-            _seq = DOTween.Sequence()
-                .Append(_centerLabel.DOFade(1f, 0.3f).SetEase(Ease.OutQuad))
-                .Join(_centerLabel.transform.DOScale(1f, 0.3f).SetEase(Ease.OutQuad))
-                .AppendInterval(1f)
-                .Append(_centerLabel.DOFade(0f, 0.3f))
-                .Join(_centerLabel.transform.DOScale(0.5f, 0.3f))
-                .SetLink(gameObject)
-                .Play();
+            _startSeq.Play();
         }
 
         public void Finish()
         {
-            _seq?.Kill();
+            _startSeq.Kill();
+            _finishSeq.Kill();
+            
             _fadeScope.Dispose();
-
-            _centerLabel.text = "FINISH!";
-            _centerLabel.color = new Color(0.2f, 0.2f, 0.2f, 0f);
-            _centerLabel.transform.localScale = Vector3.one * 0.5f;
-
-            _seq = DOTween.Sequence()
-                .Append(_centerLabel.DOFade(1f, 0.3f))
-                .Join(_centerLabel.transform.DOScale(1f, 0.3f))
-                .AppendInterval(1f)
-                .Append(_centerLabel.DOFade(0f, 0.3f))
-                .Join(_centerLabel.transform.DOScale(0.5f, 0.3f))
-                .OnComplete(() =>
-                {
-                    SetActive(false);
+            
+            _finishSeq.Play(() =>
+            {
+                SetActive(false);
                     
-                    _fadeController.FadeOut(Color.black, 0.5f,
-                        () => _onEndPlayingSubject.OnNext(Unit.Default), _fadeScope);
-                })
-                .SetLink(gameObject)
-                .Play();
+                _fadeController.FadeOut(Color.black, 0.5f,
+                    () => _onEndPlayingSubject.OnNext(Unit.Default), _fadeScope);
+            });
         }
 
         public void SetTime(int second)
