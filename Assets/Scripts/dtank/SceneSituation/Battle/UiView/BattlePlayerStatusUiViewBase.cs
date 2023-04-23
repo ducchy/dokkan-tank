@@ -101,7 +101,7 @@ namespace dtank
 
             SetActive(true);
 
-            _openSeq.Play();
+            _openSeq.Play(() => _hpGauge.Play());
         }
 
         public void Close()

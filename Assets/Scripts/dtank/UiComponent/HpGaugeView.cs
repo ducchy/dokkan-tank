@@ -89,7 +89,6 @@ namespace dtank
                 for (var i = from; i < to; i++)
                 {
                     var node = _nodes[i];
-                    node.SetEnable(false);
                     _sequence.Append(node.EnableSequence());
                 }
             }
@@ -98,7 +97,6 @@ namespace dtank
                 for (var i = from - 1; i >= to; i--)
                 {
                     var node = _nodes[i];
-                    node.SetEnable(true);
                     _sequence.Append(node.DisableSequence());
                 }
             }
