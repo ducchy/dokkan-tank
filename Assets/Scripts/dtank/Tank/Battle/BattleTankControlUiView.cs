@@ -1,4 +1,5 @@
 using System;
+using BrunoMikoski.AnimationSequencer;
 using DG.Tweening;
 using UniRx;
 using UnityEngine;
@@ -9,11 +10,14 @@ namespace dtank
     public class BattleTankControlUiView : MonoBehaviour, ITankBehaviour
     {
         [SerializeField] private CanvasGroup _group;
+        [SerializeField] private CanvasGroup _controllerGroup;
         [SerializeField] private Button _shotCurveButton;
         [SerializeField] private Button _shotStraightButton;
         [SerializeField] private Slider _verticalSlider;
         [SerializeField] private Slider _horizontalSlider;
         [SerializeField] private Toggle _autoToggle;
+        [SerializeField] private AnimationSequencerController _autoOnSeq;
+        [SerializeField] private AnimationSequencerController _autoOffSeq;
 
         private readonly Subject<bool> _onAutoToggleValueChanged = new();
 
@@ -52,14 +56,6 @@ namespace dtank
 
             _group.alpha = flag ? 1f : 0f;
             _group.blocksRaycasts = flag;
-        }
-
-        private void SetInteractive(bool interactable)
-        {
-            _shotCurveButton.interactable = interactable;
-            _shotStraightButton.interactable = interactable;
-            _horizontalSlider.interactable = interactable;
-            _verticalSlider.interactable = interactable;
         }
 
         public void BeginDamage()
@@ -116,7 +112,17 @@ namespace dtank
         {
             _onAutoToggleValueChanged.OnNext(isOn);
 
-            SetInteractive(!isOn);
+            _autoOnSeq.Kill();
+            _autoOffSeq.Kill();
+
+            if (isOn)
+            {
+                _autoOnSeq.Play();
+                _controllerGroup.blocksRaycasts = false;
+            }
+            else
+                _autoOffSeq.Play(() =>
+                    _controllerGroup.blocksRaycasts = true);
         }
     }
 }
