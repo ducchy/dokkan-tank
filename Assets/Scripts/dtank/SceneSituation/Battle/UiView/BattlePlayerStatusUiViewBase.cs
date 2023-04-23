@@ -1,28 +1,26 @@
 using System;
-using DG.Tweening;
+using BrunoMikoski.AnimationSequencer;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Sequence = DG.Tweening.Sequence;
 
 namespace dtank
 {
     public abstract class BattlePlayerStatusUiViewBase : MonoBehaviour, IBattlePlayerStatusUiView, IDisposable
     {
         [SerializeField] private CanvasGroup _group;
-        [SerializeField] private CanvasGroup _innerGroup;
         [SerializeField] private TextMeshProUGUI _playerName;
         [SerializeField] private TextMeshProUGUI _score;
         [SerializeField] private TextMeshProUGUI _rank;
         [SerializeField] private Image _rankBg;
         [SerializeField] private HpGaugeView _hpGauge;
+        [SerializeField] private AnimationSequencerController _openSeq;
+        [SerializeField] private AnimationSequencerController _closeSeq;
+        [SerializeField] private AnimationSequencerController _rankSeq;
+        [SerializeField] private AnimationSequencerController _scoreSeq;
+        [SerializeField] private AnimationSequencerController _deadSeq;
 
         private bool _openFlag;
-
-        private Sequence _sequence;
-        private Sequence _scoreSeq;
-        private Sequence _rankSeq;
-        private Sequence _deadSeq;
 
         public void Setup(string playerName, int maxHp, Color color)
         {
@@ -33,10 +31,11 @@ namespace dtank
 
         public void Dispose()
         {
-            _sequence?.Kill();
-            _scoreSeq?.Kill();
-            _rankSeq?.Kill();
-            _deadSeq?.Kill();
+            _openSeq.Kill();
+            _closeSeq.Kill();
+            _rankSeq.Kill();
+            _scoreSeq.Kill();
+            _deadSeq.Kill();
         }
 
         public void Reset()
@@ -47,39 +46,30 @@ namespace dtank
             _hpGauge.SetHpImmediate(0);
         }
 
-        public void SetActive(bool flag)
+        private void SetActive(bool flag)
         {
             if (_group == null)
                 return;
 
             _group.alpha = flag ? 1f : 0f;
-            _group.blocksRaycasts = flag;
         }
 
         public void SetScore(int score)
         {
-            _scoreSeq?.Kill();
-            
-            _score.text = score.ToString();
-            _score.transform.localScale = Vector3.one * 1.5f;
+            _scoreSeq.Kill();
 
-            _scoreSeq = DOTween.Sequence()
-                .Append(_score.transform.DOScale(1f, 0.2f).SetEase(Ease.OutQuad))
-                .SetLink(gameObject)
-                .Play();
+            _score.text = score.ToString();
+
+            _scoreSeq.Play();
         }
 
         public void SetRank(int rank)
         {
-            _rankSeq?.Kill();
-            
-            _rank.text = rank.ToString();
-            _rank.transform.localScale = Vector3.one * 1.5f;
+            _rankSeq.Kill();
 
-            _rankSeq = DOTween.Sequence()
-                .Append(_rank.transform.DOScale(1f, 0.2f).SetEase(Ease.OutQuad))
-                .SetLink(gameObject)
-                .Play();
+            _rank.text = rank.ToString();
+
+            _rankSeq.Play();
         }
 
         public void SetHp(int hp)
@@ -92,16 +82,11 @@ namespace dtank
 
         public void SetDeadFlag(bool flag)
         {
-            _deadSeq?.Kill();
-
-            var from = flag ? 1f : 0.5f;
-            var to = flag ? 0.5f : 1f;
-            _innerGroup.alpha = from;
+            if (!flag)
+                return;
             
-            _deadSeq = DOTween.Sequence()
-                .Append(_innerGroup.DOFade(to, 0.2f).SetEase(Ease.OutQuad))
-                .SetLink(gameObject)
-                .Play();
+            _deadSeq.Kill();
+            _deadSeq.Play();
         }
 
         public void Open()
@@ -111,15 +96,12 @@ namespace dtank
 
             _openFlag = true;
 
-            _sequence?.Kill();
+            _openSeq.Kill();
+            _closeSeq.Kill();
 
-            SetActive(false);
+            SetActive(true);
 
-            _sequence = DOTween.Sequence()
-                .Append(_group.DOFade(1f, 0.3f))
-                .OnComplete(() => { _hpGauge.Play(() => SetActive(true)); })
-                .SetLink(gameObject)
-                .Play();
+            _openSeq.Play();
         }
 
         public void Close()
@@ -129,13 +111,10 @@ namespace dtank
 
             _openFlag = false;
 
-            _sequence?.Kill();
+            _openSeq.Kill();
+            _closeSeq.Kill();
 
-            _sequence = DOTween.Sequence()
-                .Append(_group.DOFade(0f, 0.3f))
-                .OnComplete(() => SetActive(false))
-                .SetLink(gameObject)
-                .Play();
+            _closeSeq.Play(() => SetActive(false));
         }
     }
 }
