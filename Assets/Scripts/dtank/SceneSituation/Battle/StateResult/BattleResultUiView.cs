@@ -84,7 +84,7 @@ namespace dtank
                 _resultSeq = DOTween.Sequence()
                     .Append(_group.DOFade(1f, 0.3f));
 
-                var interval = 0.3f;
+                const float interval = 0.3f;
                 foreach (var playerResultUiView in _playerResultUiViews)
                 {
                     _resultSeq
