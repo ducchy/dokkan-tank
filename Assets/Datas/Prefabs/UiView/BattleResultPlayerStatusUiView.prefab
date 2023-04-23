@@ -269,8 +269,8 @@ MonoBehaviour:
     - rid: 8892462427757609031
       type: {class: DOTweenAnimationStep, ns: BrunoMikoski.AnimationSequencer, asm: BrunoMikoski.AnimationSequencer}
       data:
-        delay: 0
-        flowType: 0
+        delay: 0.3
+        flowType: 1
         target: {fileID: 8176835715161362938}
         duration: 0.15
         loopCount: 0
@@ -896,7 +896,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e4870dea3c645f8bdbed31c26cd8ad6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _group: {fileID: 962200807080976697}
   _playerName: {fileID: 6654687897782974694}
   _rank: {fileID: 7528185603190132960}
   _rankBg: {fileID: 3679542146339912082}
