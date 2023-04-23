@@ -22,7 +22,7 @@ namespace dtank
 
             Bind(scope);
 
-            TitleModel.Get().ChangeState(TitleState.Idle);
+            TitleModel.Get().ChangeState(TitleState.Enter);
 
             Debug.Log("[TitleSceneSituation] End SetupRoutineInternal");
         }
@@ -35,7 +35,7 @@ namespace dtank
         protected override void UnloadInternal(TransitionHandle handle)
         {
             Debug.Log("[TitleSceneSituation] UnloadInternal");
-            
+
             UnloadAll();
         }
 
@@ -48,8 +48,9 @@ namespace dtank
                 {
                     switch (state)
                     {
-                        case TitleState.End:
-                            ParentContainer.Transition(new BattleReadySceneSituation(), new CommonFadeTransitionEffect(true, false));
+                        case TitleState.ToBattle:
+                            ParentContainer.Transition(new BattleReadySceneSituation(),
+                                new CommonFadeTransitionEffect(true, false));
                             break;
                         default:
                             _stateContainer.Change(state);
@@ -65,26 +66,14 @@ namespace dtank
         {
             var fieldManager = Services.Get<FieldManager>();
             yield return fieldManager.LoadRoutine(1);
-            
-            SetupModel(scope);
-            SetupPresenter(scope);
-            SetupStateContainer(scope);
-        }
 
-        private void SetupModel(IScope scope)
-        {
             var model = TitleModel.Create();
             model.ScopeTo(scope);
-        }
 
-        private void SetupPresenter(IScope scope)
-        {
             var uiView = Services.Get<TitleUiView>();
-            var camera = Services.Get<TitleCameraController>();
-            var model = TitleModel.Get();
+            uiView.Setup();
 
-            var presenter = new TitlePresenter(uiView, camera, model);
-            presenter.ScopeTo(scope);
+            SetupStateContainer(scope);
         }
 
         private void SetupStateContainer(IScope scope)
@@ -94,8 +83,9 @@ namespace dtank
 
             var states = new List<TitleStateBase>()
             {
+                new TitleStateEnter(),
                 new TitleStateIdle(),
-                new TitleStateStart()
+                new TitleStateExit(),
             };
             _stateContainer.Setup(TitleState.Invalid, states.ToArray());
         }

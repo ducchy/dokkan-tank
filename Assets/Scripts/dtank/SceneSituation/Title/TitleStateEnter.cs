@@ -3,9 +3,9 @@ using UniRx;
 
 namespace dtank
 {
-    public class TitleStateIdle : TitleStateBase
+    public class TitleStateEnter : TitleStateBase
     {
-        public override TitleState Key => TitleState.Idle;
+        public override TitleState Key => TitleState.Enter;
 
         private readonly DisposableScope _scope = new();
 
@@ -14,10 +14,15 @@ namespace dtank
             var model = TitleModel.Get();
             
             var uiView = Services.Get<TitleUiView>();
-            uiView.OnStartButtonClickObservable
+            uiView.CompleteEnterObservable
                 .TakeUntil(_scope)
-                .Subscribe(_ => model.ChangeState(TitleState.Exit))
+                .Subscribe(_ => model.ChangeState(TitleState.Idle))
                 .ScopeTo(_scope);
+            
+            uiView.PlayEnter();
+            
+            var camera = Services.Get<TitleCameraController>();
+            camera.Play();
         }
 
         public override void OnUpdate(float deltaTime)

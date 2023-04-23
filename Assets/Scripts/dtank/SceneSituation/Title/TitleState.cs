@@ -3,8 +3,9 @@ namespace dtank
     public enum TitleState
     {
         Invalid,
+        Enter,
         Idle,
-        Start,
-        End,
+        Exit,
+        ToBattle,
     }
 }

@@ -3,9 +3,9 @@ using UniRx;
 
 namespace dtank
 {
-    public class TitleStateIdle : TitleStateBase
+    public class TitleStateExit : TitleStateBase
     {
-        public override TitleState Key => TitleState.Idle;
+        public override TitleState Key => TitleState.Exit;
 
         private readonly DisposableScope _scope = new();
 
@@ -14,10 +14,12 @@ namespace dtank
             var model = TitleModel.Get();
             
             var uiView = Services.Get<TitleUiView>();
-            uiView.OnStartButtonClickObservable
+            uiView.CompleteExitObservable
                 .TakeUntil(_scope)
-                .Subscribe(_ => model.ChangeState(TitleState.Exit))
+                .Subscribe(_ => model.ChangeState(TitleState.ToBattle))
                 .ScopeTo(_scope);
+            
+            uiView.PlayExit();
         }
 
         public override void OnUpdate(float deltaTime)
