@@ -19,3 +19,6 @@
 - [UnityDebugSheet](https://github.com/Haruma-K/UnityDebugSheet.git)
 - [UniRx](https://github.com/neuecc/UniRx.git)
 - [UniTask](https://github.com/Cysharp/UniTask.git)
+- [TweenPlayables](https://github.com/AnnulusGames/TweenPlayables.git)
+- [UnityUIPlayables](https://github.com/Haruma-K/UnityUIPlayables.git)
+- [Animation-Sequencer](https://github.com/brunomikoski/Animation-Sequencer.git)
