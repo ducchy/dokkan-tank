@@ -290,10 +290,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 3793392529794484096, guid: 8f9a2bb45109843ff8c648792cb20447, type: 3}
-      propertyPath: m_PlayableAsset
-      value: 
-      objectReference: {fileID: 11400000, guid: 532c074ce5ad6466786a00845870aa5e, type: 2}
     - target: {fileID: 5951387922370501252, guid: 8f9a2bb45109843ff8c648792cb20447, type: 3}
       propertyPath: m_Name
       value: TitleUiView
