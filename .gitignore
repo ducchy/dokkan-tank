@@ -91,3 +91,4 @@ crashlytics-build.properties
 **/.idea/**/*.iml
 **/.idea/**/contentModel.xml
 **/.idea/**/modules.xml
+**/.idea/**/indexLayout.xml
